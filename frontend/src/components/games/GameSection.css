@@ -1,0 +1,17 @@
+.game-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #111;
+}
+
+.game-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: block;
+    border: none;
+}

@@ -1,0 +1,32 @@
+.game-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-4px);
+}
+
+.game-card img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.game-card-content {
+    padding: 16px;
+}
+
+.game-card-content h2 {
+    margin: 0 0 8px;
+}
+
+.game-card-content p {
+    margin: 0;
+}

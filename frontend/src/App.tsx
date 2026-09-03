@@ -1,22 +1,16 @@
-import { useState } from 'react'
-
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Game from "./pages/Game";
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        juego aca
-      </div>
-      <iframe
-       src="/gameData/game1/index.html"
-       title="Juego"
-       className="game-frame"
-      />
-    </>
-  )
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/game/:id" element={<Game />} />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
-export default App
+export default App;
