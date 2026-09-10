@@ -1,12 +1,20 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import GameSection from "../components/games/GameSection";
-import { games } from "../data/games";
+import type { Game as GameType } from "../types/Game";
+import { getGames } from "../services/gameService";
 import "./Game.css";
 
 function Game() {
     const { id } = useParams<{ id: string }>();
+    const [game, setGame] = useState<GameType | null>(null);
 
-    const game = games.find((game) => game.id === id);
+    useEffect(() => {
+        getGames().then((games) => {
+            const foundGame = games.find((game) => game.id === id);
+            setGame(foundGame ?? null);
+        });
+    }, [id]);
 
     if (!game) {
         return (
@@ -16,6 +24,8 @@ function Game() {
         );
     }
 
+    const gameUrl = `http://localhost:8080/games/${game.id}/index.html`;
+
     return (
         <main className="game-page">
             <header className="game-header">
@@ -23,7 +33,7 @@ function Game() {
                 <p>{game.description}</p>
             </header>
 
-            <GameSection gameUrl={game.link} />
+            <GameSection gameUrl={gameUrl} />
         </main>
     );
 }
