@@ -1,21 +1,24 @@
 .game-page {
-    width: 100%;
-    min-height: 100vh;
-    padding: 40px;
-    box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+  background: var(--bg);
 }
 
 .game-header {
-    max-width: 1200px;
-    margin: 0 auto 30px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto 30px;
 }
 
 .game-header h1 {
-    margin: 0 0 10px;
-    font-size: 36px;
+  margin: 0 0 8px;
+  font-size: 36px;
 }
 
 .game-header p {
-    margin: 0;
-    font-size: 18px;
+  margin: 0;
+  font-size: 16px;
+  color: var(--text);
 }

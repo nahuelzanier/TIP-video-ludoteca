@@ -1,9 +1,24 @@
 .home {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 24px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  box-sizing: border-box;
 }
 
 .home h1 {
-    margin-bottom: 32px;
+  position: relative;
+  margin-bottom: 36px;
+  padding-bottom: 16px;
+}
+
+.home h1::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), #c084fc);
 }

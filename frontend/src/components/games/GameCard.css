@@ -1,32 +1,44 @@
 .game-card {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    background-color: #1a1a1a;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .game-card:hover {
-    transform: translateY(-4px);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
 }
 
 .game-card img {
-    width: 100%;
-    display: block;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.game-card:hover img {
+  transform: scale(1.04);
 }
 
 .game-card-content {
-    padding: 16px;
+  padding: 16px 18px 20px;
 }
 
 .game-card-content h2 {
-    margin: 0 0 8px;
+  margin-bottom: 6px;
+  color: var(--text-h);
 }
 
 .game-card-content p {
-    margin: 0;
+  color: var(--text);
+  font-size: 14px;
 }
