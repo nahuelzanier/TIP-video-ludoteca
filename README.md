@@ -5,6 +5,10 @@ Todos pueden jugar juegos que hayan subido otras personas, opinar sobre los mism
 
 integrantes: Nahuel Zanier, Lucas Sanguinetti
 
+## Licencia
+
+Este proyecto está licenciado bajo la licencia MIT. Ver [LICENSE](LICENSE).
+
 ## Documentación
 
 La documentación del proyecto está organizada como un wiki estilo GitHub en la carpeta `docs/wiki`.
