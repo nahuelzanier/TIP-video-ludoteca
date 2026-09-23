@@ -1,4 +1,4 @@
-package com.tip_video_ludoteca.backend;
+package com.tip_video_ludoteca;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

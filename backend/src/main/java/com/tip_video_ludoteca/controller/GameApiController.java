@@ -1,4 +1,4 @@
-package com.tip_video_ludoteca.backend.controller;
+package com.tip_video_ludoteca.controller;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
