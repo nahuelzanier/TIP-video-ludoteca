@@ -41,7 +41,7 @@ function Navbar() {
             <button
                 className="navbar-hamburger"
                 type="button"
-                aria-label="Abrir menú"
+                aria-label="Open menu"
                 onClick={() => setIsOpen(true)}
             >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -61,7 +61,7 @@ function Navbar() {
                     <button
                         className="navbar-close"
                         type="button"
-                        aria-label="Cerrar menú"
+                        aria-label="Close menu"
                         onClick={closeNavbar}
                     >
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -73,13 +73,13 @@ function Navbar() {
                 <input
                     className="navbar-search"
                     type="search"
-                    placeholder="Buscar juegos..."
+                    placeholder="Search games..."
                     value={searchQuery}
                     onChange={handleSearchChange}
-                    aria-label="Buscar juegos"
+                    aria-label="Search games"
                 />
 
-                <nav className="navbar-nav" aria-label="Menú principal">
+                <nav className="navbar-nav" aria-label="Main menu">
                     <NavLink
                         className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
                         to="/"
@@ -90,36 +90,36 @@ function Navbar() {
                     </NavLink>
                     <NavLink
                         className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
-                        to="/perfil"
+                        to="/profile"
                         onClick={closeNavbar}
                     >
-                        Perfil
+                        Profile
                     </NavLink>
                     <NavLink
                         className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
-                        to="/configuracion"
+                        to="/settings"
                         onClick={closeNavbar}
                     >
-                        Configuración
+                        Settings
                     </NavLink>
                 </nav>
 
                 <div className="navbar-divider" />
 
-                <nav className="navbar-nav" aria-label="Acciones">
+                <nav className="navbar-nav" aria-label="Actions">
                     <button
                         className="navbar-button"
                         type="button"
-                        onClick={() => navigateAndClose("/juego-aleatorio")}
+                        onClick={() => navigateAndClose("/randomgame")}
                     >
-                        Aleatorizar juego
+                        Randomize game
                     </button>
                     <NavLink
                         className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
-                        to="/foro"
+                        to="/forum"
                         onClick={closeNavbar}
                     >
-                        Foro
+                        Forum
                     </NavLink>
                 </nav>
 
@@ -130,7 +130,7 @@ function Navbar() {
                     type="button"
                     onClick={() => navigateAndClose("/logout")}
                 >
-                    Cerrar sesión
+                    Log out
                 </button>
             </aside>
         </>
