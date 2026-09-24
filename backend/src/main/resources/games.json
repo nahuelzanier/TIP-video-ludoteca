@@ -1,0 +1,20 @@
+[
+    {
+        "id": "game1",
+        "title": "Blasteroids",
+        "image": "/images/game1.png",
+        "description": "Un clon de Asteroids."
+    },
+    {
+        "id": "game2",
+        "title": "La Casa Esta Llena",
+        "image": "/images/game2.png",
+        "description": "Algo extraño."
+    },
+    {
+        "id": "game3",
+        "title": "LayLand",
+        "image": "/images/game3.png",
+        "description": "Una aventura de puzzles."
+    }
+]

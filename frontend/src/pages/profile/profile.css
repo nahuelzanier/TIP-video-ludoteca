@@ -1,0 +1,19 @@
+.profile-logout {
+  margin-top: 24px;
+  padding: 10px 16px;
+  color: white;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.profile-logout:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.profile-logout:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
