@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { login, register } from "../services/authService";
 import "./AuthPage.css";
 
@@ -18,6 +18,12 @@ function AuthPage({ mode }: AuthPageProps) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const returnTo =
+    (location.state as { from?: string } | null)?.from ?? "/profile";
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -33,16 +39,10 @@ function AuthPage({ mode }: AuthPageProps) {
     try {
       if (isRegister) {
         await register(username.trim(), email.trim(), password);
-        setMessage("Cuenta creada. Ya puedes iniciar sesión.");
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-      } else {
-        await login(email.trim(), password);
-        setMessage("Sesión iniciada correctamente.");
-        setPassword("");
       }
+
+      await login(email.trim(), password);
+      navigate(returnTo, { replace: true });
     } catch (requestError) {
       setError(
         requestError instanceof Error

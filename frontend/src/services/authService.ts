@@ -64,3 +64,45 @@ export function register(
 export function login(email: string, password: string): Promise<AuthUser> {
   return postAuth("/api/auth/login", { email, password });
 }
+
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (response.status === 401) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Could not load the current user.");
+  }
+
+  return response.json();
+}
+
+export async function logout(): Promise<void> {
+  const csrfResponse = await fetch(`${API_BASE_URL}/api/auth/csrf`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (!csrfResponse.ok) {
+    throw new Error("Could not prepare the logout request.");
+  }
+
+  const csrf: CsrfResponse = await csrfResponse.json();
+
+  const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      [csrf.headerName]: csrf.token,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not log out. Please try again.");
+  }
+}
