@@ -90,10 +90,6 @@ Transforma a Ludarium de un simple catálogo en una plataforma donde los usuario
 - El juego se visualiza correctamente dentro del espacio embebido sin recortes ni superposiciones con otros elementos de la interfaz.
 - Como alternativa válida, el juego puede ejecutarse en pantalla completa si eso resuelve mejor los problemas de integración visual.
 
-## Mockups
-
-No existen mockups adjuntos en la tarjeta de Trello correspondiente a esta historia.
-
 ---
 
 # Tareas del Sprint 1 sin Historia de Usuario Asociada
