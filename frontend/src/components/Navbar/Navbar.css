@@ -198,6 +198,13 @@
   background: var(--accent-bg);
 }
 
+.navbar-button:disabled,
+.navbar-button:disabled:hover {
+  background: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .navbar-button--logout {
   margin-top: auto;
   color: var(--accent);
@@ -206,6 +213,13 @@
 .navbar-button--logout:hover {
   color: var(--accent-hover);
   background: var(--accent-bg);
+}
+
+.navbar-error {
+  margin: 8px 0 0;
+  color: #b42318;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .navbar-divider {

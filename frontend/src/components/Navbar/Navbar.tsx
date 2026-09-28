@@ -1,10 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { logout as logoutUser } from "../../services/authService";
 import "./Navbar.css";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [loggingOut, setLoggingOut] = useState(false);
+    const [logoutError, setLogoutError] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,6 +33,25 @@ function Navbar() {
     const navigateAndClose = (path: string) => {
         navigate(path);
         setIsOpen(false);
+    };
+
+    const handleLogout = async () => {
+        setLogoutError("");
+        setLoggingOut(true);
+
+        try {
+            await logoutUser();
+            setIsOpen(false);
+            navigate("/login", { replace: true });
+        } catch (requestError) {
+            setLogoutError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "Could not log out. Please try again.",
+            );
+        } finally {
+            setLoggingOut(false);
+        }
     };
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,10 +187,17 @@ function Navbar() {
                 <button
                     className="navbar-button navbar-button--logout"
                     type="button"
-                    onClick={() => navigateAndClose("/logout")}
+                    onClick={handleLogout}
+                    disabled={loggingOut}
                 >
-                    Log out
+                    {loggingOut ? "Logging out..." : "Log out"}
                 </button>
+
+                {logoutError && (
+                    <p className="navbar-error" role="alert">
+                        {logoutError}
+                    </p>
+                )}
             </aside>
         </>
     );
