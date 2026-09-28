@@ -182,7 +182,7 @@ function Search() {
                         <ul className="search-users">
                             {results.users.items.map((user: SearchUser) => (
                                 <li key={user.id}>
-                                    <Link className="search-user" to={`/user/${user.id}`}>
+                                    <Link className="search-user" to={`/user/${user.username}`}>
                                         <span className="search-user-avatar" aria-hidden="true">
                                             {user.username.charAt(0).toUpperCase()}
                                         </span>

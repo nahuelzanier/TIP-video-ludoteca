@@ -34,7 +34,7 @@ function App() {
           <Route path="/randomgame" element={<RandomGame />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/user/:id" element={<User />} />
+          <Route path="/user/:username" element={<User />} />
         </Route>
       </Routes>
     </BrowserRouter>
