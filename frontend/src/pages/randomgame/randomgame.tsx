@@ -1,4 +1,4 @@
-import "./RandomGame.css";
+import "./randomgame.css";
 
 function RandomGame() {
     return (

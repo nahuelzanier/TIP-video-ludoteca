@@ -1,34 +1,25 @@
 package com.tip_video_ludoteca.controller;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.games.GameRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/games")
-@CrossOrigin(origins = "http://localhost:5173")
 public class GameApiController {
 
+    private final GameRepository games;
+
+    public GameApiController(GameRepository games) {
+        this.games = games;
+    }
+
     @GetMapping
-    public ResponseEntity<String> getGames() {
-        try {
-            ClassPathResource resource = new ClassPathResource("games.json");
-
-            String json = new String(
-                    resource.getInputStream().readAllBytes(),
-                    StandardCharsets.UTF_8
-            );
-
-            return ResponseEntity.ok(json);
-
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public List<Game> getGames() {
+        return games.findAll();
     }
 }

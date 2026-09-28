@@ -107,9 +107,24 @@
   outline-offset: 2px;
 }
 
+.navbar-search-form {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.navbar-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .navbar-search {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px 12px 10px 38px;
   box-sizing: border-box;
   font: inherit;
   color: var(--text);

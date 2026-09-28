@@ -71,6 +71,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET,
                     "/api/games", "/api/games/**", "/games/**",
+                    "/api/search",
                     "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST,
                     "/api/auth/register", "/api/auth/login").permitAll()

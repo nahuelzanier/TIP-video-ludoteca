@@ -1,4 +1,4 @@
-import "./Settings.css";
+import "./settings.css";
 
 function Settings() {
     return (

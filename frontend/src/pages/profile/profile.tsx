@@ -5,7 +5,7 @@ import {
   logout as logoutUser,
   type AuthUser,
 } from "../../services/authService";
-import "./Profile.css";
+import "./profile.css";
 
 function Profile() {
   const location = useLocation();
