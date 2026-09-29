@@ -1,34 +1,48 @@
 package com.tip_video_ludoteca.controller;
 
-import org.springframework.core.io.ClassPathResource;
+import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/games")
 @CrossOrigin(origins = "http://localhost:5173")
 public class GameApiController {
 
+    private final GameRepository games;
+
+    public GameApiController(GameRepository games) {
+        this.games = games;
+    }
+
     @GetMapping
-    public ResponseEntity<String> getGames() {
-        try {
-            ClassPathResource resource = new ClassPathResource("games.json");
+    public ResponseEntity<List<GameSummary>> getGames() {
+        List<GameSummary> result = games
+                .findByStatusOrderByCreatedAtDesc(GameStatus.PUBLISHED)
+                .stream()
+                .map(game -> new GameSummary(
+                        game.getId(),
+                        game.getTitle(),
+                        game.getCoverImageUrl(),
+                        game.getDescription()
+                ))
+                .toList();
 
-            String json = new String(
-                    resource.getInputStream().readAllBytes(),
-                    StandardCharsets.UTF_8
-            );
+        return ResponseEntity.ok(result);
+    }
 
-            return ResponseEntity.ok(json);
-
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public record GameSummary(
+            String id,
+            String title,
+            String image,
+            String description
+    ) {
     }
 }

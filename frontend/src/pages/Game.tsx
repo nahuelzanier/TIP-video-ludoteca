@@ -3,9 +3,12 @@ import { useParams } from "react-router-dom";
 import GameSection from "../components/games/GameSection";
 import type { Game as GameType } from "../types/Game";
 import { getGames } from "../services/gameService";
+import { API_BASE_URL } from "../services/api";
 import "./Game.css";
 
+
 function Game() {
+    
     const { id } = useParams<{ id: string }>();
     const [game, setGame] = useState<GameType | null>(null);
 
@@ -24,7 +27,7 @@ function Game() {
         );
     }
 
-    const gameUrl = `http://localhost:8080/games/${game.id}/index.html`;
+    const gameUrl = `${API_BASE_URL}/games/${game.id}/index.html`;
 
     return (
         <main className="game-page">
