@@ -8,6 +8,7 @@ import Forum from "./pages/forum/Forum";
 import Profile from "./pages/profile/Profile";
 import RandomGame from "./pages/randomgame/RandomGame";
 import Settings from "./pages/settings/Settings";
+import UploadGame from "./pages/uploadgame/UploadGame";
 
 function MainLayout() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/randomgame" element={<RandomGame />} />
           <Route path="/forum" element={<Forum />} />
+          <Route path="/games/upload" element={<UploadGame />} />
         </Route>
       </Routes>
     </BrowserRouter>

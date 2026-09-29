@@ -1,0 +1,182 @@
+.upload-game-page {
+  min-height: calc(100vh - 72px);
+  padding: 48px 20px;
+  color: #f4f0ff;
+  background:
+    radial-gradient(ellipse at top, rgba(128, 85, 212, 0.16), transparent 55%),
+    #111018;
+}
+
+.upload-game-card {
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 44px);
+  background: #1b1924;
+  border: 1px solid rgba(218, 205, 255, 0.13);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.upload-game-header {
+  margin-bottom: 32px;
+}
+
+.upload-game-eyebrow {
+  margin: 0 0 8px;
+  color: #b99aff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.upload-game-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+}
+
+.upload-game-header > p:last-child {
+  max-width: 56ch;
+  margin: 12px 0 0;
+  color: #b8b3c5;
+  line-height: 1.6;
+}
+
+.upload-game-form {
+  display: grid;
+  gap: 12px;
+}
+
+.upload-game-form label {
+  margin-top: 12px;
+  font-weight: 650;
+}
+
+.upload-game-form input,
+.upload-game-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  color: #f4f0ff;
+  background: #12111a;
+  border: 1px solid #454052;
+  border-radius: 9px;
+  font: inherit;
+}
+
+.upload-game-form input:focus,
+.upload-game-form textarea:focus {
+  border-color: #b99aff;
+  outline: 3px solid rgba(185, 154, 255, 0.18);
+}
+
+.upload-game-form textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.upload-game-form input[type="file"] {
+  padding: 10px;
+  color: #b8b3c5;
+}
+
+.upload-game-form input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 9px 12px;
+  color: #f4f0ff;
+  background: #393346;
+  border: 0;
+  border-radius: 7px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.upload-game-form input[type="file"]::file-selector-button:hover {
+  background: #4a405d;
+}
+
+.upload-game-help,
+.upload-game-file-name {
+  margin: -6px 0 2px;
+  color: #aaa4b8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.upload-game-help code {
+  color: #d5c4ff;
+}
+
+.upload-game-preview {
+  width: min(100%, 420px);
+  margin: 8px 0 12px;
+}
+
+.upload-game-preview img {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  background: #12111a;
+  border: 1px solid #454052;
+  border-radius: 10px;
+}
+
+.upload-game-preview figcaption {
+  margin-top: 8px;
+  color: #aaa4b8;
+  font-size: 0.85rem;
+}
+
+.upload-game-message {
+  margin: 8px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.upload-game-message.error {
+  color: #ffd8dc;
+  background: rgba(177, 44, 66, 0.2);
+  border: 1px solid rgba(255, 116, 136, 0.35);
+}
+
+.upload-game-message.success {
+  color: #d7ffe4;
+  background: rgba(43, 142, 82, 0.18);
+  border: 1px solid rgba(103, 218, 145, 0.32);
+}
+
+.upload-game-submit {
+  min-height: 48px;
+  margin-top: 16px;
+  padding: 12px 18px;
+  color: #fff;
+  background: #8054d6;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+.upload-game-submit:hover:not(:disabled) {
+  background: #9369e7;
+  transform: translateY(-1px);
+}
+
+.upload-game-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 600px) {
+  .upload-game-page {
+    padding: 24px 14px;
+  }
+
+  .upload-game-card {
+    border-radius: 14px;
+  }
+}
