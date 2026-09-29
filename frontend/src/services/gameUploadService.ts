@@ -14,6 +14,7 @@ export interface GameUploadResult {
 export async function uploadGame(
   title: string,
   description: string,
+  cover: File,
   archive: File,
 ): Promise<GameUploadResult> {
   const csrfResponse = await fetch(`${API_BASE_URL}/api/auth/csrf`, {
@@ -27,9 +28,9 @@ export async function uploadGame(
 
   const csrf: CsrfResponse = await csrfResponse.json();
   const formData = new FormData();
-
   formData.append("title", title);
   formData.append("description", description);
+  formData.append("cover", cover);
   formData.append("archive", archive);
 
   const response = await fetch(`${API_BASE_URL}/api/games`, {

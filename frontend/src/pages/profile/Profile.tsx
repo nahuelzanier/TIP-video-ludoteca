@@ -68,6 +68,14 @@ function Profile() {
 
       {logoutError && <p role="alert">{logoutError}</p>}
 
+    <button
+        className="profile-upload"
+        type="button"
+        onClick={() => navigate("/games/upload")}
+      >
+        Upload a game
+    </button>
+
       <button
         className="profile-logout"
         type="button"
