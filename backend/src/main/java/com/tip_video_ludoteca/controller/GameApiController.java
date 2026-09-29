@@ -1,6 +1,5 @@
 package com.tip_video_ludoteca.controller;
 
-import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
 import org.springframework.http.ResponseEntity;
