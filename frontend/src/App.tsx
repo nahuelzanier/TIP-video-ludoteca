@@ -9,6 +9,8 @@ import Profile from "./pages/profile/Profile";
 import RandomGame from "./pages/randomgame/RandomGame";
 import Settings from "./pages/settings/Settings";
 import UploadGame from "./pages/uploadgame/UploadGame";
+import Search from "./pages/search/search";
+import User from "./pages/user/user";
 
 function MainLayout() {
   return (
@@ -32,6 +34,8 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/randomgame" element={<RandomGame />} />
           <Route path="/forum" element={<Forum />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/user/:username" element={<User />} />
           <Route path="/games/upload" element={<UploadGame />} />
         </Route>
       </Routes>

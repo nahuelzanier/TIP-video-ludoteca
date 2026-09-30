@@ -1,0 +1,50 @@
+.user-page {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  box-sizing: border-box;
+}
+
+.user-page h1 {
+  position: relative;
+  margin-bottom: 36px;
+  padding-bottom: 16px;
+}
+
+.user-page h1::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), #c084fc);
+}
+
+.user-status {
+  max-width: 640px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  opacity: 0.8;
+}
+
+.user-back {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.user-back:hover {
+  text-decoration: underline;
+}
+
+.user-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

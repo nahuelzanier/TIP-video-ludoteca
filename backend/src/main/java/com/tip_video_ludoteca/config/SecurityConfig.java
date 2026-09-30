@@ -20,6 +20,9 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 @Configuration
 public class SecurityConfig {
 
+    private static final String FORBIDDEN_BODY =
+            "{\"error\":\"No tenés permiso para realizar esta acción.\"}";
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -61,7 +64,12 @@ public class SecurityConfig {
                     response.setStatus(204)))
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, exception) ->
-                    response.sendError(401)))
+                    response.sendError(401))
+                .accessDeniedHandler((request, response, exception) -> {
+                    response.setStatus(403);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(FORBIDDEN_BODY);
+                }))
             .headers(headers -> headers
                 .frameOptions(frame -> frame.disable())
                 .contentSecurityPolicy(csp -> csp
@@ -71,6 +79,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET,
                     "/api/games", "/api/games/**", "/games/**",
+                    "/api/search",
+                    "/api/users/*/profile",
                     "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST,
                     "/api/auth/register", "/api/auth/login").permitAll()

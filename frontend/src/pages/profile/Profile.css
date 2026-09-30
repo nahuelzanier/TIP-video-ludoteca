@@ -1,35 +1,15 @@
-.profile-logout {
-  margin-top: 24px;
-  padding: 10px 16px;
-  color: white;
-  background: var(--accent);
-  border: 0;
-  border-radius: 8px;
-  font: inherit;
-  cursor: pointer;
+.profile-page {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  box-sizing: border-box;
 }
 
-.profile-logout:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.profile-logout:disabled {
-  cursor: wait;
-  opacity: 0.7;
-}
-
-.profile-upload {
-  margin-top: 24px;
-  margin-right: 12px;
-  padding: 10px 16px;
-  color: white;
-  background: var(--accent);
-  border: 0;
-  border-radius: 8px;
-  font: inherit;
-  cursor: pointer;
-}
-
-.profile-upload:hover {
-  background: var(--accent-hover);
+.profile-status {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  opacity: 0.8;
 }
