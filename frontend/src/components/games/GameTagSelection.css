@@ -1,0 +1,80 @@
+.game-tags {
+  max-width: 1200px;
+  width: 100%;
+  margin: 32px auto;
+  padding: 24px;
+  box-sizing: border-box;
+  color: var(--text, #f4f0ff);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+}
+
+.game-tags h2 {
+  margin: 0 0 16px;
+}
+
+.game-tags p {
+  color: var(--text-muted, #aaa4b8);
+}
+
+.game-tag-list,
+.game-tag-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.game-tag-list li,
+.game-tag-options button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--text, #f4f0ff);
+  background: rgba(128, 84, 214, 0.16);
+  border: 1px solid rgba(185, 154, 255, 0.35);
+  border-radius: 999px;
+  font: inherit;
+}
+
+.game-tag-options button {
+  cursor: pointer;
+}
+
+.game-tag-options button:hover:not(:disabled) {
+  background: rgba(128, 84, 214, 0.35);
+}
+
+.game-tag-options button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.game-tag-count {
+  min-width: 1.5em;
+  color: #d5c4ff;
+  font-size: 0.85em;
+  text-align: center;
+}
+
+.game-tag-picker {
+  margin-top: 24px;
+}
+
+.game-tag-picker h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.game-tags-error {
+  color: #ffd8dc !important;
+}
+
+@media (max-width: 600px) {
+  .game-tags {
+    padding: 18px;
+  }
+}
