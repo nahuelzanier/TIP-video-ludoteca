@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import GameGrid from "../../components/games/GameGrid";
 import { searchEverything } from "../../services/searchService";
 import type { PageResult, SearchResponse, SearchUser } from "../../types/Search";
-import "./search.css";
+import "./Search.css";
 
 type SectionKey = "gamesPage" | "usersPage";
 

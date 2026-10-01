@@ -10,7 +10,7 @@ import {
 } from "../../services/authService";
 import { getUserProfile, updateDescription } from "../../services/userService";
 import type { ForumSummary, UserProfile } from "../../types/User";
-import "./user.css";
+import "./User.css";
 
 const MAX_DESCRIPTION_LENGTH = 500;
 
