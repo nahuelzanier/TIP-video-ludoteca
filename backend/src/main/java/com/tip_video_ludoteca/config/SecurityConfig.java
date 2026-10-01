@@ -83,6 +83,7 @@ public class SecurityConfig {
                     "/api/tags",
                     "/api/search",
                     "/api/users/*/profile",
+                    "/api/users/*/games",
                     "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST,
                     "/api/auth/register", "/api/auth/login").permitAll()
