@@ -48,3 +48,25 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+.user-games {
+    margin-top: 48px;
+}
+
+.user-games-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.user-games-pagination button {
+    padding: 8px 14px;
+    cursor: pointer;
+}
+
+.user-games-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}

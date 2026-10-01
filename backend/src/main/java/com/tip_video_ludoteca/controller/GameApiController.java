@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 @RestController
@@ -60,6 +60,22 @@ public class GameApiController {
                 result.getTotalPages(),
                 result.hasNext(),
                 result.hasPrevious()
+        ));
+    }
+
+    @GetMapping("/{gameId}")
+    public ResponseEntity<GameSummary> getGame(@PathVariable String gameId) {
+        Game game = games.findById(gameId).orElse(null);
+
+        if (game == null || game.getStatus() != GameStatus.PUBLISHED) {
+                return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(new GameSummary(
+                game.getId(),
+                game.getTitle(),
+                game.getCoverImageUrl(),
+                game.getDescription()
         ));
     }
 

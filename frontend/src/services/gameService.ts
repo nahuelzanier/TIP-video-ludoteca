@@ -42,3 +42,22 @@ export async function getGames(): Promise<Game[]> {
   const result = await getGamesPage(0, 24);
   return result.content;
 }
+
+export async function getGameById(gameId: string): Promise<Game> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/games/${encodeURIComponent(gameId)}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      response.status === 404 ? "Game not found." : "Could not load the game.",
+    );
+  }
+
+  const game: Game = await response.json();
+
+  return {
+    ...game,
+    image: new URL(game.image, API_BASE_URL).toString(),
+  };
+}
