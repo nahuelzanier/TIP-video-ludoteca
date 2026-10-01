@@ -26,6 +26,23 @@ http://localhost:8080
 
 The API endpoints are exposed under `/api` and the game asset routes are served under `/games`.
 
+### Development profile
+
+The `dev` profile loads a seed user that is handy for testing the comments and the profile
+pages. It only runs when the profile is active, so it never touches production data.
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+The seed is idempotent: starting the backend several times does not duplicate the user. It
+
+- creates the user `lucas2` (`lucas2@gmail.com` / `lucas222`) with a hashed password,
+- assigns `lucas2` as the author of the games already stored in the database, and
+- publishes every `DRAFT` game so the catalog on the home page is never empty.
+
+Credentials live in `backend/src/main/resources/application-dev.properties`.
+
 ## Frontend
 
 Open a second terminal:

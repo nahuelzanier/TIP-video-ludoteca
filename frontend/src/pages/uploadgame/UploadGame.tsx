@@ -4,7 +4,7 @@ import {
   getCurrentUser,
   type AuthUser,
 } from "../../services/authService";
-import { uploadGame } from "../../services/gameUploadService";
+import { publishGame, uploadGame } from "../../services/gameUploadService";
 import "./UploadGame.css";
 
 const MAX_COVER_SIZE = 5 * 1024 * 1024;
@@ -24,6 +24,12 @@ function UploadGame() {
   const [coverPreview, setCoverPreview] = useState("");
 
   const [uploading, setUploading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [lastUpload, setLastUpload] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+  const [published, setPublished] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -91,6 +97,8 @@ function UploadGame() {
       setSuccess(
         `"${result.title}" was uploaded. ${result.filesStored} files were stored as a draft.`,
       );
+      setLastUpload({ id: result.id, title: result.title });
+      setPublished(false);
 
       setTitle("");
       setDescription("");
@@ -105,6 +113,30 @@ function UploadGame() {
       );
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handlePublish() {
+    if (!lastUpload) return;
+
+    setError("");
+    setPublishing(true);
+
+    try {
+      const result = await publishGame(lastUpload.id);
+
+      setPublished(true);
+      setSuccess(
+        `"${result.title}" is now published and visible on the home page.`,
+      );
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Could not publish the game. Please try again.",
+      );
+    } finally {
+      setPublishing(false);
     }
   }
 
@@ -219,6 +251,17 @@ function UploadGame() {
             <p className="upload-game-message success" role="status">
               {success}
             </p>
+          )}
+
+          {lastUpload && !published && (
+            <button
+              className="upload-game-publish"
+              type="button"
+              onClick={handlePublish}
+              disabled={publishing}
+            >
+              {publishing ? "Publishing..." : "Publish game"}
+            </button>
           )}
 
           <button

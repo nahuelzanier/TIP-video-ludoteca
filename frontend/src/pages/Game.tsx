@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import GameSection from "../components/games/GameSection";
+import CommentSection from "../components/comments/CommentSection";
 import type { Game as GameType } from "../types/Game";
 import { getGames } from "../services/gameService";
 import { API_BASE_URL } from "../services/api";
@@ -37,6 +38,8 @@ function Game() {
             </header>
 
             <GameSection gameUrl={gameUrl} />
+
+            <CommentSection gameId={game.id} />
         </main>
     );
 }
