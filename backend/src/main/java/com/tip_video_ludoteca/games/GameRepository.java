@@ -9,5 +9,6 @@ public interface GameRepository extends JpaRepository<Game, String> {
     Page<Game> findByStatus(GameStatus status, Pageable pageable);
     List<Game> findByStatusOrderByCreatedAtDesc(GameStatus status);
     List<Game> findByOwner_IdOrderByCreatedAtDesc(Long ownerId);
+    List<Game> findByOwner_IdNot(Long ownerId);
     Page<Game> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }

@@ -23,6 +23,9 @@ public class User {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "profile_image_url", length = 500)
+    private String profileImageUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -58,6 +61,10 @@ public class User {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public void updateDescription(String description) {

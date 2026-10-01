@@ -147,6 +147,30 @@
   border: 1px solid rgba(103, 218, 145, 0.32);
 }
 
+.upload-game-publish {
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 11px 18px;
+  color: #f4f0ff;
+  background: #863bff;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+.upload-game-publish:hover:not(:disabled) {
+  background: #9a5cff;
+  transform: translateY(-1px);
+}
+
+.upload-game-publish:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .upload-game-submit {
   min-height: 48px;
   margin-top: 16px;

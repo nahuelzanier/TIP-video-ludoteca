@@ -87,4 +87,12 @@ public class Game {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public void assignOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public void publish() {
+        this.status = GameStatus.PUBLISHED;
+    }
 }

@@ -1,5 +1,9 @@
 package com.tip_video_ludoteca.config;
 
+import com.tip_video_ludoteca.comments.CommentNotFoundException;
+import com.tip_video_ludoteca.comments.InvalidCommentException;
+import com.tip_video_ludoteca.games.GameEditForbiddenException;
+import com.tip_video_ludoteca.games.GameNotFoundException;
 import com.tip_video_ludoteca.users.ProfileEditForbiddenException;
 import com.tip_video_ludoteca.users.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,9 +25,33 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> gameNotFound(
+            GameNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<Map<String, String>> commentNotFound(
+            CommentNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCommentException.class)
+    public ResponseEntity<Map<String, String>> invalidComment(
+            InvalidCommentException exception) {
+        return error(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
     @ExceptionHandler(ProfileEditForbiddenException.class)
     public ResponseEntity<Map<String, String>> profileEditForbidden(
             ProfileEditForbiddenException exception) {
+        return error(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
+    @ExceptionHandler(GameEditForbiddenException.class)
+    public ResponseEntity<Map<String, String>> gameEditForbidden(
+            GameEditForbiddenException exception) {
         return error(HttpStatus.FORBIDDEN, exception.getMessage());
     }
 
