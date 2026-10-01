@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import Navbar from "./components/navbar/navbar";
+import Navbar from "./components/navbar/Navbar";
 
 import Home from "./pages/Home";
 import Game from "./pages/Game";
@@ -9,8 +9,8 @@ import Profile from "./pages/profile/Profile";
 import RandomGame from "./pages/randomgame/RandomGame";
 import Settings from "./pages/settings/Settings";
 import UploadGame from "./pages/uploadgame/UploadGame";
-import Search from "./pages/search/search";
-import User from "./pages/user/user";
+import Search from "./pages/search/Search";
+import User from "./pages/user/User";
 
 function MainLayout() {
   return (
