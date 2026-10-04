@@ -1,5 +1,7 @@
 import { API_BASE_URL, fetchCsrfToken, readError } from "./api";
 import type { UserProfile } from "../types/User";
+import type { GamePage } from "./gameService";
+
 
 export async function getUserProfile(
     username: string,
@@ -47,4 +49,33 @@ export async function updateDescription(
     }
 
     return response.json();
+}
+
+export async function getUserGamesPage(
+    username: string,
+    page = 0,
+    size = 12,
+): Promise<GamePage> {
+    const params = new URLSearchParams({
+        page: String(page),
+        size: String(size),
+    });
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/users/${encodeURIComponent(username)}/games?${params}`,
+    );
+
+    if (!response.ok) {
+        throw new Error(await readError(response));
+    }
+
+    const result: GamePage = await response.json();
+
+    return {
+        ...result,
+        content: result.content.map((game) => ({
+            ...game,
+            image: new URL(game.image, API_BASE_URL).toString(),
+        })),
+    };
 }

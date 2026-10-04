@@ -77,10 +77,13 @@ public class SecurityConfig {
                 )
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
                 .requestMatchers(HttpMethod.GET,
                     "/api/games", "/api/games/**", "/games/**",
+                    "/api/tags",
                     "/api/search",
                     "/api/users/*/profile",
+                    "/api/users/*/games",
                     "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST,
                     "/api/auth/register", "/api/auth/login").permitAll()

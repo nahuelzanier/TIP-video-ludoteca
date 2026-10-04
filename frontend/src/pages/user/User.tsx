@@ -8,9 +8,13 @@ import {
     logout as logoutUser,
     type AuthUser,
 } from "../../services/authService";
-import { getUserProfile, updateDescription } from "../../services/userService";
+import { getUserGamesPage, getUserProfile, updateDescription } from "../../services/userService";
+import type { GamePage } from "../../services/gameService";
 import type { ForumSummary, UserProfile } from "../../types/User";
 import "./User.css";
+import GameGrid from "../../components/games/GameGrid";
+
+
 
 const MAX_DESCRIPTION_LENGTH = 500;
 
@@ -42,6 +46,11 @@ function User() {
     const [saveError, setSaveError] = useState("");
     const [loggingOut, setLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");
+
+    const [gamesPage, setGamesPage] = useState<GamePage | null>(null);
+    const [gamesPageNumber, setGamesPageNumber] = useState(0);
+    const [gamesLoading, setGamesLoading] = useState(true);
+    const [gamesError, setGamesError] = useState("");
 
     useEffect(() => {
         getCurrentUser()
@@ -86,6 +95,38 @@ function User() {
     const profile = isLoading ? null : state.profile;
     const error = isLoading ? "" : state.error;
     const isOwnProfile = profile !== null && currentUser?.id === profile.id;
+
+    useEffect(() => {
+        let cancelled = false;
+
+        setGamesLoading(true);
+        setGamesError("");
+
+        getUserGamesPage(requestedUsername, gamesPageNumber)
+            .then((data) => {
+                if (!cancelled) {
+                    setGamesPage(data);
+                }
+            })
+            .catch((requestError: unknown) => {
+                if (!cancelled) {
+                    setGamesError(
+                        requestError instanceof Error
+                            ? requestError.message
+                            : "No se pudieron cargar los juegos.",
+                    );
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setGamesLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [requestedUsername, gamesPageNumber]);
 
     async function handleSave(description: string) {
         if (!profile) {
@@ -188,6 +229,49 @@ function User() {
             />
 
             <UserActivity forums={FORUMS} />
+
+            <section className="user-games">
+    <h2>Juegos publicados</h2>
+
+    {gamesLoading && <p role="status">Cargando juegos...</p>}
+    {gamesError && <p role="alert">{gamesError}</p>}
+
+    {!gamesLoading &&
+        !gamesError &&
+        gamesPage?.content.length === 0 && (
+            <p>Este usuario todavía no publicó juegos.</p>
+        )}
+
+    {gamesPage && gamesPage.content.length > 0 && (
+        <>
+            <GameGrid games={gamesPage.content} />
+
+            {gamesPage.totalPages > 1 && (
+                <nav className="user-games-pagination" aria-label="Páginas de juegos">
+                    <button
+                        type="button"
+                        onClick={() => setGamesPageNumber((page) => page - 1)}
+                        disabled={!gamesPage.hasPrevious || gamesLoading}
+                    >
+                        Anterior
+                    </button>
+
+                    <span>
+                        Página {gamesPage.page + 1} de {gamesPage.totalPages}
+                    </span>
+
+                    <button
+                        type="button"
+                        onClick={() => setGamesPageNumber((page) => page + 1)}
+                        disabled={!gamesPage.hasNext || gamesLoading}
+                    >
+                        Siguiente
+                    </button>
+                </nav>
+            )}
+        </>
+    )}
+</section>
 
             {isEditing && (
                 <EditDescriptionModal
