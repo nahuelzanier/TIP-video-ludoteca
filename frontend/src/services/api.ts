@@ -6,6 +6,19 @@ if (!baseUrl) {
 
 export const API_BASE_URL = baseUrl.replace(/\/$/, "");
 
+/**
+ * The backend returns asset paths relative to itself ("/api/..."). Resolving them
+ * against the frontend origin would point the request at Vite, so they have to be
+ * rebased onto the API origin before they reach an <img src>.
+ */
+export function resolveAssetUrl(path: string | null | undefined): string | null {
+  if (!path) {
+    return null;
+  }
+
+  return new URL(path, API_BASE_URL).toString();
+}
+
 export interface CsrfToken {
   headerName: string;
   token: string;

@@ -23,8 +23,11 @@ public class User {
     @Column(length = 500)
     private String description;
 
-    @Column(name = "profile_image_url", length = 500)
-    private String profileImageUrl;
+    @Column(name = "profile_image", columnDefinition = "bytea")
+    private byte[] profileImage;
+
+    @Column(name = "profile_image_content_type", length = 50)
+    private String profileImageContentType;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -63,11 +66,37 @@ public class User {
         return description;
     }
 
+    public byte[] getProfileImage() {
+        return profileImage;
+    }
+
+    public String getProfileImageContentType() {
+        return profileImageContentType;
+    }
+
+    public boolean hasProfileImage() {
+        return profileImage != null && profileImage.length > 0;
+    }
+
+    /**
+     * Derived accessor, not a mapped column: the entity uses field access, so Hibernate
+     * ignores it. Keeping the URL derived avoids a stored value drifting from the bytes.
+     */
     public String getProfileImageUrl() {
-        return profileImageUrl;
+        return hasProfileImage() ? "/api/users/" + username + "/avatar" : null;
     }
 
     public void updateDescription(String description) {
         this.description = description;
+    }
+
+    public void updateProfileImage(byte[] content, String contentType) {
+        this.profileImage = content;
+        this.profileImageContentType = contentType;
+    }
+
+    public void clearProfileImage() {
+        this.profileImage = null;
+        this.profileImageContentType = null;
     }
 }

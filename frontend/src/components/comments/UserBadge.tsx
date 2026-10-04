@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { resolveAssetUrl } from "../../services/api";
 import StarRating from "./StarRating";
 import "./UserBadge.css";
 
@@ -22,12 +24,22 @@ function UserBadge({
   const profilePath = `/user/${encodeURIComponent(username)}`;
   const avatarClass =
     avatarSize === "small" ? "user-badge__avatar--small" : "user-badge__avatar";
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+
+  const avatarUrl = resolveAssetUrl(profileImageUrl);
+
+  const showImage = Boolean(avatarUrl) && failedUrl !== avatarUrl;
 
   return (
     <div className="user-badge">
       <Link className={avatarClass} to={profilePath} aria-hidden="true" tabIndex={-1}>
-        {profileImageUrl ? (
-          <img src={profileImageUrl} alt="" loading="lazy" />
+        {showImage ? (
+          <img
+            src={avatarUrl ?? undefined}
+            alt=""
+            loading="lazy"
+            onError={() => setFailedUrl(avatarUrl)}
+          />
         ) : (
           username.charAt(0).toUpperCase()
         )}

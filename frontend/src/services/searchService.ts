@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL, resolveAssetUrl } from "./api";
 import type { SearchResponse } from "../types/Search";
 
 export async function searchEverything(
@@ -31,6 +31,13 @@ export async function searchEverything(
                 image: game.image
                     ? new URL(game.image, API_BASE_URL).toString()
                     : "",
+            })),
+        },
+        users: {
+            ...result.users,
+            items: result.users.items.map((user) => ({
+                ...user,
+                avatarUrl: resolveAssetUrl(user.avatarUrl),
             })),
         },
     };

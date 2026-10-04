@@ -183,9 +183,7 @@ function Search() {
                             {results.users.items.map((user: SearchUser) => (
                                 <li key={user.id}>
                                     <Link className="search-user" to={`/user/${user.username}`}>
-                                        <span className="search-user-avatar" aria-hidden="true">
-                                            {user.username.charAt(0).toUpperCase()}
-                                        </span>
+                                        <SearchUserAvatar user={user} />
                                         <span>{user.username}</span>
                                     </Link>
                                 </li>
@@ -230,6 +228,27 @@ function Pagination({ label, page, onChange }: PaginationProps) {
                 Siguiente
             </button>
         </nav>
+    );
+}
+
+function SearchUserAvatar({ user }: { user: SearchUser }) {
+    const [failedUrl, setFailedUrl] = useState<string | null>(null);
+
+    const showImage = Boolean(user.avatarUrl) && failedUrl !== user.avatarUrl;
+
+    return (
+        <span className="search-user-avatar" aria-hidden="true">
+            {showImage ? (
+                <img
+                    src={user.avatarUrl ?? undefined}
+                    alt=""
+                    loading="lazy"
+                    onError={() => setFailedUrl(user.avatarUrl)}
+                />
+            ) : (
+                user.username.charAt(0).toUpperCase()
+            )}
+        </span>
     );
 }
 

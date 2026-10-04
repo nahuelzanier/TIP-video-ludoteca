@@ -21,9 +21,9 @@ Resultado a nivel producto: un usuario puede **registrarse, iniciar y cerrar ses
 
 Estado técnico de la rama:
 
-- **Backend:** Java 21 + Spring Boot 4.1.1, Spring Security (sesiones + CSRF), Spring Data JPA, Flyway (migraciones V1–V5), PostgreSQL.
+- **Backend:** Java 21 + Spring Boot 4.1.1, Spring Security (sesiones + CSRF), Spring Data JPA, Flyway (migraciones V1–V7), PostgreSQL.
 - **Frontend:** React 19 + TypeScript + Vite, `fetch` nativo, sin librerías de estado ni de componentes.
-- **Tests:** 56 tests de backend en 8 clases (Mockito + `@WebMvcTest`). Frontend sin tests.
+- **Tests:** 80 tests de backend en 9 clases (Mockito + `@WebMvcTest`). Frontend sin tests.
 - **CI:** GitHub Actions corre `./mvnw test` y `lint` + `build` del frontend.
 
 ### 1.2 Decisiones tomadas
@@ -122,7 +122,7 @@ Estado técnico de la rama:
 | --- | :---: | --- |
 | Sección de comentarios bajo cada juego | ✅ | `/game/:id` lista los comentarios; estado vacío "¡Sé el primero!" |
 | Caja tipo YouTube con botón de subir | ✅ | Con sesión aparece el formulario (contenido máx. 1000 caracteres) |
-| Muestra usuario y foto; tocarlos lleva al perfil | ⚠️ | Nombre y avatar enlazan a `/user/{username}`; **el avatar es la inicial del usuario, aún no hay foto de perfil** |
+| Muestra usuario y foto; tocarlos lleva al perfil | ✅ | Nombre y avatar enlazan a `/user/{username}`; la foto se sube con `PUT /api/users/{username}/avatar` (PNG/JPEG, 2 MB, validada por *magic bytes*) y si no hay se muestra la inicial |
 | "(autor)" junto al nombre si comenta el autor | ✅ | `isGameAuthor` en la respuesta; cubierto por `CommentServiceTests` |
 | Valoración opcional 1–5 visible junto al nombre | ✅ | Restricción `CHECK` en la base (1–5) y componente de estrellas; las respuestas no admiten rating |
 | Responder comentarios, anidado y a la derecha | ✅ | Botón *Responder*; las respuestas se guardan bajo el comentario raíz con indentación |
@@ -163,9 +163,9 @@ Estado técnico de la rama:
 
 | Criterio (Trello) | Estado | Cómo se valida |
 | --- | :---: | --- |
-| Nombre de usuario y foto de perfil | ⚠️ | Nombre ✅; la "foto" es la inicial del usuario |
+| Nombre de usuario y foto de perfil | ✅ | Nombre y foto (`avatarUrl` derivado de los bytes); sin foto se cae a la inicial |
 | Descripción opcional editable con un botón | ✅ | *Editar descripción* abre el modal; solo el dueño (`403` para otros; `ProfileApiControllerTests`) |
-| Sección *Mis juegos* (oculta si no hay) | ❌ | No está en esta rama; el endpoint `GET /api/users/{username}/games` está en `feature/tags` |
+| Sección *Mis juegos* (oculta si no hay) | ✅ | `GET /api/users/{username}/games`; la sección se titula *Mis juegos* en el perfil propio y *Juegos publicados* en el ajeno, y no se monta si no hay juegos |
 | Sección *Mi actividad* con foros creados | ⚠️ | La sección existe pero está vacía hasta que exista el foro |
 
 - **Mockup:** no hay.

@@ -92,12 +92,17 @@ com/tip_video_ludoteca/
 
   users/
     User                    entity: id, username, email, passwordHash,
-                            description, profileImageUrl, createdAt
+                            description, profileImage, profileImageContentType,
+                            createdAt
     UserRepository
     UserProfileService      getProfile, updateDescription
+    UserProfileImageService updateAvatar, removeAvatar, readAvatar
     UserProfileResponse, UpdateDescriptionRequest
     UserNotFoundException, ProfileEditForbiddenException
     DatabaseUserDetailsService  loads by email, grants ROLE_USER
+
+  media/
+    ImageValidation         content sniffing for PNG/JPEG uploads
 ```
 
 On `feature/tags` there is also a `tags/` package. See [Tags](Tags.md).

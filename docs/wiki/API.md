@@ -372,10 +372,14 @@ GET http://localhost:8080/api/users/lucas2/profile
 ```
 
 ```json
-{ "id": 1, "username": "lucas2", "description": "Me gustan los puzzles." }
+{ "id": 1, "username": "lucas2", "description": "Me gustan los puzzles.", "avatarUrl": null }
 ```
 
 `description` is `null` when never set. Lookups are case-insensitive.
+
+`avatarUrl` is `null` when the user has not uploaded a photo; otherwise it is the
+relative path `/api/users/{username}/avatar`. It is derived from the stored bytes, so it
+cannot point at an image that does not exist.
 
 | Status | Cause |
 | --- | --- |
@@ -402,6 +406,65 @@ clears the description.
 | --- | --- |
 | `200` | The updated profile, same shape as the GET |
 | `400` | `La descripción no puede superar los 500 caracteres.` |
+| `401` | No session |
+| `403` | `No podés editar el perfil de otro usuario.` |
+| `404` | `Usuario no encontrado.` |
+
+## GET /api/users/{username}/avatar
+
+Public. Returns the raw bytes, mirroring `GET /api/games/{gameId}/cover`.
+
+```http
+GET http://localhost:8080/api/users/lucas2/avatar
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: image/png
+X-Content-Type-Options: nosniff
+Cache-Control: no-cache
+```
+
+`Cache-Control: no-cache` makes the browser revalidate, so replacing a photo shows up
+immediately instead of serving the cached copy.
+
+| Status | Cause |
+| --- | --- |
+| `200` | The image |
+| `404` | `Usuario no encontrado.` or the user has no photo |
+
+## PUT /api/users/{username}/avatar
+
+Upload or replace the profile photo. Requires a session and a CSRF token. Only the owner.
+
+```http
+PUT http://localhost:8080/api/users/lucas2/avatar
+Content-Type: multipart/form-data
+X-CSRF-TOKEN: 0d9f1c22-...
+
+avatar=<binary>
+```
+
+The declared `Content-Type` is **not** trusted: the first bytes must be a PNG or JPEG
+signature, so an HTML or SVG payload renamed to `.png` is rejected. Maximum 2 MB. The
+previous image is overwritten in place.
+
+| Status | Cause |
+| --- | --- |
+| `200` | The updated profile, same shape as the profile GET |
+| `400` | `Elegí una foto de perfil.` / `La foto de perfil no puede superar los 2 MB.` / `La foto de perfil debe ser un archivo PNG o JPEG.` |
+| `401` | No session |
+| `403` | `No podés editar el perfil de otro usuario.` |
+| `404` | `Usuario no encontrado.` |
+
+## DELETE /api/users/{username}/avatar
+
+Remove the photo and fall back to the initial letter. Requires a session and a CSRF token.
+Only the owner.
+
+| Status | Cause |
+| --- | --- |
+| `200` | The updated profile, with `avatarUrl` back to `null` |
 | `401` | No session |
 | `403` | `No podés editar el perfil de otro usuario.` |
 | `404` | `Usuario no encontrado.` |

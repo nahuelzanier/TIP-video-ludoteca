@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ProfileHeader from "../../components/profile/ProfileHeader";
+import AvatarModal from "../../components/profile/AvatarModal";
 import EditDescriptionModal from "../../components/profile/EditDescriptionModal";
 import UserActivity from "../../components/profile/UserActivity";
 import {
@@ -8,7 +9,13 @@ import {
     logout as logoutUser,
     type AuthUser,
 } from "../../services/authService";
-import { getUserGamesPage, getUserProfile, updateDescription } from "../../services/userService";
+import {
+    deleteAvatar,
+    getUserGamesPage,
+    getUserProfile,
+    updateDescription,
+    uploadAvatar,
+} from "../../services/userService";
 import type { GamePage } from "../../services/gameService";
 import type { ForumSummary, UserProfile } from "../../types/User";
 import "./User.css";
@@ -46,6 +53,11 @@ function User() {
     const [saveError, setSaveError] = useState("");
     const [loggingOut, setLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");
+
+    const [isAvatarOpen, setIsAvatarOpen] = useState(false);
+    const [avatarSaving, setAvatarSaving] = useState(false);
+    const [avatarRemoving, setAvatarRemoving] = useState(false);
+    const [avatarError, setAvatarError] = useState("");
 
     const [gamesPage, setGamesPage] = useState<GamePage | null>(null);
     const [gamesPageNumber, setGamesPageNumber] = useState(0);
@@ -170,6 +182,54 @@ function User() {
         }
     }
 
+    async function handleAvatarSave(file: File) {
+        if (!profile) {
+            return;
+        }
+
+        setAvatarSaving(true);
+        setAvatarError("");
+
+        try {
+            const updated = await uploadAvatar(profile.username, file);
+
+            setState((previous) => ({ ...previous, profile: updated }));
+            setIsAvatarOpen(false);
+        } catch (requestError) {
+            setAvatarError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "No se pudo guardar la foto.",
+            );
+        } finally {
+            setAvatarSaving(false);
+        }
+    }
+
+    async function handleAvatarRemove() {
+        if (!profile) {
+            return;
+        }
+
+        setAvatarRemoving(true);
+        setAvatarError("");
+
+        try {
+            const updated = await deleteAvatar(profile.username);
+
+            setState((previous) => ({ ...previous, profile: updated }));
+            setIsAvatarOpen(false);
+        } catch (requestError) {
+            setAvatarError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "No se pudo quitar la foto.",
+            );
+        } finally {
+            setAvatarRemoving(false);
+        }
+    }
+
     if (isLoading) {
         return (
             <main className="user-page">
@@ -217,6 +277,7 @@ function User() {
             <ProfileHeader
                 username={profile.username}
                 description={profile.description}
+                avatarUrl={profile.avatarUrl}
                 isOwnProfile={isOwnProfile}
                 loggingOut={loggingOut}
                 error={logoutError}
@@ -224,54 +285,67 @@ function User() {
                     setSaveError("");
                     setIsEditing(true);
                 }}
+                onChangePhoto={() => {
+                    setAvatarError("");
+                    setIsAvatarOpen(true);
+                }}
                 onUpload={() => navigate("/games/upload")}
                 onLogout={handleLogout}
             />
 
             <UserActivity forums={FORUMS} />
 
-            <section className="user-games">
-    <h2>Juegos publicados</h2>
+            {!gamesLoading && !gamesError && (gamesPage?.totalElements ?? 0) > 0 && (
+                <section className="user-games">
+                    <h2>{isOwnProfile ? "Mis juegos" : "Juegos publicados"}</h2>
 
-    {gamesLoading && <p role="status">Cargando juegos...</p>}
-    {gamesError && <p role="alert">{gamesError}</p>}
+                    {gamesPage && gamesPage.content.length > 0 && (
+                        <>
+                            <GameGrid games={gamesPage.content} />
 
-    {!gamesLoading &&
-        !gamesError &&
-        gamesPage?.content.length === 0 && (
-            <p>Este usuario todavía no publicó juegos.</p>
-        )}
+                            {gamesPage.totalPages > 1 && (
+                                <nav className="user-games-pagination" aria-label="Páginas de juegos">
+                                    <button
+                                        type="button"
+                                        onClick={() => setGamesPageNumber((page) => page - 1)}
+                                        disabled={!gamesPage.hasPrevious || gamesLoading}
+                                    >
+                                        Anterior
+                                    </button>
 
-    {gamesPage && gamesPage.content.length > 0 && (
-        <>
-            <GameGrid games={gamesPage.content} />
+                                    <span>
+                                        Página {gamesPage.page + 1} de {gamesPage.totalPages}
+                                    </span>
 
-            {gamesPage.totalPages > 1 && (
-                <nav className="user-games-pagination" aria-label="Páginas de juegos">
-                    <button
-                        type="button"
-                        onClick={() => setGamesPageNumber((page) => page - 1)}
-                        disabled={!gamesPage.hasPrevious || gamesLoading}
-                    >
-                        Anterior
-                    </button>
-
-                    <span>
-                        Página {gamesPage.page + 1} de {gamesPage.totalPages}
-                    </span>
-
-                    <button
-                        type="button"
-                        onClick={() => setGamesPageNumber((page) => page + 1)}
-                        disabled={!gamesPage.hasNext || gamesLoading}
-                    >
-                        Siguiente
-                    </button>
-                </nav>
+                                    <button
+                                        type="button"
+                                        onClick={() => setGamesPageNumber((page) => page + 1)}
+                                        disabled={!gamesPage.hasNext || gamesLoading}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </nav>
+                            )}
+                        </>
+                    )}
+                </section>
             )}
-        </>
-    )}
-</section>
+
+            {isAvatarOpen && (
+                <AvatarModal
+                    username={profile.username}
+                    currentAvatarUrl={profile.avatarUrl}
+                    saving={avatarSaving}
+                    removing={avatarRemoving}
+                    error={avatarError}
+                    onSave={handleAvatarSave}
+                    onRemove={handleAvatarRemove}
+                    onClose={() => {
+                        setIsAvatarOpen(false);
+                        setAvatarError("");
+                    }}
+                />
+            )}
 
             {isEditing && (
                 <EditDescriptionModal

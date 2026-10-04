@@ -1,6 +1,12 @@
-import { API_BASE_URL, fetchCsrfToken, readError } from "./api";
+import { API_BASE_URL, fetchCsrfToken, readError, resolveAssetUrl } from "./api";
 import type { UserProfile } from "../types/User";
 import type { GamePage } from "./gameService";
+
+export const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+
+function withResolvedAvatar(profile: UserProfile): UserProfile {
+  return { ...profile, avatarUrl: resolveAssetUrl(profile.avatarUrl) };
+}
 
 
 export async function getUserProfile(
@@ -18,7 +24,9 @@ export async function getUserProfile(
         throw new Error(await readError(response));
     }
 
-    return response.json();
+    const profile: UserProfile = await response.json();
+
+    return withResolvedAvatar(profile);
 }
 
 export async function updateDescription(
@@ -48,7 +56,69 @@ export async function updateDescription(
         throw new Error(await readError(response));
     }
 
-    return response.json();
+    const profile: UserProfile = await response.json();
+
+    return withResolvedAvatar(profile);
+}
+
+export async function uploadAvatar(
+    username: string,
+    avatar: File,
+): Promise<UserProfile> {
+    const csrf = await fetchCsrfToken();
+    const formData = new FormData();
+    formData.append("avatar", avatar);
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/users/${encodeURIComponent(username)}/avatar`,
+        {
+            method: "PUT",
+            credentials: "include",
+            headers: {
+                [csrf.headerName]: csrf.token,
+            },
+            body: formData,
+        },
+    );
+
+    if (response.status === 401) {
+        throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+    }
+
+    if (!response.ok) {
+        throw new Error(await readError(response));
+    }
+
+    const profile: UserProfile = await response.json();
+
+    return withResolvedAvatar(profile);
+}
+
+export async function deleteAvatar(username: string): Promise<UserProfile> {
+    const csrf = await fetchCsrfToken();
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/users/${encodeURIComponent(username)}/avatar`,
+        {
+            method: "DELETE",
+            credentials: "include",
+            headers: {
+                [csrf.headerName]: csrf.token,
+            },
+        },
+    );
+
+    if (response.status === 401) {
+        throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+    }
+
+    if (!response.ok) {
+        throw new Error(await readError(response));
+    }
+
+    const profile: UserProfile = await response.json();
+
+    return withResolvedAvatar(profile);
 }
 
 export async function getUserGamesPage(

@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.games;
 
+import com.tip_video_ludoteca.media.ImageValidation;
 import com.tip_video_ludoteca.users.User;
 import com.tip_video_ludoteca.users.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -140,37 +141,17 @@ public class GameUploadService {
 
         try {
             byte[] content = cover.getBytes();
+            String contentType = ImageValidation.detectContentType(content);
 
-            boolean isPng = content.length >= 8
-                    && content[0] == (byte) 0x89
-                    && content[1] == 0x50
-                    && content[2] == 0x4E
-                    && content[3] == 0x47
-                    && content[4] == 0x0D
-                    && content[5] == 0x0A
-                    && content[6] == 0x1A
-                    && content[7] == 0x0A;
-
-            boolean isJpeg = content.length >= 3
-                    && content[0] == (byte) 0xFF
-                    && content[1] == (byte) 0xD8
-                    && content[2] == (byte) 0xFF;
-
-            if (isPng) {
-                return new StoredFile(COVER_FILE_PATH, "image/png", content);
-            }
-
-            if (isJpeg) {
-                return new StoredFile(COVER_FILE_PATH, "image/jpeg", content);
-            }
-
-            throw badRequest("The cover must be a PNG or JPEG image.");
+            return new StoredFile(COVER_FILE_PATH, contentType, content);
         } catch (IOException exception) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Could not read the cover image.",
                     exception
             );
+        } catch (ImageValidation.RejectedImageException exception) {
+            throw badRequest("The cover must be a PNG or JPEG image.");
         }
     }
 

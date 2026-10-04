@@ -3,6 +3,7 @@ import type { Game } from "./Game";
 export interface SearchUser {
     id: number;
     username: string;
+    avatarUrl: string | null;
 }
 
 export interface PageResult<T> {

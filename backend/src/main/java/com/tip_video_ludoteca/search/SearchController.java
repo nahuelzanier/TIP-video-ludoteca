@@ -110,10 +110,14 @@ public class SearchController {
 
     public record UserItem(
             Long id,
-            String username) {
+            String username,
+            String avatarUrl) {
 
         static UserItem from(User user) {
-            return new UserItem(user.getId(), user.getUsername());
+            return new UserItem(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getProfileImageUrl());
         }
     }
 

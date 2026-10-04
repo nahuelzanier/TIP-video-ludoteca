@@ -144,9 +144,33 @@ CREATE INDEX idx_comments_parent_comment_id ON comments(parent_comment_id);
 constraint duplicates the `@Min(1) @Max(5)` bean validation so the invariant holds even if a
 row is written outside the API.
 
+The `profile_image_url` column added here was always `NULL` and was dropped in V7, when
+profile photos became reachable.
+
 ### V6: create_game_tags
 
 Not merged yet — exists only on `origin/feature/tags`. Documented in [Tags](Tags.md).
+
+### V7: add_profile_image
+
+```sql
+ALTER TABLE app_user
+    ADD COLUMN profile_image BYTEA,
+    ADD COLUMN profile_image_content_type VARCHAR(50);
+
+ALTER TABLE app_user
+    DROP COLUMN profile_image_url;
+```
+
+The profile photo follows the same decision as the game files: the bytes live in
+PostgreSQL, not on disk. V5 had added a `profile_image_url VARCHAR(500)` column, but
+nothing ever wrote to it — `User` had no setter and there was no upload endpoint — so it
+is replaced rather than reused.
+
+`User.getProfileImageUrl()` is now a **derived** accessor, not a mapped column: it returns
+`/api/users/{username}/avatar` when an image exists and `null` otherwise. Because the
+entity uses field access, Hibernate ignores the getter, and a stored URL can no longer
+drift out of sync with the bytes it is supposed to point at.
 
 ## Entity model
 
@@ -159,8 +183,11 @@ Not merged yet — exists only on `origin/feature/tags`. Documented in [Tags](Ta
 | `email` | `email` | unique, max 254 |
 | `passwordHash` | `password_hash` | prefixed hash, max 255 |
 | `description` | `description` | nullable, max 500 |
-| `profileImageUrl` | `profile_image_url` | nullable, max 500 |
+| `profileImage` | `profile_image` | nullable `bytea`, max 2 MB by application rule |
+| `profileImageContentType` | `profile_image_content_type` | nullable, max 50; `image/png` or `image/jpeg` |
 | `createdAt` | `created_at` | not updatable |
+
+`getProfileImageUrl()` and `hasProfileImage()` are derived and are not columns.
 
 ### `Game` → `games`
 
