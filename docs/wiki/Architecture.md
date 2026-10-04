@@ -1,5 +1,7 @@
 # Architecture
 
+![Ludarium architecture diagram](architecture-diagram.png)
+
 The application follows a simple split architecture: a React app for the storefront and a Spring Boot app for the catalog and static asset delivery.
 
 ## High-level flow
