@@ -1,7 +1,10 @@
 # Architecture
 
-Two applications in one repository: a React single-page app for the storefront and a Spring
-Boot service for the API, the game files and the database.
+
+
+![Ludarium architecture diagram](architecture-diagram.png)
+
+The application follows a simple split architecture: a React app for the storefront and a Spring Boot app for the catalog and static asset delivery.
 
 ## The big picture
 
