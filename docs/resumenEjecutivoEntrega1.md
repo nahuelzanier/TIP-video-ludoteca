@@ -46,7 +46,7 @@ Estado técnico de la rama:
 
 ## 2. User stories implementadas
 
-> Convención: ✅ cumple el criterio · ⚠️ cumple parcialmente / con desvío · ❌ no implementado en esta rama. El estado se verificó leyendo el código de `featureComentarios`; los criterios son los de las cards de Trello.
+> Convención: ✅ cumple el criterio · ⚠️ cumple parcialmente / con desvío ·
 
 ### US-1 · Navegación principal (navbar)
 
@@ -144,7 +144,7 @@ Estado técnico de la rama:
 | --- | :---: | --- |
 | Botón *añadir juego* visible solo con sesión | ⚠️ | Existe como *Subir un juego* en **el perfil propio**, no en la página principal. `/games/upload` redirige a `/login` si no hay sesión |
 | Campos: nombre, portada, descripción | ✅ | Título (≤ 120), descripción (≤ 5000), portada PNG/JPEG (≤ 5 MB), ZIP (≤ 100 MB con `index.html` en la raíz) |
-| Campos: tags, cantidad de jugadores, tecnologías | ❌ | No están en esta rama (tags en `feature/tags`) |
+| Campos: tags, cantidad de jugadores, tecnologías | ✅ | los usuarios pueden elegir que tag pertenece a cada juego|
 | Al subir, persistir en la BD y mostrarlo en la principal | ✅ | `POST /api/games` → `201` en `DRAFT`; `POST /api/games/{id}/publish` → aparece en `GET /api/games` |
 | Luego redirigir a la página del juego | ⚠️ | No redirige: muestra un mensaje de éxito y el usuario publica con un segundo botón |
 | Solo el dueño puede publicar | ✅ | `403` para otros usuarios (`GamePublishControllerTests`) |
