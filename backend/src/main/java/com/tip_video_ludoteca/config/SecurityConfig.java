@@ -17,6 +17,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
+import jakarta.servlet.DispatcherType;
+
 @Configuration
 public class SecurityConfig {
 
@@ -77,18 +79,21 @@ public class SecurityConfig {
                 )
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
-                .requestMatchers(HttpMethod.GET,
-                    "/api/games", "/api/games/**", "/games/**",
-                    "/api/tags",
-                    "/api/search",
-                    "/api/users/*/profile",
-                    "/api/users/*/games",
-                    "/api/users/*/avatar",
-                    "/api/auth/csrf").permitAll()
-                .requestMatchers(HttpMethod.POST,
-                    "/api/auth/register", "/api/auth/login").permitAll()
-                .anyRequest().authenticated());
+        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
+        .requestMatchers(HttpMethod.GET,
+            "/api/games", "/api/games/**", "/games/**",
+            "/api/tags",
+            "/api/search",
+            "/api/users/*/profile",
+            "/api/users/*/games",
+            "/api/users/*/avatar",
+            "/api/auth/csrf").permitAll()
+        .requestMatchers(HttpMethod.GET,
+            "/api/forum/discussions",
+            "/api/forum/discussions/*/replies",
+            "/api/forum/discussions/**").permitAll()
+            .anyRequest().authenticated());
 
         return http.build();
     }
