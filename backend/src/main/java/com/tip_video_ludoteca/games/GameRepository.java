@@ -15,4 +15,9 @@ public interface GameRepository extends JpaRepository<Game, String> {
         String username,
         GameStatus status,
         Pageable pageable);
+    Page<Game> findByStatusAndTitleContainingIgnoreCase(
+        GameStatus status,
+        String title,
+        Pageable pageable
+    );
 }

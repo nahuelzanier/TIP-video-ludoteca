@@ -31,10 +31,10 @@ public class ForumDiscussion {
     @Column(nullable = false, length = 2000)
     private String description;
 
-    @Column(name = "cover_image", nullable = false, columnDefinition = "bytea")
+    @Column(name = "cover_image", columnDefinition = "bytea")
     private byte[] coverImage;
 
-    @Column(name = "cover_image_content_type", nullable = false, length = 50)
+    @Column(name = "cover_image_content_type", length = 50)
     private String coverImageContentType;
 
     @Column(name = "created_at", nullable = false, updatable = false)

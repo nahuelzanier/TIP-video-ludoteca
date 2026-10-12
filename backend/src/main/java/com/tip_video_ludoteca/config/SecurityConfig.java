@@ -93,7 +93,10 @@ public class SecurityConfig {
             "/api/forum/discussions",
             "/api/forum/discussions/*/replies",
             "/api/forum/discussions/**").permitAll()
-            .anyRequest().authenticated());
+        .requestMatchers(HttpMethod.POST,
+            "/api/auth/register",
+            "/api/auth/login").permitAll()
+        .anyRequest().authenticated());
 
         return http.build();
     }

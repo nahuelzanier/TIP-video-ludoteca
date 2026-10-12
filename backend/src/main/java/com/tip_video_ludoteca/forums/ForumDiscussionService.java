@@ -135,30 +135,30 @@ public class ForumDiscussionService {
         return new HashSet<>(selectedTags);
     }
 
-    private ImageData readCover(MultipartFile cover) {
-        if (cover == null || cover.isEmpty()) {
-            throw badRequest("Elegí una imagen para la discusión.");
-        }
-
-        if (cover.getSize() > MAX_COVER_BYTES) {
-            throw badRequest("La imagen no puede superar los 5 MB.");
-        }
-
-        try {
-            byte[] content = cover.getBytes();
-            String contentType = ImageValidation.detectContentType(content);
-
-            return new ImageData(content, contentType);
-        } catch (IOException exception) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "No se pudo leer la imagen.",
-                    exception
-            );
-        } catch (ImageValidation.RejectedImageException exception) {
-            throw badRequest("La imagen debe ser PNG o JPEG.");
-        }
+private ImageData readCover(MultipartFile cover) {
+    if (cover == null || cover.isEmpty()) {
+        return new ImageData(null, null);
     }
+
+    if (cover.getSize() > MAX_COVER_BYTES) {
+        throw badRequest("La imagen no puede superar los 5 MB.");
+    }
+
+    try {
+        byte[] content = cover.getBytes();
+        String contentType = ImageValidation.detectContentType(content);
+
+        return new ImageData(content, contentType);
+    } catch (IOException exception) {
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "No se pudo leer la imagen.",
+                exception
+        );
+    } catch (ImageValidation.RejectedImageException exception) {
+        throw badRequest("La imagen debe ser PNG o JPEG.");
+    }
+}
 
     private ResponseStatusException badRequest(String message) {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);

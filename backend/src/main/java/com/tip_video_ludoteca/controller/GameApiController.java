@@ -26,22 +26,32 @@ public class GameApiController {
         this.games = games;
     }
 
-    @GetMapping
-    public ResponseEntity<GamePage> getGames(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
-
+        @GetMapping
+        public ResponseEntity<GamePage> getGames(
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "12") int size,
+                @RequestParam(required = false) String q) {
+        
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 24);
 
-        Page<Game> result = games.findByStatus(
-                GameStatus.PUBLISHED,
-                PageRequest.of(
-                        safePage,
-                        safeSize,
-                        Sort.by(Sort.Direction.DESC, "createdAt")
-                )
+        PageRequest pageRequest = PageRequest.of(
+        safePage,
+        safeSize,
+        Sort.by(Sort.Direction.DESC, "createdAt")
         );
+
+        Page<Game> result;
+
+        if (q == null || q.isBlank()) {
+        result = games.findByStatus(GameStatus.PUBLISHED, pageRequest);
+        } else {
+        result = games.findByStatusAndTitleContainingIgnoreCase(
+                GameStatus.PUBLISHED,
+                q.trim(),
+                pageRequest
+        );
+        }
 
         List<GameSummary> content = result.getContent().stream()
                 .map(game -> new GameSummary(

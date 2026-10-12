@@ -37,7 +37,7 @@ public class ForumApiController {
             @RequestParam("gameId") String gameId,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
-            @RequestParam("cover") MultipartFile cover,
+            @RequestParam(value = "cover", required = false) MultipartFile cover,
             @RequestParam("tagIds") List<Long> tagIds,
             @AuthenticationPrincipal UserDetails currentUser) {
 
