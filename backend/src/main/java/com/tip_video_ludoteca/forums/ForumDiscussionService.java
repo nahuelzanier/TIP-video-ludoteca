@@ -8,6 +8,9 @@ import com.tip_video_ludoteca.tags.Tag;
 import com.tip_video_ludoteca.tags.TagRepository;
 import com.tip_video_ludoteca.users.User;
 import com.tip_video_ludoteca.users.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,19 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-
-import com.tip_video_ludoteca.forums.ForumReplyRepository;
+import java.util.Set;
 
 @Service
 public class ForumDiscussionService {
@@ -135,30 +131,31 @@ public class ForumDiscussionService {
         return new HashSet<>(selectedTags);
     }
 
-private ImageData readCover(MultipartFile cover) {
-    if (cover == null || cover.isEmpty()) {
-        return new ImageData(null, null);
+    private ImageData readCover(MultipartFile cover) {
+        if (cover == null || cover.isEmpty()) {
+            return new ImageData(null, null);
+        }
+
+        if (cover.getSize() > MAX_COVER_BYTES) {
+            throw badRequest("La imagen no puede superar los 5 MB.");
+        }
+
+        try {
+            byte[] content = cover.getBytes();
+            String contentType = ImageValidation.detectContentType(content);
+
+            return new ImageData(content, contentType);
+        } catch (IOException exception) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "No se pudo leer la imagen.",
+                    exception
+            );
+        } catch (ImageValidation.RejectedImageException exception) {
+            throw badRequest("La imagen debe ser PNG o JPEG.");
+        }
     }
 
-    if (cover.getSize() > MAX_COVER_BYTES) {
-        throw badRequest("La imagen no puede superar los 5 MB.");
-    }
-
-    try {
-        byte[] content = cover.getBytes();
-        String contentType = ImageValidation.detectContentType(content);
-
-        return new ImageData(content, contentType);
-    } catch (IOException exception) {
-        throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "No se pudo leer la imagen.",
-                exception
-        );
-    } catch (ImageValidation.RejectedImageException exception) {
-        throw badRequest("La imagen debe ser PNG o JPEG.");
-    }
-}
 
     private ResponseStatusException badRequest(String message) {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
@@ -196,37 +193,37 @@ private ImageData readCover(MultipartFile cover) {
                             ratingByDiscussion.put(rating.getDiscussionId(), rating));
         }
 
-    List<DiscussionSummary> content = result.getContent().stream()
-            .map(discussion -> {
-                ForumRatingAggregate aggregate =
-                        ratingByDiscussion.get(discussion.getId());
+        List<DiscussionSummary> content = result.getContent().stream()
+                .map(discussion -> {
+                    ForumRatingAggregate aggregate =
+                            ratingByDiscussion.get(discussion.getId());
 
-                List<DiscussionTag> discussionTags = discussion.getTags().stream()
-                        .map(tag -> new DiscussionTag(
-                                tag.getId(),
-                                tag.getName(),
-                                tag.getSlug()
-                        ))
-                        .toList();
+                    List<DiscussionTag> discussionTags = discussion.getTags().stream()
+                            .map(tag -> new DiscussionTag(
+                                    tag.getId(),
+                                    tag.getName(),
+                                    tag.getSlug()
+                            ))
+                            .toList();
 
-                return new DiscussionSummary(
-                        discussion.getId(),
-                        discussion.getTitle(),
-                        discussion.getDescription(),
-                        discussion.getCreatedAt(),
-                        discussion.getGame().getId(),
-                        discussion.getGame().getTitle(),
-                        discussion.getAuthor().getUsername(),
-                        discussion.getAuthor().getProfileImageUrl(),
-                        "/api/forum/discussions/"
-                                + discussion.getId()
-                                + "/cover",
-                        discussionTags,
-                        aggregate == null ? null : aggregate.getAverageRating(),
-                        aggregate == null ? 0 : aggregate.getRatingCount()
-                );
-            })
-            .toList();
+                    return new DiscussionSummary(
+                            discussion.getId(),
+                            discussion.getTitle(),
+                            discussion.getDescription(),
+                            discussion.getCreatedAt(),
+                            discussion.getGame().getId(),
+                            discussion.getGame().getTitle(),
+                            discussion.getAuthor().getUsername(),
+                            discussion.getAuthor().getProfileImageUrl(),
+                            "/api/forum/discussions/"
+                                    + discussion.getId()
+                                    + "/cover",
+                            discussionTags,
+                            aggregate == null ? null : aggregate.getAverageRating(),
+                            aggregate == null ? 0 : aggregate.getRatingCount()
+                    );
+                })
+                .toList();
 
         return new DiscussionPage(
                 content,
@@ -353,7 +350,7 @@ private ImageData readCover(MultipartFile cover) {
             Integer myRating) {
     }
 
-        @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<ForumReplyResponse> listReplies(Long discussionId) {
         findPublishedDiscussion(discussionId);
 
@@ -449,7 +446,7 @@ private ImageData readCover(MultipartFile cover) {
     ) {
     }
 
-        @Transactional
+    @Transactional
     public RatingResult rateDiscussion(
             Long discussionId,
             Integer score,

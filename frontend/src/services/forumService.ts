@@ -193,8 +193,8 @@ export async function createForumDiscussion(input: {
   formData.append("title", input.title);
   formData.append("description", input.description);
   if (input.cover) {
-  formData.append("cover", input.cover);
-}
+    formData.append("cover", input.cover);
+  }
 
   for (const tagId of input.tagIds) {
     formData.append("tagIds", String(tagId));

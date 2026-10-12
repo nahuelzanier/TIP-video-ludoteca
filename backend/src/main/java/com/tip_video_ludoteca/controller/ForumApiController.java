@@ -2,9 +2,9 @@ package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.forums.CreateForumReplyRequest;
 import com.tip_video_ludoteca.forums.ForumDiscussionService;
-
+import com.tip_video_ludoteca.forums.RateForumDiscussionRequest;
 import jakarta.validation.Valid;
-
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.tip_video_ludoteca.forums.RateForumDiscussionRequest;
 import org.springframework.web.bind.annotation.PutMapping;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/forum/discussions")
@@ -102,7 +100,7 @@ public class ForumApiController {
         );
     }
 
-        @PutMapping("/{discussionId}/rating")
+    @PutMapping("/{discussionId}/rating")
     public ForumDiscussionService.RatingResult rateDiscussion(
             @PathVariable Long discussionId,
             @Valid @RequestBody RateForumDiscussionRequest request,

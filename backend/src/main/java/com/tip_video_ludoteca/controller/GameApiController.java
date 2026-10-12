@@ -3,17 +3,17 @@ package com.tip_video_ludoteca.controller;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/games")
@@ -26,31 +26,31 @@ public class GameApiController {
         this.games = games;
     }
 
-        @GetMapping
-        public ResponseEntity<GamePage> getGames(
-                @RequestParam(defaultValue = "0") int page,
-                @RequestParam(defaultValue = "12") int size,
-                @RequestParam(required = false) String q) {
-        
+    @GetMapping
+    public ResponseEntity<GamePage> getGames(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String q) {
+
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 24);
 
         PageRequest pageRequest = PageRequest.of(
-        safePage,
-        safeSize,
-        Sort.by(Sort.Direction.DESC, "createdAt")
+                safePage,
+                safeSize,
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
         Page<Game> result;
 
         if (q == null || q.isBlank()) {
-        result = games.findByStatus(GameStatus.PUBLISHED, pageRequest);
+            result = games.findByStatus(GameStatus.PUBLISHED, pageRequest);
         } else {
-        result = games.findByStatusAndTitleContainingIgnoreCase(
-                GameStatus.PUBLISHED,
-                q.trim(),
-                pageRequest
-        );
+            result = games.findByStatusAndTitleContainingIgnoreCase(
+                    GameStatus.PUBLISHED,
+                    q.trim(),
+                    pageRequest
+            );
         }
 
         List<GameSummary> content = result.getContent().stream()
@@ -78,7 +78,7 @@ public class GameApiController {
         Game game = games.findById(gameId).orElse(null);
 
         if (game == null || game.getStatus() != GameStatus.PUBLISHED) {
-                return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(new GameSummary(

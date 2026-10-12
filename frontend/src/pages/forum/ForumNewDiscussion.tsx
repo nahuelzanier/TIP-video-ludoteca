@@ -2,9 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { getCurrentUser, type AuthUser } from "../../services/authService";
 import { getGamesPage } from "../../services/gameService";
-import {
-  createForumDiscussion,
-} from "../../services/forumService";
+import { createForumDiscussion } from "../../services/forumService";
 import { getAvailableTags, type TagOption } from "../../services/tagService";
 import type { Game } from "../../types/Game";
 import "./ForumNewDiscussion.css";
@@ -30,8 +28,8 @@ function ForumNewDiscussion() {
   const [coverPreview, setCoverPreview] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
 
-    const [gameQuery, setGameQuery] = useState("");
-    const [searchingGames, setSearchingGames] = useState(false);
+  const [gameQuery, setGameQuery] = useState("");
+  const [searchingGames, setSearchingGames] = useState(false);
 
   useEffect(() => {
     let isCurrentRequest = true;
@@ -64,36 +62,38 @@ function ForumNewDiscussion() {
       isCurrentRequest = false;
     };
   }, []);
-useEffect(() => {
-  const query = gameQuery.trim();
 
-  if (query.length < 2 || gameId) {
-    setGames([]);
-    return;
-  }
+  useEffect(() => {
+    const query = gameQuery.trim();
 
-  let isCurrentRequest = true;
+    if (query.length < 2 || gameId) {
+      setGames([]);
+      return;
+    }
 
-  const timeout = window.setTimeout(() => {
-    setSearchingGames(true);
+    let isCurrentRequest = true;
 
-    getGamesPage(0, 8, query)
-      .then((page) => {
-        if (isCurrentRequest) setGames(page.content);
-      })
-      .catch(() => {
-        if (isCurrentRequest) setGames([]);
-      })
-      .finally(() => {
-        if (isCurrentRequest) setSearchingGames(false);
-      });
-  }, 300);
+    const timeout = window.setTimeout(() => {
+      setSearchingGames(true);
 
-  return () => {
-    isCurrentRequest = false;
-    window.clearTimeout(timeout);
-  };
-}, [gameQuery, gameId]);
+      getGamesPage(0, 8, query)
+        .then((page) => {
+          if (isCurrentRequest) setGames(page.content);
+        })
+        .catch(() => {
+          if (isCurrentRequest) setGames([]);
+        })
+        .finally(() => {
+          if (isCurrentRequest) setSearchingGames(false);
+        });
+    }, 300);
+
+    return () => {
+      isCurrentRequest = false;
+      window.clearTimeout(timeout);
+    };
+  }, [gameQuery, gameId]);
+
   useEffect(() => {
     if (!cover) {
       setCoverPreview("");
@@ -151,7 +151,7 @@ useEffect(() => {
     setError("");
 
     if (!gameId || selectedTagIds.length === 0) {
-      setError("Choose a game, a cover image, and at least one tag.");
+      setError("Choose a game and at least one tag.");
       return;
     }
 
@@ -218,112 +218,110 @@ useEffect(() => {
         </header>
 
         <form className="forum-new-form" onSubmit={handleSubmit}>
-            <label htmlFor="forum-game">Game</label>
-            <label htmlFor="forum-game">Game</label>
-<input
-  id="forum-game"
-  type="search"
-  value={gameQuery}
-  onChange={(event) => {
-    setGameQuery(event.target.value);
-    setGameId("");
-  }}
-  placeholder="Search published games..."
-  autoComplete="off"
-  required
-/>
+          <label htmlFor="forum-game">Game</label>
+          <input
+            id="forum-game"
+            type="search"
+            value={gameQuery}
+            onChange={(event) => {
+              setGameQuery(event.target.value);
+              setGameId("");
+            }}
+            placeholder="Search published games..."
+            autoComplete="off"
+            required
+          />
 
-{searchingGames && <p role="status">Searching games...</p>}
+          {searchingGames && <p role="status">Searching games...</p>}
 
-{!gameId && games.length > 0 && (
-  <ul className="forum-game-results">
-    {games.map((game) => (
-      <li key={game.id}>
-        <button
-          type="button"
-          onClick={() => {
-            setGameId(game.id);
-            setGameQuery(game.title);
-            setGames([]);
-          }}
-        >
-          {game.title}
-        </button>
-      </li>
-    ))}
-  </ul>
-)}
-
-            <label htmlFor="forum-title">Title</label>
-            <input
-              id="forum-title"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              maxLength={120}
-              required
-            />
-
-            <label htmlFor="forum-description">Description</label>
-            <textarea
-              id="forum-description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              maxLength={2000}
-              rows={5}
-              required
-            />
-
-            <label htmlFor="forum-cover">Discussion image</label>
-            <p className="forum-new-help">
-            Optional. PNG or JPEG, up to 5 MB.
-            </p>
-            <input
-              id="forum-cover"
-              type="file"
-              accept="image/png,image/jpeg"
-              onChange={(event) =>
-                handleCoverChange(event.target.files?.[0] ?? null)
-              }
-            />
-
-            {coverPreview && (
-              <img
-                className="forum-new-preview"
-                src={coverPreview}
-                alt="Discussion cover preview"
-              />
-            )}
-
-            <fieldset className="forum-new-tags">
-              <legend>Tags (choose 1 to 5)</legend>
-              {tags.map((tag) => (
-                <label key={tag.id} className="forum-new-tag">
-                  <input
-                    type="checkbox"
-                    checked={selectedTagIds.includes(tag.id)}
-                    onChange={() => toggleTag(tag.id)}
-                  />
-                  {tag.name}
-                </label>
+          {!gameId && games.length > 0 && (
+            <ul className="forum-game-results">
+              {games.map((game) => (
+                <li key={game.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGameId(game.id);
+                      setGameQuery(game.title);
+                      setGames([]);
+                    }}
+                  >
+                    {game.title}
+                  </button>
+                </li>
               ))}
-            </fieldset>
+            </ul>
+          )}
 
-            {error && (
-              <p className="forum-new-error" role="alert">
-                {error}
-              </p>
-            )}
+          <label htmlFor="forum-title">Title</label>
+          <input
+            id="forum-title"
+            type="text"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            maxLength={120}
+            required
+          />
 
-            <button
-              className="forum-new-submit"
-              type="submit"
-              disabled={saving || tags.length === 0}
-            >
-              {saving ? "Creating..." : "Create discussion"}
-            </button>
-          </form>
-        
+          <label htmlFor="forum-description">Description</label>
+          <textarea
+            id="forum-description"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            maxLength={2000}
+            rows={5}
+            required
+          />
+
+          <label htmlFor="forum-cover">Discussion image</label>
+          <p className="forum-new-help">
+            Optional. PNG or JPEG, up to 5 MB.
+          </p>
+          <input
+            id="forum-cover"
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={(event) =>
+              handleCoverChange(event.target.files?.[0] ?? null)
+            }
+          />
+
+          {coverPreview && (
+            <img
+              className="forum-new-preview"
+              src={coverPreview}
+              alt="Discussion cover preview"
+            />
+          )}
+
+          <fieldset className="forum-new-tags">
+            <legend>Tags (choose 1 to 5)</legend>
+            {tags.map((tag) => (
+              <label key={tag.id} className="forum-new-tag">
+                <input
+                  type="checkbox"
+                  checked={selectedTagIds.includes(tag.id)}
+                  onChange={() => toggleTag(tag.id)}
+                />
+                {tag.name}
+              </label>
+            ))}
+          </fieldset>
+
+          {error && (
+            <p className="forum-new-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button
+            className="forum-new-submit"
+            type="submit"
+            disabled={saving || tags.length === 0}
+          >
+            {saving ? "Creating..." : "Create discussion"}
+          </button>
+        </form>
       </section>
     </main>
   );
