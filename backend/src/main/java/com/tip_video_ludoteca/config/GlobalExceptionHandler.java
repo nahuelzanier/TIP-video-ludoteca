@@ -4,6 +4,7 @@ import com.tip_video_ludoteca.comments.CommentNotFoundException;
 import com.tip_video_ludoteca.comments.InvalidCommentException;
 import com.tip_video_ludoteca.games.GameEditForbiddenException;
 import com.tip_video_ludoteca.games.GameNotFoundException;
+import com.tip_video_ludoteca.games.NoGamesAvailableException;
 import com.tip_video_ludoteca.users.ProfileEditForbiddenException;
 import com.tip_video_ludoteca.users.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GameNotFoundException.class)
     public ResponseEntity<Map<String, String>> gameNotFound(
             GameNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(NoGamesAvailableException.class)
+    public ResponseEntity<Map<String, String>> noGamesAvailable(
+            NoGamesAvailableException exception) {
         return error(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 

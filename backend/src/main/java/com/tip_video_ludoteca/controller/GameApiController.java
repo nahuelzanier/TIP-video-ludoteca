@@ -3,6 +3,7 @@ package com.tip_video_ludoteca.controller;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
+import com.tip_video_ludoteca.games.NoGamesAvailableException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -61,6 +62,18 @@ public class GameApiController {
                 result.hasNext(),
                 result.hasPrevious()
         ));
+    }
+
+    @GetMapping("/random")
+    public GameSummary getRandomGame() {
+        return games.findRandomByStatus(GameStatus.PUBLISHED.name())
+                .map(game -> new GameSummary(
+                        game.getId(),
+                        game.getTitle(),
+                        game.getCoverImageUrl(),
+                        game.getDescription()
+                ))
+                .orElseThrow(NoGamesAvailableException::new);
     }
 
     @GetMapping("/{gameId}")
