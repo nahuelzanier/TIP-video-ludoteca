@@ -11,6 +11,7 @@ interface UserBadgeProps {
   isGameAuthor: boolean;
   rating?: number | null;
   avatarSize?: "small" | "regular";
+  edited?: boolean;
 }
 
 function UserBadge({
@@ -20,6 +21,7 @@ function UserBadge({
   isGameAuthor,
   rating = null,
   avatarSize = "regular",
+  edited = false,
 }: UserBadgeProps) {
   const profilePath = `/user/${encodeURIComponent(username)}`;
   const avatarClass =
@@ -56,9 +58,12 @@ function UserBadge({
           {rating !== null && <StarRating value={rating} />}
         </div>
 
-        <time className="user-badge__date" dateTime={createdAt}>
-          {formatDate(createdAt)}
-        </time>
+        <div className="user-badge__meta">
+          <time className="user-badge__date" dateTime={createdAt}>
+            {formatDate(createdAt)}
+          </time>
+          {edited && <span className="user-badge__edited">(editado)</span>}
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 package com.tip_video_ludoteca.controller;
 
+import com.tip_video_ludoteca.comments.CommentEditForbiddenException;
 import com.tip_video_ludoteca.comments.CommentResponse;
 import com.tip_video_ludoteca.comments.CommentService;
 import com.tip_video_ludoteca.comments.CreateCommentRequest;
 import com.tip_video_ludoteca.comments.CreateReplyRequest;
 import com.tip_video_ludoteca.comments.InvalidCommentException;
+import com.tip_video_ludoteca.comments.UpdateCommentRequest;
 import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.games.GameNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -175,6 +178,66 @@ class CommentApiControllerTests {
         verify(comments, never()).createReply(any(), any(), any());
     }
 
+    @Test
+    void updateCommentUsesTheAuthenticatedUser() throws Exception {
+        CommentResponse edited = new CommentResponse(
+                1L, "Texto corregido.", null, null, true, "lucas2", null, false, List.of());
+
+        given(comments.update(eq(1L), any(UpdateCommentRequest.class), eq(EMAIL)))
+                .willReturn(edited);
+
+        mockMvc.perform(put("/api/comments/{commentId}", 1L)
+                        .with(user(EMAIL))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"Texto corregido.\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("Texto corregido."))
+                .andExpect(jsonPath("$.edited").value(true));
+
+        verify(comments).update(eq(1L), eq(new UpdateCommentRequest("Texto corregido.")), eq(EMAIL));
+    }
+
+    @Test
+    void updateCommentRejectsBlankContent() throws Exception {
+        mockMvc.perform(put("/api/comments/{commentId}", 1L)
+                        .with(user(EMAIL))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"   \"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error")
+                        .value("Escribí un comentario antes de publicarlo."));
+
+        verify(comments, never()).update(any(), any(), any());
+    }
+
+    @Test
+    void updateCommentRejectsEditingSomeoneElseComment() throws Exception {
+        willThrow(new CommentEditForbiddenException())
+                .given(comments).update(any(), any(), any());
+
+        mockMvc.perform(put("/api/comments/{commentId}", 1L)
+                        .with(user(EMAIL))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"No es mío.\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error")
+                        .value("No podés editar un comentario de otro usuario."));
+    }
+
+    @Test
+    void updateCommentRequiresAuthentication() throws Exception {
+        mockMvc.perform(put("/api/comments/{commentId}", 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"hola\"}"))
+                .andExpect(status().isUnauthorized());
+
+        verify(comments, never()).update(any(), any(), any());
+    }
+
     private CommentResponse comment(
             Long id,
             Integer rating,
@@ -186,6 +249,7 @@ class CommentApiControllerTests {
                 "Gran juego.",
                 rating,
                 null,
+                false,
                 "lucas2",
                 null,
                 gameAuthor,

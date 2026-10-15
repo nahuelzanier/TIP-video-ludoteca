@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.config;
 
+import com.tip_video_ludoteca.comments.CommentEditForbiddenException;
 import com.tip_video_ludoteca.comments.CommentNotFoundException;
 import com.tip_video_ludoteca.comments.InvalidCommentException;
 import com.tip_video_ludoteca.games.GameEditForbiddenException;
@@ -48,6 +49,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> invalidComment(
             InvalidCommentException exception) {
         return error(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(CommentEditForbiddenException.class)
+    public ResponseEntity<Map<String, String>> commentEditForbidden(
+            CommentEditForbiddenException exception) {
+        return error(HttpStatus.FORBIDDEN, exception.getMessage());
     }
 
     @ExceptionHandler(ProfileEditForbiddenException.class)

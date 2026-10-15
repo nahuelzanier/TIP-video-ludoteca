@@ -35,6 +35,9 @@ public class Comment {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
+    @Column(nullable = false)
+    private boolean edited = false;
+
     protected Comment() {
     }
 
@@ -77,6 +80,15 @@ public class Comment {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.edited = true;
     }
 
     public boolean isRoot() {

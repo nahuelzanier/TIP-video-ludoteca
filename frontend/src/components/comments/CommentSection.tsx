@@ -18,6 +18,7 @@ function CommentSection({ gameId }: CommentSectionProps) {
     submitError,
     submitComment,
     submitReply,
+    submitEdit,
   } = useComments(gameId);
 
   const isAuthenticated = currentUser !== null;
@@ -71,7 +72,9 @@ function CommentSection({ gameId }: CommentSectionProps) {
               submitting={submitting}
               submitError={submitError}
               canReply={isAuthenticated}
+              canEdit={currentUser?.username === comment.username}
               onReply={submitReply}
+              onEdit={submitEdit}
             />
           ))}
         </div>

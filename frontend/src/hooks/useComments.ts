@@ -3,6 +3,7 @@ import {
   createComment,
   createReply,
   getGameComments,
+  updateComment,
 } from "../services/commentService";
 import { getCurrentUser, type AuthUser } from "../services/authService";
 import type { Comment } from "../types/Comment";
@@ -18,6 +19,7 @@ interface UseCommentsResult {
   submitError: string;
   submitComment: (content: string, rating: number | null) => Promise<boolean>;
   submitReply: (commentId: number, content: string) => Promise<boolean>;
+  submitEdit: (commentId: number, content: string) => Promise<boolean>;
 }
 
 export function useComments(gameId: string): UseCommentsResult {
@@ -106,6 +108,12 @@ export function useComments(gameId: string): UseCommentsResult {
     [publish],
   );
 
+  const submitEdit = useCallback(
+    (commentId: number, content: string) =>
+      publish(() => updateComment(commentId, content)),
+    [publish],
+  );
+
   return {
     comments,
     currentUser,
@@ -115,6 +123,7 @@ export function useComments(gameId: string): UseCommentsResult {
     submitError,
     submitComment,
     submitReply,
+    submitEdit,
   };
 }
 

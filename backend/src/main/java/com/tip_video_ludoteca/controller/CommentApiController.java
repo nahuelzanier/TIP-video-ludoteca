@@ -4,6 +4,7 @@ import com.tip_video_ludoteca.comments.CommentResponse;
 import com.tip_video_ludoteca.comments.CommentService;
 import com.tip_video_ludoteca.comments.CreateCommentRequest;
 import com.tip_video_ludoteca.comments.CreateReplyRequest;
+import com.tip_video_ludoteca.comments.UpdateCommentRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,5 +55,14 @@ public class CommentApiController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(comments.createReply(commentId, request, principal.getUsername()));
+    }
+
+    @PutMapping("/comments/{commentId}")
+    public CommentResponse updateComment(
+            @AuthenticationPrincipal UserDetails principal,
+            @PathVariable Long commentId,
+            @Valid @RequestBody UpdateCommentRequest request) {
+
+        return comments.update(commentId, request, principal.getUsername());
     }
 }

@@ -274,6 +274,70 @@ class CommentServiceTests {
                 .isInstanceOf(GameNotFoundException.class);
     }
 
+    @Test
+    void updateModifiesOwnCommentAndMarksItAsEdited() {
+        Comment comment = comment(1L, null, game(owner()), author(), "Viejo texto.", null);
+        givenFindById(comment);
+        givenAuthor(author());
+        givenSaveReturnsArgument();
+
+        CommentResponse response = commentService.update(
+                1L,
+                new UpdateCommentRequest("  Nuevo texto  "),
+                AUTHOR_EMAIL);
+
+        ArgumentCaptor<Comment> saved = ArgumentCaptor.forClass(Comment.class);
+        verify(comments).save(saved.capture());
+
+        assertThat(saved.getValue().getContent()).isEqualTo("Nuevo texto");
+        assertThat(saved.getValue().isEdited()).isTrue();
+        assertThat(response.edited()).isTrue();
+        assertThat(response.content()).isEqualTo("Nuevo texto");
+    }
+
+    @Test
+    void updateRejectsBlankContent() {
+        Comment comment = comment(1L, null, game(owner()), author(), "Viejo.", null);
+        givenFindById(comment);
+        givenAuthor(author());
+
+        assertThatThrownBy(() -> commentService.update(
+                1L,
+                new UpdateCommentRequest("   "),
+                AUTHOR_EMAIL))
+                .isInstanceOf(InvalidCommentException.class);
+
+        verify(comments, never()).save(any(Comment.class));
+    }
+
+    @Test
+    void updateThrowsWhenCommentDoesNotExist() {
+        when(comments.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> commentService.update(
+                99L,
+                new UpdateCommentRequest("hola"),
+                AUTHOR_EMAIL))
+                .isInstanceOf(CommentNotFoundException.class);
+
+        verify(comments, never()).save(any(Comment.class));
+    }
+
+    @Test
+    void updateThrowsWhenUserIsNotTheAuthor() {
+        Comment comment = comment(1L, null, game(owner()), owner(), "Privado.", null);
+        givenFindById(comment);
+        givenAuthor(author());
+
+        assertThatThrownBy(() -> commentService.update(
+                1L,
+                new UpdateCommentRequest("Intento de editar"),
+                AUTHOR_EMAIL))
+                .isInstanceOf(CommentEditForbiddenException.class);
+
+        verify(comments, never()).save(any(Comment.class));
+    }
+
     private void givenGame(Game game) {
         when(games.findById(GAME_ID)).thenReturn(Optional.of(game));
     }

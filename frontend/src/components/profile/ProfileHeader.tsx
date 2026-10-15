@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Pencil, Camera, LogOut } from "lucide-react";
 import "./ProfileHeader.css";
 
 const EMPTY_DESCRIPTION = "Este usuario aún no agregó una descripción";
@@ -35,20 +36,49 @@ function ProfileHeader({
 
     return (
         <header className="profile-header">
-            <span className="profile-avatar" aria-hidden="true">
-                {showImage ? (
-                    <img
-                        src={avatarUrl ?? undefined}
-                        alt=""
-                        onError={() => setFailedUrl(avatarUrl)}
-                    />
-                ) : (
-                    username.charAt(0).toUpperCase()
+            <div className="profile-avatar-container">
+                <span className="profile-avatar" aria-hidden="true">
+                    {showImage ? (
+                        <img
+                            src={avatarUrl ?? undefined}
+                            alt=""
+                            onError={() => setFailedUrl(avatarUrl)}
+                        />
+                    ) : (
+                        username.charAt(0).toUpperCase()
+                    )}
+                </span>
+
+                {isOwnProfile && (
+                    <button
+                        className="profile-avatar-edit"
+                        type="button"
+                        onClick={onChangePhoto}
+                        aria-label="Cambiar foto de perfil"
+                        title="Cambiar foto de perfil"
+                    >
+                        <Camera size={18} aria-hidden="true" />
+                    </button>
                 )}
-            </span>
+            </div>
 
             <div className="profile-header-body">
                 <h1 className="profile-header-name">{username}</h1>
+
+                <div className="profile-description-header">
+                    <h2 className="profile-description-title">Descripción</h2>
+                    {isOwnProfile && (
+                        <button
+                            className="profile-description-edit"
+                            type="button"
+                            onClick={onEdit}
+                            aria-label="Editar descripción"
+                            title="Editar descripción"
+                        >
+                            <Pencil size={16} aria-hidden="true" />
+                        </button>
+                    )}
+                </div>
 
                 <p
                     className={`profile-description${
@@ -61,18 +91,6 @@ function ProfileHeader({
 
             {isOwnProfile && (
                 <div className="profile-actions">
-                    <button className="profile-edit" type="button" onClick={onEdit}>
-                        Editar descripción
-                    </button>
-
-                    <button
-                        className="profile-photo"
-                        type="button"
-                        onClick={onChangePhoto}
-                    >
-                        Cambiar foto
-                    </button>
-
                     <button className="profile-upload" type="button" onClick={onUpload}>
                         Subir un juego
                     </button>
@@ -82,8 +100,10 @@ function ProfileHeader({
                         type="button"
                         onClick={onLogout}
                         disabled={loggingOut}
+                        aria-label="Cerrar sesión"
+                        title="Cerrar sesión"
                     >
-                        {loggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
+                        <LogOut size={18} aria-hidden="true" />
                     </button>
                 </div>
             )}
