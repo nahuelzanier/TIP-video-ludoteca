@@ -1,0 +1,135 @@
+.forum-new-page {
+  width: min(100% - 32px, 760px);
+  margin: 0 auto;
+  padding: 36px 0 64px;
+  color: #f4f0ff;
+}
+
+.forum-new-back {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #c8afff;
+  text-decoration: none;
+}
+
+.forum-new-card {
+  padding: clamp(22px, 5vw, 40px);
+  background: #1b1924;
+  border: 1px solid rgba(218, 205, 255, 0.13);
+  border-radius: 14px;
+}
+
+.forum-new-card header {
+  margin-bottom: 28px;
+}
+
+.forum-new-eyebrow {
+  margin: 0 0 8px;
+  color: #b99aff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.forum-new-card h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.7rem);
+}
+
+.forum-new-card header > p:last-child,
+.forum-new-help {
+  color: #b8b3c5;
+}
+
+.forum-new-form {
+  display: grid;
+  gap: 12px;
+}
+
+.forum-new-form > label,
+.forum-new-tags legend {
+  margin-top: 10px;
+  font-weight: 650;
+}
+
+.forum-new-form input:not([type="checkbox"]),
+.forum-new-form select,
+.forum-new-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  color: #f4f0ff;
+  background: #12111a;
+  border: 1px solid #454052;
+  border-radius: 9px;
+  font: inherit;
+}
+
+.forum-new-form input[type="file"] {
+  color: #b8b3c5;
+}
+
+.forum-new-form textarea {
+  resize: vertical;
+}
+
+.forum-new-help {
+  margin: -8px 0 0;
+  font-size: 0.9rem;
+}
+
+.forum-new-preview {
+  display: block;
+  width: min(100%, 460px);
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.forum-new-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 16px 0 4px;
+  padding: 16px;
+  border: 1px solid #454052;
+  border-radius: 10px;
+}
+
+.forum-new-tags legend {
+  padding: 0 6px;
+}
+
+.forum-new-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #d2cddd;
+}
+
+.forum-new-error {
+  color: #ffd8dc;
+}
+
+.forum-new-empty {
+  color: #b8b3c5;
+}
+
+.forum-new-submit {
+  min-height: 46px;
+  margin-top: 12px;
+  padding: 11px 18px;
+  color: #fff;
+  background: #8054d6;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.forum-new-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

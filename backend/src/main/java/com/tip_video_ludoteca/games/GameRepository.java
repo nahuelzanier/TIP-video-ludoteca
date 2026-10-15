@@ -24,4 +24,9 @@ public interface GameRepository extends JpaRepository<Game, String> {
         nativeQuery = true
     )
     Optional<Game> findRandomByStatus(@Param("status") String status);
+    Page<Game> findByStatusAndTitleContainingIgnoreCase(
+        GameStatus status,
+        String title,
+        Pageable pageable
+    );
 }

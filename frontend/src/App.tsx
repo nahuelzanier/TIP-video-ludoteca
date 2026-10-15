@@ -10,6 +10,8 @@ import Settings from "./pages/settings/Settings";
 import UploadGame from "./pages/uploadgame/UploadGame";
 import Search from "./pages/search/Search";
 import User from "./pages/user/User";
+import ForumDiscussionPage from "./pages/forum/ForumDiscussionPage";
+import ForumNewDiscussion from "./pages/forum/ForumNewDiscussion";
 
 function MainLayout() {
   return (
@@ -35,6 +37,8 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/user/:username" element={<User />} />
           <Route path="/games/upload" element={<UploadGame />} />
+          <Route path="/forum/:discussionId" element={<ForumDiscussionPage />} />
+          <Route path="/forum/new" element={<ForumNewDiscussion />} />
         </Route>
       </Routes>
     </BrowserRouter>

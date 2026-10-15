@@ -14,11 +14,16 @@ export interface GamePage {
 export async function getGamesPage(
   page = 0,
   size = 12,
+  query = "",
 ): Promise<GamePage> {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
   });
+
+  if (query.trim()) {
+    params.set("q", query.trim());
+  }
 
   const response = await fetch(`${API_BASE_URL}/api/games?${params}`);
 
