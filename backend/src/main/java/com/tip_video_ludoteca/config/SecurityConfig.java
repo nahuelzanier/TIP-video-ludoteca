@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.config;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +50,7 @@ public class SecurityConfig {
             HttpSecurity http,
             SecurityContextRepository securityContextRepository,
             @Value("${app.frontend-origin}") String frontendOrigin) throws Exception {
-            http
+        http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf
                 .csrfTokenRepository(new HttpSessionCsrfTokenRepository()))
@@ -77,17 +78,23 @@ public class SecurityConfig {
                 )
             )
             .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
                 .requestMatchers(HttpMethod.GET,
-                    "/api/games", "/api/games/**", "/games/**",
-                    "/api/tags",
-                    "/api/search",
-                    "/api/users/*/profile",
-                    "/api/users/*/games",
-                    "/api/users/*/avatar",
-                    "/api/auth/csrf").permitAll()
+                        "/api/games", "/api/games/**", "/games/**",
+                        "/api/tags",
+                        "/api/search",
+                        "/api/users/*/profile",
+                        "/api/users/*/games",
+                        "/api/users/*/avatar",
+                        "/api/auth/csrf").permitAll()
+                .requestMatchers(HttpMethod.GET,
+                        "/api/forum/discussions",
+                        "/api/forum/discussions/*/replies",
+                        "/api/forum/discussions/**").permitAll()
                 .requestMatchers(HttpMethod.POST,
-                    "/api/auth/register", "/api/auth/login").permitAll()
+                        "/api/auth/register",
+                        "/api/auth/login").permitAll()
                 .anyRequest().authenticated());
 
         return http.build();
