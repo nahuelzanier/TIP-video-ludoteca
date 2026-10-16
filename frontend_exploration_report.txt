@@ -1,0 +1,205 @@
+﻿EXPLORATION REPORT: React Frontend
+Workspace: D:\facultad\2026\TIP-video-ludoteca\frontend
+Date: 10/08/2026 16:18:33
+
+1) ROUTES IN src/App.tsx
+----------------------------------------
+Imports: Home, Game, AuthPage, Forum, Profile, Settings, UploadGame, Search, User
+MainLayout wraps routes with Navbar + Outlet.
+Exact routes found:
+
+/ (index) -> <Home />
+/game/:id -> <Game />  (EXACT PATH PATTERN: /game/:id with param name 'id')
+/login -> <AuthPage mode="login" />
+/register -> <AuthPage mode="register" />
+/profile -> <Profile />
+/settings -> <Settings />
+/forum -> <Forum />
+/search -> <Search />
+/user/:username -> <User />
+/games/upload -> <UploadGame />
+
+Conclusion: Route /game/:id EXISTS (Game component receives via useParams<{ id: string }>).
+
+2) GAME PAGE COMPONENT (src/pages/Game.tsx)
+----------------------------------------
+File: D:\facultad\2026\TIP-video-ludoteca\frontend\src\pages/Game.tsx (86 lines)
+
+Imports:
+- useEffect, useState from "react"
+- useParams from "react-router-dom"
+- GameSection, GameTagSection from components
+- CommentSection
+- Game type from "../types/Game"
+- getGameById from "../services/gameService"
+- API_BASE_URL from "../services/api"
+- "./Game.css"
+
+How it fetches:
+- const { id } = useParams<{ id: string }>()
+- useEffect with cleanup flag isCurrentRequest (lines 18-52)
+- if (!id): sets error "Game not found.", loading false, returns
+- Calls getGameById(id) (line 32)
+- On success: sets game if still current (line 34)
+- On error: extracts message from Error or falls back to "Could not load the game." (lines 39-44)
+- Finally sets loading false if current (line 46)
+
+404 handling:
+- Checks !id first -> treats as Game not found (404-like)
+- getGameById error handling: uses error message; if service throws Error with specific text, Game.tsx displays it. From gameService: when response.status === 404 throws "Game not found." - so error state becomes "Game not found." 
+- Render logic: if loading -> "Loading game..."; if (error || !game) -> shows {error || "Game not found."} (lines 62-68). So 404s from service result in "Game not found." message being displayed. No explicit redirect - just error message in page.
+
+What it renders:
+- Loading state: <main className="game-page"><h1>Loading game...</h1></main>
+- Error/no game: <main className="game-page"><h1>{error || "Game not found."}</h1></main>
+- Has game: 
+  - header with title and description
+  - <GameSection gameUrl={gameUrl} />
+  - <GameTagSection gameId={game.id} />
+  - <CommentSection gameId={game.id} />
+- gameUrl constructed as: ${API_BASE_URL}/games//index.html (line 70)
+
+3) gameService.ts CONTENT (full)
+----------------------------------------
+File: D:\facultad\2026\TIP-video-ludoteca\frontend\src\services\gameService.ts (82 lines)
+
+Imports: API_BASE_URL from "./api", Game type from "../types/Game"
+
+GamePage interface:
+  content: Game[]
+  page, size, totalElements, totalPages
+  hasNext, hasPrevious
+
+Functions:
+- getGamesPage(page=0, size=12): 
+  - builds params page/size
+  - fetches ${API_BASE_URL}/api/games?
+  - if !ok throws "No se pudieron cargar los juegos"
+  - maps content: for each game sets image = new URL(game.image, API_BASE_URL).toString()
+
+- getGames() (deprecated/legacy): calls getGamesPage(0,24) and returns content
+- getGameById(gameId: string):
+  - fetch ${API_BASE_URL}/api/games/
+  - if 404 throws "Game not found."; else if !ok throws "Could not load the game."
+  - returns game with image rebased to API_BASE_URL
+- getRandomGame():
+  - fetch ${API_BASE_URL}/api/games/random
+  - if 404 throws "There are no games available yet."
+  - if !ok throws "Could not load a random game."
+  - returns game with image rebased
+
+API_BASE_URL source: imported from ./api (see below)
+Game type: see next
+
+4) Game TYPE
+----------------------------------------
+File: D:\facultad\2026\TIP-video-ludoteca\frontend\src\types\Game.ts (6 lines)
+interface Game {
+  id: string;        (present)
+  title: string;
+  image: string;     (present)
+  description: string;
+}
+
+Yes - has id and image fields.
+
+Also API_BASE_URL definition:
+File: D:\facultad\2026\TIP-video-ludoteca\frontend\src\services\api.ts
+- const baseUrl = import.meta.env.VITE_API_URL (line 1)
+- throws if missing (line 4)
+- export const API_BASE_URL = baseUrl.replace(/\/$/, "") (line 7)
+
+So API_BASE_URL is trimmed trailing slash from env var VITE_API_URL.
+
+5) FRONTEND STARTUP (package.json scripts) + build/typecheck
+----------------------------------------
+Scripts:
+"dev": "vite"
+"build": "tsc -b && vite build"  <-- runs TypeScript typecheck (tsc -b) BEFORE build
+"lint": "eslint ."
+"preview": "vite preview"
+
+TypeScript config (build-related):
+- tsconfig.json has project references to tsconfig.app.json and tsconfig.node.json
+- tsconfig.app.json: "noEmit": true, "noUnusedLocals": true, "noUnusedParameters": true, "erasableSyntaxOnly": true, "noFallthroughCasesInSwitch": true, "jsx": "react-jsx", "moduleResolution": "bundler", "target": "es2023"
+- So npm run build performs typechecking via tsc -b and then builds with vite. Also standalone tsc typechecking is implied by build step.
+
+6) randomgame directory
+----------------------------------------
+Checked path: D:\facultad\2026\TIP-video-ludoteca\frontend\src\pages\randomgame
+Test-Path returned NO (does not exist).
+Listing pages directories: forum, profile, search, settings, uploadgame, user - no randomgame.
+So the randomgame directory no longer exists (deleted as suggested).
+
+7) Navbar.css - .navbar-error class
+----------------------------------------
+File: D:\facultad\2026\TIP-video-ludoteca\frontend\src\components\navbar\Navbar.css
+Line 218-223 defines:
+.navbar-error {
+  margin: 8px 0 0;
+  color: #b42318;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+Navbar.tsx uses className="navbar-error" at line 204 and 221. 
+Class EXISTS and is defined.
+
+8) REFERENCES SEARCH (TypeScript error risk scan)
+----------------------------------------
+Searched for: randomgame, RandomGame, getRandomGame, NoGames
+
+Matches found:
+- Navbar.tsx:4 import { getRandomGame } from "../../services/gameService";
+- Navbar.tsx:72 const handleRandomGame = async () => {
+- Navbar.tsx:77 const game = await getRandomGame();
+- Navbar.tsx:189 onClick={handleRandomGame}
+- gameService.ts:65 export async function getRandomGame(): Promise<Game>
+
+No matches for "randomgame" (path/name), "RandomGame" (component), "NoGames" (component/name). The only references are to the service function getRandomGame which is still present and actively used (Navbar). Also no imports of deleted files.
+
+Searched for navigateAndClose: NO MATCHES found in src.
+
+Navbar compiles logically given imports - no obvious broken imports related to randomgame deletion. The only "randomgame" related code is the existing getRandomGame service function and Navbar usage. That’s fine.
+
+Other potential issues observed (read-only inspection):
+- App.tsx imports Profile from ./pages/profile/Profile (line 8). Profile.tsx exists. OK.
+- App.tsx imports UploadGame from ./pages/uploadgame/UploadGame (line 10). Directory exists. OK.
+- Game.tsx constructs gameUrl using API_BASE_URL + game.id; assumes API_BASE_URL is set (env). This is runtime dependency - fine.
+- gameService rebases image URLs using new URL(game.image, API_BASE_URL). This requires game.image to be valid relative/absolute path - fine if backend gives correct paths.
+- No obvious unused variables beyond maybe internal ones; tsc will catch with -b (noUnusedLocals/Params enabled). No navigateAndClose found.
+
+9) VITE CONFIG
+----------------------------------------
+File: D:\facultad\2026\TIP-video-ludoteca\frontend\vite.config.ts
+Content:
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [react()],
+})
+
+Observations:
+- base path: not specified; default is "/" in Vite
+- proxy config for API (/api): NOT present in vite.config.ts
+- No dev proxy for /api defined here. API calls go to VITE_API_URL (http://localhost:8080 from .env.local). So in dev, frontend will call directly to configured API URL (no Vite proxy). That’s consistent with API_BASE_URL being the backend origin.
+
+10) OTHER NOTES
+----------------------------------------
+- .env.local contains VITE_API_URL=http://localhost:8080
+- Search page exists (Search.tsx) with full implementation; route /search is configured.
+- Profile redirects to /user/:username for authenticated user.
+- Build artifacts in dist/ exist (index-BqUQ3aeW.js, index-1DUSKNSF.css) indicating previous build.
+- No randomgame directory; references cleaned except service function getRandomGame is still used by Navbar (valid).
+
+SUMMARY
+-------
+- /game/:id route exists in App.tsx (param id). 
+- Game.tsx fetches via getGameById(id), handles 404 by showing "Game not found." (no redirect). Renders game with GameSection/GameTagSection/CommentSection using gameUrl at API_BASE_URL/games/:id/index.html.
+- gameService has getGameById and getRandomGame; API_BASE_URL from api.ts (env VITE_API_URL); Game type has id and image. image URLs are rebased to API_BASE_URL.
+- package.json scripts: dev (vite), build (tsc -b && vite build - includes typecheck), lint, preview. tsc typechecking is part of build.
+- randomgame directory does NOT exist.
+- Navbar.css defines .navbar-error (class exists).
+- No imports of deleted randomgame files; getRandomGame still actively used; no navigateAndClose found. No obvious TypeScript import errors from file deletions visible in read code.
+- vite.config.ts has no base/path config (defaults to /) and NO API proxy configured (uses env API URL).

@@ -78,8 +78,15 @@
   letter-spacing: 0.4px;
 }
 
-.user-badge__date {
+.user-badge__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-badge__edited {
   color: var(--text);
   font-size: 12px;
-  opacity: 0.75;
+  opacity: 0.7;
+  font-style: italic;
 }

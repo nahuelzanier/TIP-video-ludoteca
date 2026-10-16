@@ -8,7 +8,7 @@
 
 .home h1 {
   position: relative;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
   padding-bottom: 16px;
 }
 
@@ -23,8 +23,48 @@
   background: linear-gradient(90deg, var(--accent), #c084fc);
 }
 
+.home-search-form {
+  position: relative;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto 24px;
+}
+
+.home-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.home-search {
+  width: 100%;
+  padding: 12px 12px 12px 38px;
+  box-sizing: border-box;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.home-search::placeholder {
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.home-search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
 .game-count {
-  margin: -20px 0 24px;
+  margin: 0 0 24px;
   color: #aaa4b8;
 }
 

@@ -6,7 +6,9 @@ interface ReplyListProps {
   submitting: boolean;
   submitError: string;
   canReply: boolean;
+  canEdit: boolean;
   onReply: (commentId: number, content: string) => Promise<boolean>;
+  onEdit: (commentId: number, content: string) => Promise<boolean>;
 }
 
 function ReplyList({
@@ -14,7 +16,9 @@ function ReplyList({
   submitting,
   submitError,
   canReply,
+  canEdit,
   onReply,
+  onEdit,
 }: ReplyListProps) {
   if (replies.length === 0) {
     return null;
@@ -30,7 +34,9 @@ function ReplyList({
           submitting={submitting}
           submitError={submitError}
           canReply={canReply}
+          canEdit={canEdit}
           onReply={onReply}
+          onEdit={onEdit}
         />
       ))}
     </div>

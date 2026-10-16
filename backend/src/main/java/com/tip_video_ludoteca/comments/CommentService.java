@@ -110,6 +110,26 @@ public class CommentService {
         return toResponse(comments.save(reply), game);
     }
 
+    @Transactional
+    public CommentResponse update(
+            Long commentId,
+            UpdateCommentRequest request,
+            String userEmail) {
+
+        Comment comment = comments.findById(commentId)
+                .orElseThrow(CommentNotFoundException::new);
+
+        User authenticated = findUser(userEmail);
+
+        if (!comment.getAuthor().getId().equals(authenticated.getId())) {
+            throw new CommentEditForbiddenException();
+        }
+
+        comment.updateContent(cleanContent(request.content()));
+
+        return toResponse(comments.save(comment), comment.getGame());
+    }
+
     private Game findGame(String gameId) {
         return games.findById(gameId).orElseThrow(GameNotFoundException::new);
     }

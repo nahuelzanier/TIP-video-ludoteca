@@ -66,3 +66,22 @@ export async function getGameById(gameId: string): Promise<Game> {
     image: new URL(game.image, API_BASE_URL).toString(),
   };
 }
+
+export async function getRandomGame(): Promise<Game> {
+  const response = await fetch(`${API_BASE_URL}/api/games/random`);
+
+  if (response.status === 404) {
+    throw new Error("There are no games available yet.");
+  }
+
+  if (!response.ok) {
+    throw new Error("Could not load a random game.");
+  }
+
+  const game: Game = await response.json();
+
+  return {
+    ...game,
+    image: new URL(game.image, API_BASE_URL).toString(),
+  };
+}

@@ -96,7 +96,7 @@ function Search() {
             <main className="search-page">
                 <h1>Búsqueda</h1>
                 <p className="search-hint">
-                    Usá la barra de búsqueda de la barra de navegación para encontrar
+                    Usá la barra de búsqueda de la página de inicio para encontrar
                     juegos y usuarios por nombre.
                 </p>
             </main>

@@ -27,6 +27,34 @@ async function postComment<T>(url: string, body: Record<string, unknown>): Promi
   return response.json();
 }
 
+async function putComment<T>(url: string, body: Record<string, unknown>): Promise<T> {
+  const csrf = await fetchCsrfToken();
+
+  const response = await fetch(url, {
+    method: "PUT",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      [csrf.headerName]: csrf.token,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.status === 401) {
+    throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+  }
+
+  if (response.status === 403) {
+    throw new Error("No podés editar un comentario de otro usuario.");
+  }
+
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+
+  return response.json();
+}
+
 export async function getGameComments(gameId: string): Promise<Comment[]> {
   const response = await fetch(
     `${API_BASE_URL}/api/games/${encodeURIComponent(gameId)}/comments`,
@@ -55,6 +83,16 @@ export function createReply(
 ): Promise<Comment> {
   return postComment<Comment>(
     `${API_BASE_URL}/api/comments/${commentId}/replies`,
+    { content },
+  );
+}
+
+export function updateComment(
+  commentId: number,
+  content: string,
+): Promise<Comment> {
+  return putComment<Comment>(
+    `${API_BASE_URL}/api/comments/${commentId}`,
     { content },
   );
 }

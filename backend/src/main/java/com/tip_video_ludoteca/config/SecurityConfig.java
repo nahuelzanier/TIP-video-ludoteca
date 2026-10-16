@@ -81,6 +81,14 @@ public class SecurityConfig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
                 .requestMatchers(HttpMethod.GET,
+                    "/api/games", "/api/games/**", "/games/**",
+                    "/api/tags",
+                    "/api/search",
+                    "/api/users/*/profile",
+                    "/api/users/*/games",
+                    "/api/users/*/avatar",
+                    "/api/auth/csrf",
+                    "/error").permitAll()
                         "/api/games", "/api/games/**", "/games/**",
                         "/api/tags",
                         "/api/search",

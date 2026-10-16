@@ -10,6 +10,12 @@
   box-shadow: var(--shadow-sm);
 }
 
+.profile-avatar-container {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
 .profile-avatar {
   width: 72px;
   height: 72px;
@@ -30,14 +36,83 @@
   object-fit: cover;
 }
 
+.profile-avatar-edit {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: white;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.profile-avatar-edit:hover {
+  background: var(--accent-hover);
+}
+
+.profile-avatar-edit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .profile-header-body {
   min-width: 0;
 }
 
 .profile-header .profile-header-name {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   padding-bottom: 12px;
   word-break: break-word;
+}
+
+.profile-description-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.profile-description-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.profile-description-edit {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.profile-description-edit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.profile-description-edit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .profile-description {
@@ -53,48 +128,23 @@
 
 .profile-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
-.profile-edit,
-.profile-photo,
-.profile-upload,
-.profile-logout {
+.profile-upload {
   padding: 10px 16px;
   border-radius: 8px;
   font: inherit;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.profile-edit {
   color: white;
   background: var(--accent);
   border: 1px solid var(--accent);
-}
-
-.profile-edit:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
-.profile-photo {
-  color: var(--text);
-  background: transparent;
-  border: 1px solid var(--border);
-}
-
-.profile-photo:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.profile-upload {
-  color: white;
-  background: var(--accent);
-  border: 1px solid var(--accent);
+  min-height: 44px;
 }
 
 .profile-upload:hover {
@@ -103,14 +153,25 @@
 }
 
 .profile-logout {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   color: var(--text);
   background: transparent;
   border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .profile-logout:hover:not(:disabled) {
   color: var(--text-h);
   border-color: var(--text);
+  background: var(--accent-bg);
 }
 
 .profile-logout:disabled {
@@ -118,8 +179,6 @@
   opacity: 0.7;
 }
 
-.profile-edit:focus-visible,
-.profile-photo:focus-visible,
 .profile-upload:focus-visible,
 .profile-logout:focus-visible {
   outline: 2px solid var(--accent);

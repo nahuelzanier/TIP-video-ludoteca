@@ -3,6 +3,7 @@ export interface Comment {
   content: string;
   rating: number | null;
   createdAt: string;
+  edited: boolean;
   username: string;
   profileImageUrl: string | null;
   isGameAuthor: boolean;
@@ -12,4 +13,8 @@ export interface Comment {
 export interface CreateCommentPayload {
   content: string;
   rating?: number;
+}
+
+export interface UpdateCommentPayload {
+  content: string;
 }

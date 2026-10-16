@@ -1,13 +1,15 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout as logoutUser } from "../../services/authService";
+import { getRandomGame } from "../../services/gameService";
 import "./Navbar.css";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
     const [loggingOut, setLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState("");
+    const [pickingRandom, setPickingRandom] = useState(false);
+    const [randomError, setRandomError] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,11 +32,6 @@ function Navbar() {
         setIsOpen(false);
     };
 
-    const navigateAndClose = (path: string) => {
-        navigate(path);
-        setIsOpen(false);
-    };
-
     const handleLogout = async () => {
         setLogoutError("");
         setLoggingOut(true);
@@ -54,21 +51,23 @@ function Navbar() {
         }
     };
 
-    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(event.target.value);
-    };
+    const handleRandomGame = async () => {
+        setRandomError("");
+        setPickingRandom(true);
 
-    const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        const term = searchQuery.trim();
-
-        if (term.length < 2) {
-            return;
+        try {
+            const game = await getRandomGame();
+            navigate(`/game/${encodeURIComponent(game.id)}`);
+            setIsOpen(false);
+        } catch (requestError) {
+            setRandomError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "Could not load a random game.",
+            );
+        } finally {
+            setPickingRandom(false);
         }
-
-        setIsOpen(false);
-        navigate(`/search?q=${encodeURIComponent(term)}`);
     };
 
     return (
@@ -105,39 +104,6 @@ function Navbar() {
                     </button>
                 </header>
 
-                <form
-                    className="navbar-search-form"
-                    role="search"
-                    onSubmit={handleSearchSubmit}
-                >
-                    <svg
-                        className="navbar-search-icon"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        aria-hidden="true"
-                    >
-                        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-                        <path
-                            d="M20 20l-3.6-3.6"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                        />
-                    </svg>
-                    <input
-                        className="navbar-search"
-                        type="search"
-                        placeholder="Search games and users"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        aria-label="Search games and users"
-                        minLength={2}
-                        required
-                    />
-                </form>
-
                 <nav className="navbar-nav" aria-label="Main menu">
                     <NavLink
                         className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
@@ -169,9 +135,10 @@ function Navbar() {
                     <button
                         className="navbar-button"
                         type="button"
-                        onClick={() => navigateAndClose("/randomgame")}
+                        onClick={handleRandomGame}
+                        disabled={pickingRandom}
                     >
-                        Randomize game
+                        {pickingRandom ? "Picking a game..." : "Random game"}
                     </button>
                     <NavLink
                         className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
@@ -181,6 +148,12 @@ function Navbar() {
                         Forum
                     </NavLink>
                 </nav>
+
+                {randomError && (
+                    <p className="navbar-error" role="alert">
+                        {randomError}
+                    </p>
+                )}
 
                 <div className="navbar-divider" />
 
