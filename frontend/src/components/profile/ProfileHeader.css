@@ -187,7 +187,7 @@
 
 .profile-error {
   grid-column: 1 / -1;
-  color: #b42318;
+  color: var(--error);
   font-size: 14px;
 }
 

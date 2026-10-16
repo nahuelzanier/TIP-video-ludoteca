@@ -1,5 +1,5 @@
 .search-page {
-  max-width: 1200px;
+  max-width: var(--content-width);
   width: 100%;
   margin: 0 auto;
   padding: 48px 24px 64px;
@@ -20,7 +20,7 @@
   width: 56px;
   height: 4px;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent), #c084fc);
+  background: linear-gradient(90deg, var(--accent), var(--accent-highlight));
 }
 
 .search-hint,
@@ -31,7 +31,7 @@
 }
 
 .search-error {
-  color: #b42318;
+  color: var(--error);
   margin-bottom: 32px;
 }
 
