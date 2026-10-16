@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, Navigate, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { getCurrentUser, type AuthUser } from "../../services/authService";
 import {
   createForumReply,
@@ -31,6 +31,7 @@ function ForumDiscussionPage() {
 
   useEffect(() => {
     if (!Number.isInteger(discussionId) || discussionId <= 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- invalid route IDs should resolve without making requests.
       setError("Discussion not found.");
       setLoading(false);
       return;

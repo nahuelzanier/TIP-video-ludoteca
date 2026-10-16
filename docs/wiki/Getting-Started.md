@@ -153,10 +153,11 @@ npm install
 ```
 
 Create `frontend/.env.local` — it is gitignored and **required**, because `services/api.ts`
-throws at load time without it:
+throws at load time if either URL is missing:
 
 ```text
 VITE_API_URL=http://localhost:8080
+VITE_GAME_CONTENT_URL=http://127.0.0.1:8080
 ```
 
 Then:
@@ -186,7 +187,7 @@ export DB_PASSWORD="your-postgres-password"
 # terminal 2
 cd frontend
 npm install
-printf 'VITE_API_URL=http://localhost:8080\n' > .env.local
+printf 'VITE_API_URL=http://localhost:8080\nVITE_GAME_CONTENT_URL=http://127.0.0.1:8080\n' > .env.local
 npm run dev
 ```
 
@@ -221,21 +222,17 @@ curl http://localhost:8080/api/games/<gameId>/comments
 
 ## Running the tests
 
+Start Docker Desktop and wait for its engine to be ready. From the repository root:
+
 ```bash
 cd backend
-./mvnw test
+./mvnw verify
 ```
 
-Eight classes, 56 tests. **Caveat:** `BackendApplicationTests` is a full `@SpringBootTest` that
-needs a reachable database, so run it with `DB_PASSWORD` set and the database up — or exclude
-it:
-
-```bash
-./mvnw test -Dtest='!BackendApplicationTests'
-```
-
-There are no frontend tests; CI runs `npm run lint` and `npm run build`. See
-[Testing](Testing.md).
+Database tests automatically start an isolated PostgreSQL 18 container through Testcontainers;
+no local database credentials or manually started database are required. Docker Desktop must be
+running. `verify` runs the backend tests and generates the JaCoCo report. See [Testing](Testing.md)
+for frontend test commands and CI details.
 
 ## Production build
 
@@ -261,6 +258,8 @@ If you do deploy it, two things need attention:
    rewritten to `index.html`, otherwise deep links 404.
 2. **`FRONTEND_ORIGIN` must match the real frontend origin**, because the game iframe is only
    embeddable from the origins listed in the CSP `frame-ancestors` directive.
+3. Serve game files from a separate site and set `VITE_GAME_CONTENT_URL` to it; do not share
+   the API's session-cookie host. See [Game Isolation](Game-Isolation.md).
 
 ## Troubleshooting
 
@@ -306,9 +305,11 @@ Check, in order:
 1. Is the backend on `http://localhost:8080`? `curl http://localhost:8080/api/games`.
 2. Does `.env.local` point at the same URL? Restart `npm run dev` after editing it — Vite
    only reads env files at startup.
-3. Is `FRONTEND_ORIGIN` correct? It defaults to `http://localhost:5173`. If your frontend runs
+3. Is `VITE_GAME_CONTENT_URL` set to `http://127.0.0.1:8080`? Game files must use this
+   host locally; do not change it to `localhost`.
+4. Is `FRONTEND_ORIGIN` correct? It defaults to `http://localhost:5173`. If your frontend runs
    on another port, set it, because `allowCredentials(true)` forbids a wildcard origin.
-4. Browser console, for the exact CORS failure.
+5. Browser console, for the exact CORS failure.
 
 ### A game does not load, or the iframe is blank
 
@@ -317,6 +318,9 @@ Check, in order:
 - Confirm the game is `PUBLISHED`. Drafts are invisible to every endpoint except the asset
   routes, so the player will 404.
 - Check the browser console for a CSP violation from `frame-ancestors`.
+- Check that the frontend uses the game-content host (`127.0.0.1`) and that the iframe has
+  `sandbox="allow-scripts allow-same-origin"`.
+- See [Game Isolation](Game-Isolation.md) for the browser CORS check and production setup.
 
 ### A deep link to an older game shows "Juego no encontrado"
 

@@ -67,6 +67,7 @@ function ForumNewDiscussion() {
     const query = gameQuery.trim();
 
     if (query.length < 2 || gameId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- discard results when the query is too short or an option was selected.
       setGames([]);
       return;
     }
@@ -96,6 +97,7 @@ function ForumNewDiscussion() {
 
   useEffect(() => {
     if (!cover) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the preview synchronized with the selected file.
       setCoverPreview("");
       return;
     }

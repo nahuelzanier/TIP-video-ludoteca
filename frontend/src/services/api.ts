@@ -1,3 +1,11 @@
+const gameContentUrl = import.meta.env.VITE_GAME_CONTENT_URL;
+
+if (!gameContentUrl) {
+  throw new Error("Falta configurar VITE_GAME_CONTENT_URL en frontend/.env.local");
+}
+
+export const GAME_CONTENT_BASE_URL = gameContentUrl.replace(/\/$/, "");
+
 const baseUrl = import.meta.env.VITE_API_URL;
 
 if (!baseUrl) {
@@ -28,8 +36,12 @@ export async function readError(response: Response): Promise<string> {
   const text = await response.text();
 
   try {
-    const error = JSON.parse(text) as { error?: string };
-    return error.error || text || `Error ${response.status}`;
+    const error = JSON.parse(text) as {
+      detail?: string;
+      message?: string;
+      error?: string;
+    };
+    return error.detail || error.message || error.error || text || `Error ${response.status}`;
   } catch {
     return text || `Error ${response.status}`;
   }

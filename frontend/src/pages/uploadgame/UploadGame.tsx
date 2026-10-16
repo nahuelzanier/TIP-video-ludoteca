@@ -44,6 +44,7 @@ function UploadGame() {
 
   useEffect(() => {
     if (!cover) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the preview synchronized with the selected file.
       setCoverPreview("");
       return;
     }

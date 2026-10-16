@@ -8,6 +8,7 @@
 - [Authentication](Authentication.md)
 - [Game Upload](Game-Upload.md)
 - [Game Assets](Game-Assets.md)
+- [Game Isolation](Game-Isolation.md)
 - [Frontend](Frontend.md)
 - [Testing](Testing.md)
 

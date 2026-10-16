@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL, readError } from "./api";
 
 interface CsrfResponse {
   headerName: string;
@@ -49,22 +49,7 @@ export async function uploadGame(
   });
 
   if (!response.ok) {
-    const text = await response.text();
-
-    try {
-      const error = JSON.parse(text);
-      throw new Error(
-        error.detail ?? error.message ?? error.error ?? "Game upload failed.",
-      );
-    } catch (error) {
-      if (error instanceof Error && error.message !== "Game upload failed.") {
-        throw error;
-      }
-
-      throw new Error(text || `Upload failed with status ${response.status}.`, {
-        cause: error,
-      });
-    }
+    throw new Error(await readError(response));
   }
 
   return response.json();
@@ -94,28 +79,7 @@ export async function publishGame(gameId: string): Promise<GamePublishResult> {
   );
 
   if (!response.ok) {
-    const text = await response.text();
-
-    try {
-      const error = JSON.parse(text);
-      throw new Error(
-        error.error ??
-          error.detail ??
-          error.message ??
-          "Could not publish the game.",
-      );
-    } catch (parseError) {
-      if (
-        parseError instanceof Error &&
-        parseError.message !== "Could not publish the game."
-      ) {
-        throw parseError;
-      }
-
-      throw new Error(text || `Publish failed with status ${response.status}.`, {
-        cause: parseError,
-      });
-    }
+    throw new Error(await readError(response));
   }
 
   return response.json();

@@ -135,19 +135,6 @@ method then calls `gameFiles.saveAll(...)` with all of them held in one list. A 
 therefore needs roughly 100 MB of heap **plus** the driver buffers, in a single transaction.
 There is no streaming path and no `spring.jpa.properties.hibernate.jdbc.batch_size` tuning.
 
-### CORS is declared twice, one place hard-coded
-
-`config/WebConfig.java` configures CORS globally from `app.frontend-origin`, but
-`GameApiController` and `GameCoverController` also carry:
-
-```java
-@CrossOrigin(origins = "http://localhost:5173")
-```
-
-`@CrossOrigin` takes precedence for those routes, so pointing `FRONTEND_ORIGIN` at a
-different origin does **not** work for the catalog and the covers. Removing both annotations
-would make `FRONTEND_ORIGIN` authoritative everywhere.
-
 ### A dev password is committed in plaintext
 
 `backend/src/main/resources/application-dev.properties` is tracked:
@@ -206,10 +193,9 @@ Minor formatting noise in the same file.
 
 Not bugs, but worth stating explicitly:
 
-- **The iframe is not sandboxed.** `GameSection.tsx` renders `<iframe src={gameUrl}>` with no
-  `sandbox`, `allow` or `referrerPolicy`. An uploaded game runs with the same origin as the
-  backend and can call any public API endpoint. The cover is protected by magic-byte validation
-  and `nosniff`, but game HTML and JS are served as-is.
+- **Production game origin is not configured.** Local development uses `127.0.0.1` for game
+  files and `localhost` for Ludarium. Before deployment, route game files through a separate
+  site and configure `VITE_GAME_CONTENT_URL`; see [Game Isolation](Game-Isolation.md).
 - **`X-Content-Type-Options: nosniff` is set** on both `GameController` and
   `GameCoverController`, which is good.
 - **No rate limiting** on register, login, comment creation or upload.
@@ -335,12 +321,11 @@ If time is limited, this order gives the most value per unit of work:
 2. Merge `feature/tags`, which fixes the game page and the case collision.
 3. Enable `"strict": true` in `tsconfig.app.json` and fix what surfaces.
 4. Add a `@ExceptionHandler(ResponseStatusException.class)` so error bodies are uniform.
-5. Remove the two `@CrossOrigin` annotations so `FRONTEND_ORIGIN` works everywhere.
-6. Add a PostgreSQL service container to the CI backend job.
-7. Cover `GameUploadService` with tests — it is the only untested code that handles untrusted
+5. Add a PostgreSQL service container to the CI backend job.
+6. Cover `GameUploadService` with tests — it is the only untested code that handles untrusted
    binary input.
-8. Add a `*` route and a 404 page.
-9. Delete the dead files listed above, including `mock/LudariumMU.png`.
+7. Add a `*` route and a 404 page.
+8. Delete the dead files listed above, including `mock/LudariumMU.png`.
 
 ## Related
 

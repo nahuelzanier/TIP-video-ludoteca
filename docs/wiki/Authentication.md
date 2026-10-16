@@ -77,7 +77,7 @@ GET /api/auth/csrf
 ```
 
 The client must echo the token in a request header whose **name is the one the server
-returned**, on every state-changing request (`POST`, `PATCH`, `DELETE`):
+returned**, on every state-changing request (`POST`, `PUT`, `PATCH`, `DELETE`):
 
 ```http
 POST /api/auth/login
@@ -139,8 +139,8 @@ Endpoints that therefore **require** a session:
 
 ## CORS
 
-CORS is configured once, in `config/WebConfig.java`, and Spring Security simply delegates to
-it with `.cors(Customizer.withDefaults())`:
+CORS is configured centrally in `config/WebConfig.java`, and Spring Security delegates to it
+with `.cors(Customizer.withDefaults())`:
 
 ```java
 registry.addMapping("/**")
@@ -152,11 +152,10 @@ registry.addMapping("/**")
 
 `frontendOrigin` comes from `app.frontend-origin`, which defaults to
 `http://localhost:5173` and can be overridden with the `FRONTEND_ORIGIN` environment
-variable. `allowCredentials(true)` is what makes the `JSESSIONID` cookie cross-origin.
-
-> Two controllers (`GameApiController`, `GameCoverController`) additionally hard-code
-> `@CrossOrigin(origins = "http://localhost:5173")`, which overrides the global setting for
-> those routes. See [Known Issues](Known-Issues.md).
+variable. `allowCredentials(true)` lets the frontend make credentialed cross-origin requests.
+The game origin is intentionally not allowed. Uploaded games run in a sandbox on a separate
+origin; CORS and session-backed CSRF prevent them from reading the CSRF token or modifying
+authenticated data. See [Game Isolation](Game-Isolation.md).
 
 ## Response headers for the game iframe
 

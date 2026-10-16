@@ -28,7 +28,7 @@ All HTTP goes through the **native `fetch` API**. There is no `axios`.
 
 ## Configuration
 
-### `VITE_API_URL` is mandatory
+### API and game content URLs are mandatory
 
 `services/api.ts` throws at module load if it is missing:
 
@@ -41,15 +41,27 @@ if (!baseUrl) {
 export const API_BASE_URL = baseUrl.replace(/\/$/, "");
 ```
 
+Game files use a separate base URL so their origin is isolated from Ludarium's API:
+
+```ts
+const gameContentUrl = import.meta.env.VITE_GAME_CONTENT_URL;
+if (!gameContentUrl) {
+  throw new Error("Falta configurar VITE_GAME_CONTENT_URL en frontend/.env.local");
+}
+export const GAME_CONTENT_BASE_URL = gameContentUrl.replace(/\/$/, "");
+```
+
 Create `frontend/.env.local` (gitignored) with:
 
 ```text
 VITE_API_URL=http://localhost:8080
+VITE_GAME_CONTENT_URL=http://127.0.0.1:8080
 ```
 
-It is the **only** environment variable the app reads. There is no `.env.example` and no
-`ImportMetaEnv` augmentation; typing comes from `"types": ["vite/client"]` in
-`tsconfig.app.json`.
+Use `localhost` for Ludarium and `127.0.0.1` for game content in local development. Do not
+point both variables at the same host. Restart Vite after changing this file. There is no
+`.env.example` and no `ImportMetaEnv` augmentation; typing comes from `"types": ["vite/client"]`
+in `tsconfig.app.json`. See [Game Isolation](Game-Isolation.md) before deployment.
 
 ### `vite.config.ts`
 
@@ -143,11 +155,14 @@ Paginated catalog grid.
 
 - Resolves the game with `useParams`, then finds it in `getGames()`.
 - Shows the title, the description, the player, and the comment section.
-- The iframe URL is built here:
+- The iframe URL is built here from `GAME_CONTENT_BASE_URL`:
 
 ```tsx
-const gameUrl = `${API_BASE_URL}/games/${game.id}/index.html`;
+const gameUrl = `${GAME_CONTENT_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`;
 ```
+
+`GameSection` uses `sandbox="allow-scripts allow-same-origin"`; see
+[Game Isolation](Game-Isolation.md) for why the game origin must remain separate.
 
 > On this branch `game.id` is **not** passed through `encodeURIComponent`, unlike every
 > service call. It also resolves the game by scanning the first 24 games of the catalog, so
@@ -245,7 +260,12 @@ components/
 
 ```tsx
 <section className="game-section">
-  <iframe src={gameUrl} title="Juego" className="game-frame" />
+  <iframe
+    src={gameUrl}
+    title="Juego"
+    className="game-frame"
+    sandbox="allow-scripts allow-same-origin"
+  />
 </section>
 ```
 

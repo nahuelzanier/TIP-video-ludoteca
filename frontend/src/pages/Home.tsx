@@ -18,6 +18,7 @@ function Home() {
   useEffect(() => {
     let isCurrentRequest = true;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pagination starts a new request and must show its pending state.
     setLoading(true);
     setError("");
 

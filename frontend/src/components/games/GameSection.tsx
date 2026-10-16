@@ -11,7 +11,8 @@ function GameSection({ gameUrl }: GameSectionProps) {
                 src={gameUrl}
                 title="Juego"
                 className="game-frame"
-            />
+                sandbox="allow-scripts allow-same-origin"
+                />
         </section>
     );
 }

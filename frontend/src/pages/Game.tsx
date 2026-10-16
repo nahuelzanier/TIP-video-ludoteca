@@ -5,7 +5,7 @@ import GameTagSection from "../components/games/GameTagSection";
 import CommentSection from "../components/comments/CommentSection";
 import type { Game as GameType } from "../types/Game";
 import { getGameById } from "../services/gameService";
-import { API_BASE_URL } from "../services/api";
+import { GAME_CONTENT_BASE_URL } from "../services/api";
 import "./Game.css";
 
 function Game() {
@@ -19,6 +19,8 @@ function Game() {
     let isCurrentRequest = true;
 
     if (!id) {
+      // Resolve a missing route ID immediately instead of starting a game request.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- keeps the no-ID route state terminal.
       setGame(null);
       setError("Game not found.");
       setLoading(false);
@@ -67,7 +69,7 @@ function Game() {
     );
   }
 
-  const gameUrl = `${API_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`;
+  const gameUrl = `${GAME_CONTENT_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`;
 
   return (
     <main className="game-page">
