@@ -2,9 +2,11 @@ package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.games.GameRecommendationSummary;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameSpecifications;
 import com.tip_video_ludoteca.games.GameStatus;
+import com.tip_video_ludoteca.tags.GameTagAssignmentRepository;
 import com.tip_video_ludoteca.users.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSec
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +50,9 @@ class GameApiControllerTests {
     @MockitoBean
     private GameRepository gameRepository;
 
+    @MockitoBean
+    private GameTagAssignmentRepository gameTagAssignmentRepository;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -77,6 +83,46 @@ class GameApiControllerTests {
     }
 
     @Test
+    void recommendationsReturnLightweightSummaries() throws Exception {
+        given(gameRepository.findById(GAME_ID))
+                .willReturn(Optional.of(publishedGame()));
+        given(gameTagAssignmentRepository.findRecommendationsForGame(
+                GAME_ID, PageRequest.of(0, 3)))
+                .willReturn(List.of(
+                        new GameRecommendationSummary(
+                                "game-2", "Puzzle", "/api/games/game-2/cover"),
+                        new GameRecommendationSummary(
+                                "game-3", "Carreras", null)
+                ));
+
+        mockMvc.perform(get("/api/games/game-1/recommendations"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value("game-2"))
+                .andExpect(jsonPath("$[0].title").value("Puzzle"))
+                .andExpect(jsonPath("$[0].image")
+                        .value("/api/games/game-2/cover"))
+                .andExpect(jsonPath("$[1].id").value("game-3"))
+                .andExpect(jsonPath("$[1].image").doesNotExist());
+    }
+
+    @Test
+    void recommendationsReturnEmptyListWhenThereAreNoMatches() throws Exception {
+        given(gameRepository.findById(GAME_ID))
+                .willReturn(Optional.of(publishedGame()));
+        given(gameTagAssignmentRepository.findRecommendationsForGame(
+                GAME_ID, PageRequest.of(0, 3)))
+                .willReturn(List.of());
+
+        mockMvc.perform(get("/api/games/game-1/recommendations"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void recommendationsReturnErrorEnvelopeForUnknownGame() throws Exception {
+        given(gameRepository.findById("missing"))
+                .willReturn(Optional.empty());
     void listsPublishedGamesWithDefaultPagination() throws Exception {
         given(gameRepository.findAll(anySpecification(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(publishedGame()), pageRequest(0, 12), 1));
@@ -157,9 +203,33 @@ class GameApiControllerTests {
         User author = new User("autor", "autor@test.com", "{bcrypt}hash");
         ReflectionTestUtils.setField(author, "id", 7L);
 
+        mockMvc.perform(get("/api/games/missing/recommendations"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("El juego no existe."));
+    }
+
+    @Test
+    void recommendationsReturnErrorEnvelopeForDraftGame() throws Exception {
+        Game draft = new Game(
+                GAME_ID,
+                author(),
+                "Aventura",
+                "Un juego de prueba.",
+                "/api/games/game-1/cover",
+                "index.html",
+                GameStatus.DRAFT);
+        given(gameRepository.findById(GAME_ID))
+                .willReturn(Optional.of(draft));
+
+        mockMvc.perform(get("/api/games/game-1/recommendations"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("El juego no existe."));
+    }
+
+    private Game publishedGame() {
         return new Game(
                 GAME_ID,
-                author,
+                author(),
                 "Aventura",
                 "Un juego de prueba.",
                 "/api/games/game-1/cover",
@@ -167,6 +237,10 @@ class GameApiControllerTests {
                 GameStatus.PUBLISHED);
     }
 
+    private User author() {
+        User author = new User("autor", "autor@test.com", "{bcrypt}hash");
+        ReflectionTestUtils.setField(author, "id", 7L);
+        return author;
     private Game game(GameStatus status) {
         User author = new User("autor", "autor@test.com", "{bcrypt}hash");
         return new Game("draft", author, "Borrador", "", null, "index.html", status);
