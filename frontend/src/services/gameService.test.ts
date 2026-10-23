@@ -38,6 +38,19 @@ describe("gameService", () => {
     expect(result.hasNext).toBe(true);
   });
 
+  it("sends multiple tag filters and a minimum rating together", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({
+      content: [], page: 0, size: 12, totalElements: 0,
+      totalPages: 0, hasNext: false, hasPrevious: false,
+    }));
+
+    await getGamesPage(0, 12, "", { tagIds: [3, 5], minRating: 4 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8080/api/games?page=0&size=12&tagIds=3&tagIds=5&minRating=4",
+    );
+  });
+
   it("encodes game IDs and reports a missing game", async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 404 }));
 

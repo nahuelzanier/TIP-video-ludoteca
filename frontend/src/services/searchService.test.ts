@@ -33,6 +33,20 @@ describe("searchService", () => {
     expect(result.users.items[0].avatarUrl).toBe("http://localhost:8080/api/users/luqui/avatar");
   });
 
+  it("sends combined genre and rating filters for games", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
+      query: "puzzle",
+      games: { items: [], page: 0, size: 9, totalItems: 0, totalPages: 0 },
+      users: { items: [], page: 0, size: 9, totalItems: 0, totalPages: 0 },
+    })));
+
+    await searchEverything("puzzle", 0, 0, 9, { tagIds: [2, 7], minRating: 4 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8080/api/search?q=puzzle&gamesPage=0&usersPage=0&size=9&tagIds=2&tagIds=7&minRating=4",
+    );
+  });
+
   it("uses empty strings for absent game images and avatars", async () => {
     fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
       query: "empty",

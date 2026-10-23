@@ -3,6 +3,7 @@ package com.tip_video_ludoteca.controller;
 import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameSpecifications;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.users.User;
 import org.junit.jupiter.api.Test;
@@ -12,19 +13,24 @@ import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSec
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -72,11 +78,8 @@ class GameApiControllerTests {
 
     @Test
     void listsPublishedGamesWithDefaultPagination() throws Exception {
-        given(gameRepository.findByStatus(
-                org.mockito.ArgumentMatchers.eq(GameStatus.PUBLISHED),
-                org.mockito.ArgumentMatchers.any()))
-                .willReturn(new PageImpl<>(java.util.List.of(publishedGame()),
-                        PageRequest.of(0, 12), 1));
+        given(gameRepository.findAll(anySpecification(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(publishedGame()), pageRequest(0, 12), 1));
 
         mockMvc.perform(get("/api/games"))
                 .andExpect(status().isOk())
@@ -85,49 +88,45 @@ class GameApiControllerTests {
                 .andExpect(jsonPath("$.size").value(12))
                 .andExpect(jsonPath("$.totalElements").value(1));
 
-        verify(gameRepository).findByStatus(GameStatus.PUBLISHED, PageRequest.of(
-                0, 12, Sort.by(Sort.Direction.DESC, "createdAt")));
+        verify(gameRepository).findAll(anySpecification(), eq(pageRequest(0, 12)));
     }
 
     @Test
-    void clampsPageAndSizeAndTrimsSearchQuery() throws Exception {
-        given(gameRepository.findByStatusAndTitleContainingIgnoreCase(
-                org.mockito.ArgumentMatchers.eq(GameStatus.PUBLISHED),
-                org.mockito.ArgumentMatchers.eq("puzzle"),
-                org.mockito.ArgumentMatchers.any()))
-                .willReturn(new PageImpl<>(java.util.List.of(), PageRequest.of(0, 24), 0));
+    void passesSearchAndRepeatedGenreFiltersToPagedRepositoryQuery() throws Exception {
+        given(gameRepository.findAll(anySpecification(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(publishedGame()), pageRequest(0, 12), 1));
+
+        mockMvc.perform(get("/api/games")
+                        .param("q", "  puzzle ")
+                        .param("tagIds", "2", "5")
+                        .param("minRating", "4.5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(GAME_ID));
+
+        verify(gameRepository).findAll(anySpecification(), eq(pageRequest(0, 12)));
+    }
+
+    @Test
+    void clampsPageAndSize() throws Exception {
+        given(gameRepository.findAll(anySpecification(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(), pageRequest(0, 24), 0));
 
         mockMvc.perform(get("/api/games")
                         .param("page", "-4")
-                        .param("size", "100")
-                        .param("q", "  puzzle  "))
+                        .param("size", "100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(24));
 
-        verify(gameRepository).findByStatusAndTitleContainingIgnoreCase(
-                GameStatus.PUBLISHED,
-                "puzzle",
-                PageRequest.of(0, 24, Sort.by(Sort.Direction.DESC, "createdAt")));
-        verify(gameRepository, never()).findByStatus(org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any());
+        verify(gameRepository).findAll(anySpecification(), eq(pageRequest(0, 24)));
     }
 
     @Test
-    void blankSearchUsesUnfilteredPublishedList() throws Exception {
-        given(gameRepository.findByStatus(
-                org.mockito.ArgumentMatchers.eq(GameStatus.PUBLISHED),
-                org.mockito.ArgumentMatchers.any()))
-                .willReturn(new PageImpl<>(java.util.List.of(), PageRequest.of(0, 12), 0));
+    void rejectsMinimumRatingOutsideTheOneToFiveRange() throws Exception {
+        mockMvc.perform(get("/api/games").param("minRating", "6"))
+                .andExpect(status().isBadRequest());
 
-        mockMvc.perform(get("/api/games").param("q", "   "))
-                .andExpect(status().isOk());
-
-        verify(gameRepository).findByStatus(GameStatus.PUBLISHED, PageRequest.of(
-                0, 12, Sort.by(Sort.Direction.DESC, "createdAt")));
-        verify(gameRepository, never()).findByStatusAndTitleContainingIgnoreCase(
-                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any());
+        verify(gameRepository, never()).findAll(anySpecification(), any(Pageable.class));
     }
 
     @Test
@@ -143,6 +142,15 @@ class GameApiControllerTests {
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/api/games/{gameId}", "missing"))
                 .andExpect(status().isNotFound());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Specification<Game> anySpecification() {
+        return org.mockito.ArgumentMatchers.any(Specification.class);
+    }
+
+    private PageRequest pageRequest(int page, int size) {
+        return PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     private Game publishedGame() {

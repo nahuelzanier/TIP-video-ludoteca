@@ -1,11 +1,13 @@
 import { API_BASE_URL, resolveAssetUrl } from "./api";
 import type { SearchResponse } from "../types/Search";
+import type { GameFilters } from "../types/GameFilters";
 
 export async function searchEverything(
     q: string,
     gamesPage = 0,
     usersPage = 0,
     size = 9,
+    filters: GameFilters = { tagIds: [], minRating: null },
 ): Promise<SearchResponse> {
     const params = new URLSearchParams({
         q: q.trim(),
@@ -13,6 +15,11 @@ export async function searchEverything(
         usersPage: String(usersPage),
         size: String(size),
     });
+
+    filters.tagIds.forEach((tagId) => params.append("tagIds", String(tagId)));
+    if (filters.minRating !== null) {
+        params.set("minRating", String(filters.minRating));
+    }
 
     const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
 

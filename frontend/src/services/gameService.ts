@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "./api";
 import type { Game } from "../types/Game";
+import type { GameFilters } from "../types/GameFilters";
 
 export interface GamePage {
   content: Game[];
@@ -15,6 +16,7 @@ export async function getGamesPage(
   page = 0,
   size = 12,
   query = "",
+  filters: GameFilters = { tagIds: [], minRating: null },
 ): Promise<GamePage> {
   const params = new URLSearchParams({
     page: String(page),
@@ -23,6 +25,10 @@ export async function getGamesPage(
 
   if (query.trim()) {
     params.set("q", query.trim());
+  }
+  filters.tagIds.forEach((tagId) => params.append("tagIds", String(tagId)));
+  if (filters.minRating !== null) {
+    params.set("minRating", String(filters.minRating));
   }
 
   const response = await fetch(`${API_BASE_URL}/api/games?${params}`);
