@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "./api";
-import type { Game } from "../types/Game";
+import type { Game, GameRecommendation } from "../types/Game";
 
 export interface GamePage {
   content: Game[];
@@ -79,4 +79,27 @@ export async function getRandomGame(): Promise<Game> {
     ...game,
     image: new URL(game.image, API_BASE_URL).toString(),
   };
+}
+
+export async function getGameRecommendations(
+  gameId: string,
+): Promise<GameRecommendation[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/games/${encodeURIComponent(gameId)}/recommendations`,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      response.status === 404
+        ? "Game not found."
+        : "Could not load recommendations.",
+    );
+  }
+
+  const recommendations: GameRecommendation[] = await response.json();
+
+  return recommendations.map((game) => ({
+    ...game,
+    image: game.image ? new URL(game.image, API_BASE_URL).toString() : "",
+  }));
 }

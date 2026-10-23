@@ -1,5 +1,7 @@
 package com.tip_video_ludoteca.tags;
 
+import com.tip_video_ludoteca.games.GameRecommendationSummary;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,5 +48,30 @@ public interface GameTagAssignmentRepository
         List<Long> findAssignedTagIdsByGameIdAndUserId(
                 @Param("gameId") String gameId,
                 @Param("userId") Long userId
+    );
+
+    @Query("""
+            SELECT new com.tip_video_ludoteca.games.GameRecommendationSummary(
+                game.id,
+                game.title,
+                game.coverImageUrl)
+            FROM GameTagAssignment assignment
+            JOIN assignment.game game
+            WHERE assignment.id.gameId <> :gameId
+            AND game.status = com.tip_video_ludoteca.games.GameStatus.PUBLISHED
+            AND assignment.id.tagId IN (
+                SELECT other.id.tagId
+                FROM GameTagAssignment other
+                WHERE other.id.gameId = :gameId
+            )
+            GROUP BY game.id, game.title, game.coverImageUrl
+            HAVING COUNT(DISTINCT assignment.id.tagId) >= 2
+            ORDER BY COUNT(DISTINCT assignment.id.tagId) DESC,
+                    game.title ASC,
+                    game.id ASC
+            """)
+        List<GameRecommendationSummary> findRecommendationsForGame(
+                @Param("gameId") String gameId,
+                Pageable pageable
     );
 }

@@ -1,9 +1,12 @@
 package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.games.GameNotFoundException;
+import com.tip_video_ludoteca.games.GameRecommendationSummary;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.games.NoGamesAvailableException;
+import com.tip_video_ludoteca.tags.GameTagAssignmentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,9 +25,13 @@ import java.util.List;
 public class GameApiController {
 
     private final GameRepository games;
+    private final GameTagAssignmentRepository tagAssignments;
 
-    public GameApiController(GameRepository games) {
+    public GameApiController(
+            GameRepository games,
+            GameTagAssignmentRepository tagAssignments) {
         this.games = games;
+        this.tagAssignments = tagAssignments;
     }
 
     @GetMapping
@@ -90,6 +97,21 @@ public class GameApiController {
                 game.getCoverImageUrl(),
                 game.getDescription()
         ));
+    }
+
+    @GetMapping("/{gameId}/recommendations")
+    public List<GameRecommendationSummary> getGameRecommendations(
+            @PathVariable String gameId) {
+        Game game = games.findById(gameId).orElse(null);
+
+        if (game == null || game.getStatus() != GameStatus.PUBLISHED) {
+            throw new GameNotFoundException();
+        }
+
+        return tagAssignments.findRecommendationsForGame(
+                gameId,
+                PageRequest.of(0, 3)
+        );
     }
 
     public record GameSummary(
