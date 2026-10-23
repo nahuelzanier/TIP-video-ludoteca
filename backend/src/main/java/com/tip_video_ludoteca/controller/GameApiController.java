@@ -4,24 +4,25 @@ import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameNotFoundException;
 import com.tip_video_ludoteca.games.GameRecommendationSummary;
 import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameSpecifications;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.games.NoGamesAvailableException;
 import com.tip_video_ludoteca.tags.GameTagAssignmentRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import java.util.List;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/games")
-@CrossOrigin(origins = "http://localhost:5173")
 public class GameApiController {
 
     private final GameRepository games;
@@ -37,18 +38,31 @@ public class GameApiController {
     @GetMapping
     public ResponseEntity<GamePage> getGames(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) List<Long> tagIds,
+            @RequestParam(required = false) Double minRating) {
+
+        if (minRating != null
+                && (!Double.isFinite(minRating) || minRating < 1 || minRating > 5)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La valoración mínima debe estar entre 1 y 5."
+            );
+        }
 
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 24);
 
-        Page<Game> result = games.findByStatus(
-                GameStatus.PUBLISHED,
-                PageRequest.of(
-                        safePage,
-                        safeSize,
-                        Sort.by(Sort.Direction.DESC, "createdAt")
-                )
+        PageRequest pageRequest = PageRequest.of(
+                safePage,
+                safeSize,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<Game> result = games.findAll(
+                GameSpecifications.withFilters(q, tagIds, minRating),
+                pageRequest
         );
 
         List<GameSummary> content = result.getContent().stream()
@@ -88,7 +102,7 @@ public class GameApiController {
         Game game = games.findById(gameId).orElse(null);
 
         if (game == null || game.getStatus() != GameStatus.PUBLISHED) {
-                return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(new GameSummary(

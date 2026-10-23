@@ -1,5 +1,5 @@
 .profile-page {
-  max-width: 1200px;
+  max-width: var(--content-width);
   width: 100%;
   margin: 0 auto;
   padding: 48px 24px 64px;

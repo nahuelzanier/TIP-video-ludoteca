@@ -1,6 +1,6 @@
 .game-section {
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--content-width);
   margin: 0 auto;
   border: 1px solid var(--border);
   border-radius: 16px;

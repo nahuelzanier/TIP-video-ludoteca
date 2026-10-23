@@ -58,7 +58,8 @@ games row (PUBLISHED)
 GameController  ->  game_files lookup  ->  bytes + content type
         |
         v
-<iframe src="http://localhost:8080/games/{id}/index.html">
+<iframe src="http://127.0.0.1:8080/games/{id}/index.html"
+        sandbox="allow-scripts allow-same-origin">
 ```
 
 ## A typical Godot 4 export
@@ -174,22 +175,37 @@ The frontend turns it into an absolute URL:
 image: new URL(game.image, API_BASE_URL).toString()
 ```
 
-## The embed
+## The embed and isolated origin
 
 `components/games/GameSection.tsx`:
 
 ```tsx
 <section className="game-section">
-  <iframe src={gameUrl} title="Juego" className="game-frame" />
+  <iframe
+    src={gameUrl}
+    title="Juego"
+    className="game-frame"
+    sandbox="allow-scripts allow-same-origin"
+  />
 </section>
 ```
 
-CSS gives it `width: 100%`, `aspect-ratio: 16/9` and `border: none`. `Game.tsx` builds the
-URL:
+CSS gives it `width: 100%`, `aspect-ratio: 16/9` and `border: none`. `Game.tsx` builds the URL
+from `GAME_CONTENT_BASE_URL`, while the API continues to use `API_BASE_URL`:
 
 ```tsx
-const gameUrl = `${API_BASE_URL}/games/${game.id}/index.html`;
+const gameUrl = `${GAME_CONTENT_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`;
 ```
+
+In local development, `VITE_GAME_CONTENT_URL` is `http://127.0.0.1:8080` and
+`VITE_API_URL` is `http://localhost:8080`. The host difference isolates the game's origin and
+keeps the API's host-only session cookie out of requests to the game host. Do not use the same
+host for both URLs.
+
+`allow-scripts` lets HTML5 games execute. `allow-same-origin` is required for games that load
+their resources with same-origin requests; it is safe only because the game origin is separate
+from the Ludarium frontend and API. The game may use storage belonging to its own isolated
+origin, but it cannot read Ludarium's DOM or storage.
 
 Because the frontend and the backend are different origins, the backend must allow the frame.
 `SecurityConfig` handles both halves:
@@ -204,9 +220,8 @@ So the game can only be embedded by the configured `FRONTEND_ORIGIN` or by itsel
 iframe is blank, check the console for a CSP violation — see
 [Getting Started](Getting-Started.md#a-game-does-not-load-or-the-iframe-is-blank).
 
-> The iframe has **no `sandbox` attribute**, so an uploaded game runs with the backend's origin
-> and can call any public endpoint. See
-> [Known Issues](Known-Issues.md#security-notes).
+See [Game Isolation](Game-Isolation.md) for the CSRF/CORS protections, browser checks, local
+configuration, and production requirements.
 
 ## Drafts versus published games
 
@@ -250,4 +265,4 @@ and remember the `(game_id, path)` uniqueness plus the matching `content_type`.
 - [API](API.md#game-files) — the two serving endpoints
 - [Database](Database.md#v2-create_games) — the `games` and `game_files` tables
 - [Frontend](Frontend.md) — the player component
-- [Known Issues](Known-Issues.md) — the `main`-only binaries and the unsandboxed iframe
+- [Known Issues](Known-Issues.md) — remaining technical debt

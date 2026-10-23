@@ -2,10 +2,12 @@ package com.tip_video_ludoteca.search;
 
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameSpecifications;
 import com.tip_video_ludoteca.users.User;
 import com.tip_video_ludoteca.users.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,28 +41,40 @@ public class SearchController {
             @RequestParam(name = "q", required = false) String query,
             @RequestParam(name = "gamesPage", required = false, defaultValue = "0") int gamesPage,
             @RequestParam(name = "usersPage", required = false, defaultValue = "0") int usersPage,
-            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE) int size) {
+            @RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE) int size,
+            @RequestParam(name = "tagIds", required = false) List<Long> tagIds,
+            @RequestParam(name = "minRating", required = false) Double minRating) {
 
-        String validationError = validate(query, gamesPage, usersPage, size);
+        String validationError = validate(query, gamesPage, usersPage, size, minRating);
         if (validationError != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", validationError));
         }
 
         String term = query.trim();
+        PageRequest gamesRequest = PageRequest.of(
+                gamesPage,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+        PageRequest usersRequest = PageRequest.of(usersPage, size);
 
         PageResult<GameItem> gameResults = toPage(
-                games.findByTitleContainingIgnoreCase(term, PageRequest.of(gamesPage, size)),
+                games.findAll(GameSpecifications.withFilters(term, tagIds, minRating), gamesRequest),
                 GameItem::from);
-
         PageResult<UserItem> userResults = toPage(
-                users.findByUsernameContainingIgnoreCase(term, PageRequest.of(usersPage, size)),
+                users.findByUsernameContainingIgnoreCase(term, usersRequest),
                 UserItem::from);
 
         return ResponseEntity.ok(new SearchResponse(term, gameResults, userResults));
     }
 
-    private String validate(String query, int gamesPage, int usersPage, int size) {
+    private String validate(
+            String query,
+            int gamesPage,
+            int usersPage,
+            int size,
+            Double minRating) {
         if (query == null || query.isBlank()) {
             return "Escribí un término para buscar.";
         }
@@ -68,7 +82,8 @@ public class SearchController {
         String term = query.trim();
 
         if (term.length() < MIN_TERM_LENGTH || term.length() > MAX_TERM_LENGTH) {
-            return "El término debe tener entre " + MIN_TERM_LENGTH + " y " + MAX_TERM_LENGTH + " caracteres.";
+            return "El término debe tener entre " + MIN_TERM_LENGTH
+                    + " y " + MAX_TERM_LENGTH + " caracteres.";
         }
 
         if (gamesPage < 0 || usersPage < 0) {
@@ -77,6 +92,11 @@ public class SearchController {
 
         if (size < 1 || size > MAX_SIZE) {
             return "El tamaño de página debe estar entre 1 y " + MAX_SIZE + ".";
+        }
+
+        if (minRating != null
+                && (!Double.isFinite(minRating) || minRating < 1 || minRating > 5)) {
+            return "La valoración mínima debe estar entre 1 y 5.";
         }
 
         return null;

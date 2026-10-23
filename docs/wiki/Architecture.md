@@ -170,7 +170,7 @@ to the player.
 ### Playing a game
 
 ```text
-Game.tsx builds  ${API_BASE_URL}/games/{gameId}/index.html
+Game.tsx builds  ${GAME_CONTENT_BASE_URL}/games/{gameId}/index.html
   -> GameController.getGameFile(gameId, request)
        decodes the URI, strips "{contextPath}/games/{gameId}/"
        normalizes the remainder, rejects blank / absolute / ".." paths
@@ -181,13 +181,19 @@ Game.tsx builds  ${API_BASE_URL}/games/{gameId}/index.html
 The lookup is keyed by **both** the game id and the path, so a request for game A can never
 return a row belonging to game B.
 
-This works from a cross-origin iframe because `SecurityConfig` relaxes the framing headers:
+The game is rendered in a sandboxed iframe. In local development,
+`GAME_CONTENT_BASE_URL` uses `127.0.0.1` while the frontend and API use `localhost`, so the
+game content does not share the API origin. `SecurityConfig` also permits embedding by the
+configured frontend origin:
 
 ```java
 .frameOptions(frame -> frame.disable())
 .contentSecurityPolicy(csp -> csp
     .policyDirectives("frame-ancestors 'self' " + frontendOrigin))
 ```
+
+See [Game Isolation](Game-Isolation.md) for local and deployment configuration and the
+security checks.
 
 ### Uploading and publishing
 

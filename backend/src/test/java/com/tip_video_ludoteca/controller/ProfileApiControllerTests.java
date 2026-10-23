@@ -6,6 +6,13 @@ import com.tip_video_ludoteca.users.UserNotFoundException;
 import com.tip_video_ludoteca.users.UserProfileImageService;
 import com.tip_video_ludoteca.users.UserProfileResponse;
 import com.tip_video_ludoteca.users.UserProfileService;
+import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameStatus;
+import com.tip_video_ludoteca.users.User;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
@@ -20,6 +27,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,7 +71,7 @@ class ProfileApiControllerTests {
     private UserProfileImageService profileImages;
 
     @MockitoBean
-    private com.tip_video_ludoteca.games.GameRepository games;
+    private GameRepository games;
 
     @Autowired
     private MockMvc mockMvc;
@@ -246,6 +256,53 @@ class ProfileApiControllerTests {
 
         mockMvc.perform(get("/api/users/{username}/avatar", USERNAME))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void listsPublishedGamesForAUserPublicly() throws Exception {
+        given(games.findByOwner_UsernameIgnoreCaseAndStatus(
+                eq(USERNAME), eq(GameStatus.PUBLISHED), any()))
+                .willReturn(new PageImpl<>(List.of(game("game-1", "Un juego")),
+                        PageRequest.of(0, 12), 1));
+
+        mockMvc.perform(get("/api/users/{username}/games", USERNAME))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("game-1"))
+                .andExpect(jsonPath("$.content[0].title").value("Un juego"))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(12))
+                .andExpect(jsonPath("$.totalElements").value(1));
+
+        verify(games).findByOwner_UsernameIgnoreCaseAndStatus(eq(USERNAME),
+                eq(GameStatus.PUBLISHED), eq(PageRequest.of(0, 12,
+                        Sort.by(Sort.Direction.DESC, "createdAt"))));
+    }
+
+    @Test
+    void clampsUserGamePageAndSize() throws Exception {
+        given(games.findByOwner_UsernameIgnoreCaseAndStatus(
+                eq(USERNAME), eq(GameStatus.PUBLISHED), any()))
+                .willReturn(new PageImpl<>(List.of(), PageRequest.of(0, 24), 0));
+
+        mockMvc.perform(get("/api/users/{username}/games", USERNAME)
+                        .param("page", "-3")
+                        .param("size", "100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(24));
+
+        verify(games).findByOwner_UsernameIgnoreCaseAndStatus(eq(USERNAME),
+                eq(GameStatus.PUBLISHED), eq(PageRequest.of(0, 24,
+                        Sort.by(Sort.Direction.DESC, "createdAt"))));
+    }
+
+    private Game game(String id, String title) {
+        User owner = new User(USERNAME, EMAIL, "{noop}encoded");
+        Game game = new Game(id, owner, title, DESCRIPTION, "/cover.png",
+                "index.html", GameStatus.PUBLISHED);
+        ReflectionTestUtils.setField(game, "createdAt",
+                java.time.Instant.parse("2026-10-16T12:00:00Z"));
+        return game;
     }
 
     private static MockMultipartHttpServletRequestBuilder putMultipart(

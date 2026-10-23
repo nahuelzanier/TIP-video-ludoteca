@@ -4,12 +4,16 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
 
 jobs:
   backend:
     name: Backend
     runs-on: ubuntu-latest
+
+    env:
+      FRONTEND_ORIGIN: http://localhost:5173
 
     defaults:
       run:
@@ -27,7 +31,15 @@ jobs:
           cache: maven
 
       - name: Test
-        run: ./mvnw test
+        run: ./mvnw verify
+
+      - name: Upload backend coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/target/site/jacoco/
+          if-no-files-found: ignore
 
   frontend:
     name: Frontend
@@ -48,11 +60,27 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Configure API origins for the build
+        run: |
+          echo "VITE_API_URL=http://localhost:8080" >> "$GITHUB_ENV"
+          echo "VITE_GAME_CONTENT_URL=http://127.0.0.1:8080" >> "$GITHUB_ENV"
+
       - name: Install dependencies
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint -- --max-warnings=0
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Upload frontend coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          if-no-files-found: ignore
 
       - name: Build
         run: npm run build

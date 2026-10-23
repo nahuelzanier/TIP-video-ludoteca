@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import GameGrid from "../../components/games/GameGrid";
+import GameFilters from "../../components/games/GameFilters";
 import { searchEverything } from "../../services/searchService";
+import type { GameFilters as GameFiltersState } from "../../types/GameFilters";
 import type { PageResult, SearchResponse, SearchUser } from "../../types/Search";
 import "./Search.css";
 
@@ -27,8 +29,24 @@ function readPage(value: string | null): number {
     return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
 }
 
-function buildKey(term: string, gamesPage: number, usersPage: number): string {
-    return `${term}|${gamesPage}|${usersPage}`;
+function readTagIds(values: string[]): number[] {
+    return [...new Set(values.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+}
+
+function readMinimumRating(value: string | null): number | null {
+    if (value === null) return null;
+    const rating = Number(value);
+    return Number.isFinite(rating) && rating >= 1 && rating <= 5 ? rating : null;
+}
+
+function buildKey(
+    term: string,
+    gamesPage: number,
+    usersPage: number,
+    tagIds: number[],
+    minRating: number | null,
+): string {
+    return [term, gamesPage, usersPage, tagIds.join(","), minRating ?? ""].join("|");
 }
 
 function Search() {
@@ -37,10 +55,13 @@ function Search() {
     const query = searchParams.get("q") ?? "";
     const gamesPage = readPage(searchParams.get("gamesPage"));
     const usersPage = readPage(searchParams.get("usersPage"));
+    const selectedTagIds = readTagIds(searchParams.getAll("tagIds"));
+    const minRating = readMinimumRating(searchParams.get("minRating"));
 
     const term = query.trim();
     const isSearchable = term.length >= MIN_TERM_LENGTH;
-    const currentKey = buildKey(term, gamesPage, usersPage);
+    const currentKey = buildKey(term, gamesPage, usersPage, selectedTagIds, minRating);
+    const selectedTagsKey = selectedTagIds.join(",");
 
     const [state, setState] = useState<SearchState>({
         term: "",
@@ -55,8 +76,12 @@ function Search() {
         }
 
         let cancelled = false;
+        const requestTagIds = selectedTagsKey === ""
+            ? []
+            : selectedTagsKey.split(",").map(Number);
+        const filters: GameFiltersState = { tagIds: requestTagIds, minRating };
 
-        searchEverything(term, gamesPage, usersPage)
+        searchEverything(term, gamesPage, usersPage, 9, filters)
             .then((data) => {
                 if (!cancelled) {
                     setState({ term, key: currentKey, results: data, error: "" });
@@ -81,12 +106,37 @@ function Search() {
         return () => {
             cancelled = true;
         };
-    }, [term, gamesPage, usersPage, isSearchable, currentKey]);
+    }, [
+        term,
+        gamesPage,
+        usersPage,
+        minRating,
+        selectedTagsKey,
+        isSearchable,
+        currentKey,
+    ]);
 
     function goToPage(key: SectionKey, page: number) {
         setSearchParams((current) => {
             const next = new URLSearchParams(current);
             next.set(key, String(page));
+            return next;
+        });
+    }
+
+    function updateFilters(filters: GameFiltersState) {
+        setSearchParams((current) => {
+            const next = new URLSearchParams(current);
+            next.delete("tagIds");
+            filters.tagIds.forEach((tagId) => next.append("tagIds", String(tagId)));
+
+            if (filters.minRating === null) {
+                next.delete("minRating");
+            } else {
+                next.set("minRating", String(filters.minRating));
+            }
+
+            next.set("gamesPage", "0");
             return next;
         });
     }
@@ -138,6 +188,10 @@ function Search() {
 
             <section className="search-section">
                 <h2>Juegos</h2>
+                <GameFilters
+                    filters={{ tagIds: selectedTagIds, minRating }}
+                    onChange={updateFilters}
+                />
 
                 {error && <p className="search-empty">No se pudieron buscar los juegos.</p>}
 

@@ -94,4 +94,13 @@ class GamePublishControllerTests {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("El juego no existe."));
     }
+
+    @Test
+        void publishRejectsMissingCsrfTokenEvenWhenAuthenticated() throws Exception {
+        mockMvc.perform(post("/api/games/{gameId}/publish", GAME_ID)
+                        .with(user(EMAIL)))
+                .andExpect(status().isForbidden());
+
+        verify(gameService, never()).publish(GAME_ID, EMAIL);
+        }
 }

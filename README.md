@@ -24,7 +24,7 @@ export DB_PASSWORD="tu-password-de-postgres"
 ```bash
 cd frontend
 npm install
-printf 'VITE_API_URL=http://localhost:8080\n' > .env.local
+printf 'VITE_API_URL=http://localhost:8080\nVITE_GAME_CONTENT_URL=http://127.0.0.1:8080\n' > .env.local
 npm run dev
 ```
 
@@ -53,6 +53,7 @@ La documentación del proyecto está organizada como un wiki estilo GitHub en la
 - [Authentication](docs/wiki/Authentication.md)
 - [Game Upload](docs/wiki/Game-Upload.md)
 - [Game Assets](docs/wiki/Game-Assets.md)
+- [Game Isolation](docs/wiki/Game-Isolation.md)
 - [Frontend](docs/wiki/Frontend.md)
 - [Testing](docs/wiki/Testing.md)
 - [Tags](docs/wiki/Tags.md) — en la rama `feature/tags`, todavia no mergeada

@@ -37,19 +37,25 @@ export async function getMyGameTagIds(gameId: string): Promise<number[]> {
 
 async function readError(response: Response): Promise<never> {
   const text = await response.text();
+  const fallbackMessage = `Request failed (${response.status}).`;
+  let body: unknown;
 
   try {
-    const body = JSON.parse(text);
-    throw new Error(
-      body.detail ?? body.message ?? body.error ?? `Request failed (${response.status}).`,
-    );
-  } catch (error) {
-    if (error instanceof Error && error.message !== `Request failed (${response.status}).`) {
-      throw error;
-    }
-
-    throw new Error(text || `Request failed (${response.status}).`);
+    body = JSON.parse(text);
+  } catch {
+    throw new Error(text || fallbackMessage);
   }
+
+  if (typeof body === "object" && body !== null) {
+    const errorBody = body as Record<string, unknown>;
+    const message = errorBody.detail ?? errorBody.message ?? errorBody.error;
+
+    if (typeof message === "string" && message.length > 0) {
+      throw new Error(message);
+    }
+  }
+
+  throw new Error(text || fallbackMessage);
 }
 
 export async function getAvailableTags(): Promise<TagOption[]> {

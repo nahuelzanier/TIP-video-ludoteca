@@ -111,6 +111,7 @@ function User() {
     useEffect(() => {
         let cancelled = false;
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- page and username changes start a distinct profile-games request.
         setGamesLoading(true);
         setGamesError("");
 

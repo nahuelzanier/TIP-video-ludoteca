@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import GameGrid from "../components/games/GameGrid";
+import GameFilters from "../components/games/GameFilters";
+import type { GameFilters as GameFiltersState } from "../types/GameFilters";
 import type { Game } from "../types/Game";
 import { getGamesPage } from "../services/gameService";
 import "./Home.css";
@@ -13,15 +15,20 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<GameFiltersState>({
+    tagIds: [],
+    minRating: null,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     let isCurrentRequest = true;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pagination and filters start a new request and must show its pending state.
     setLoading(true);
     setError("");
 
-    getGamesPage(page)
+    getGamesPage(page, 12, "", filters)
       .then((result) => {
         if (!isCurrentRequest) return;
 
@@ -45,7 +52,7 @@ function Home() {
     return () => {
       isCurrentRequest = false;
     };
-  }, [page]);
+  }, [page, filters]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -60,8 +67,21 @@ function Home() {
       return;
     }
 
-    navigate(`/search?q=${encodeURIComponent(term)}`);
+    const params = new URLSearchParams({ q: term });
+    filters.tagIds.forEach((tagId) => params.append("tagIds", String(tagId)));
+    if (filters.minRating !== null) {
+      params.set("minRating", String(filters.minRating));
+    }
+
+    navigate(`/search?${params.toString()}`);
   };
+
+  function updateFilters(nextFilters: GameFiltersState) {
+    setPage(0);
+    setFilters(nextFilters);
+  }
+
+  const hasActiveFilters = filters.tagIds.length > 0 || filters.minRating !== null;
 
   return (
     <main className="home">
@@ -100,6 +120,8 @@ function Home() {
         />
       </form>
 
+      <GameFilters filters={filters} onChange={updateFilters} />
+
       <p className="game-count">
         {totalElements} {totalElements === 1 ? "game" : "games"}
       </p>
@@ -108,7 +130,11 @@ function Home() {
       {error && <p role="alert">{error}</p>}
 
       {!loading && !error && games.length === 0 && (
-        <p>No published games yet.</p>
+        <p>
+          {hasActiveFilters
+            ? "No games match the selected filters."
+            : "No published games yet."}
+        </p>
       )}
 
       {!loading && !error && games.length > 0 && (
