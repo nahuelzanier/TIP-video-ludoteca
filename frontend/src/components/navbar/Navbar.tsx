@@ -1,0 +1,179 @@
+import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logout as logoutUser } from "../../services/authService";
+import { getRandomGame } from "../../services/gameService";
+import "./Navbar.css";
+
+function Navbar() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
+    const [logoutError, setLogoutError] = useState("");
+    const [pickingRandom, setPickingRandom] = useState(false);
+    const [randomError, setRandomError] = useState("");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen]);
+
+    const closeNavbar = () => {
+        setIsOpen(false);
+    };
+
+    const handleLogout = async () => {
+        setLogoutError("");
+        setLoggingOut(true);
+
+        try {
+            await logoutUser();
+            setIsOpen(false);
+            navigate("/login", { replace: true });
+        } catch (requestError) {
+            setLogoutError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "Could not log out. Please try again.",
+            );
+        } finally {
+            setLoggingOut(false);
+        }
+    };
+
+    const handleRandomGame = async () => {
+        setRandomError("");
+        setPickingRandom(true);
+
+        try {
+            const game = await getRandomGame();
+            navigate(`/game/${encodeURIComponent(game.id)}`);
+            setIsOpen(false);
+        } catch (requestError) {
+            setRandomError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "Could not load a random game.",
+            );
+        } finally {
+            setPickingRandom(false);
+        }
+    };
+
+    return (
+        <>
+            <button
+                className="navbar-hamburger"
+                type="button"
+                aria-label="Open menu"
+                onClick={() => setIsOpen(true)}
+            >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+            </button>
+
+            <div
+                className={`navbar-overlay ${isOpen ? "navbar-overlay--open" : ""}`}
+                aria-hidden={!isOpen}
+                onClick={closeNavbar}
+            />
+
+            <aside className={`navbar-drawer ${isOpen ? "navbar-drawer--open" : ""}`} aria-hidden={!isOpen}>
+                <header className="navbar-header">
+                    <span className="navbar-brand">Ludoteca</span>
+                    <button
+                        className="navbar-close"
+                        type="button"
+                        aria-label="Close menu"
+                        onClick={closeNavbar}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                    </button>
+                </header>
+
+                <nav className="navbar-nav" aria-label="Main menu">
+                    <NavLink
+                        className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
+                        to="/"
+                        end
+                        onClick={closeNavbar}
+                    >
+                        Home
+                    </NavLink>
+                    <NavLink
+                        className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
+                        to="/profile"
+                        onClick={closeNavbar}
+                    >
+                        Profile
+                    </NavLink>
+                    <NavLink
+                        className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
+                        to="/settings"
+                        onClick={closeNavbar}
+                    >
+                        Settings
+                    </NavLink>
+                </nav>
+
+                <div className="navbar-divider" />
+
+                <nav className="navbar-nav" aria-label="Actions">
+                    <button
+                        className="navbar-button"
+                        type="button"
+                        onClick={handleRandomGame}
+                        disabled={pickingRandom}
+                    >
+                        {pickingRandom ? "Picking a game..." : "Random game"}
+                    </button>
+                    <NavLink
+                        className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
+                        to="/forum"
+                        onClick={closeNavbar}
+                    >
+                        Forum
+                    </NavLink>
+                </nav>
+
+                {randomError && (
+                    <p className="navbar-error" role="alert">
+                        {randomError}
+                    </p>
+                )}
+
+                <div className="navbar-divider" />
+
+                <button
+                    className="navbar-button navbar-button--logout"
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                >
+                    {loggingOut ? "Logging out..." : "Log out"}
+                </button>
+
+                {logoutError && (
+                    <p className="navbar-error" role="alert">
+                        {logoutError}
+                    </p>
+                )}
+            </aside>
+        </>
+    );
+}
+
+export default Navbar;

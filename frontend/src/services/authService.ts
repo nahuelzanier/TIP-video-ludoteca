@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL, readError } from "./api";
 
 export interface AuthUser {
   id: number;
@@ -37,17 +37,7 @@ async function postAuth(
   });
 
   if (!response.ok) {
-    const text = await response.text();
-
-    try {
-      const error = JSON.parse(text);
-      throw new Error(error.error ?? error.message ?? "La solicitud falló.");
-    } catch (error) {
-      if (error instanceof Error && error.message !== "La solicitud falló.") {
-        throw error;
-      }
-      throw new Error(text || `Error ${response.status}`);
-    }
+    throw new Error(await readError(response));
   }
 
   return response.json();

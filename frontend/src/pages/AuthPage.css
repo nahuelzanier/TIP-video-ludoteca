@@ -89,11 +89,11 @@
 }
 
 .auth-error {
-  color: #b42318;
+  color: var(--error);
 }
 
 .auth-success {
-  color: #16713b;
+  color: var(--success);
 }
 
 .auth-switch {

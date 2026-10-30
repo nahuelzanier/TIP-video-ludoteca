@@ -1,41 +1,90 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import GameSection from "../components/games/GameSection";
+import GameTagSection from "../components/games/GameTagSection";
+import GameRecommendations from "../components/games/GameRecommendations";
+import CommentSection from "../components/comments/CommentSection";
 import type { Game as GameType } from "../types/Game";
-import { getGames } from "../services/gameService";
+import { getGameById } from "../services/gameService";
+import { GAME_CONTENT_BASE_URL } from "../services/api";
 import "./Game.css";
 
 function Game() {
-    const { id } = useParams<{ id: string }>();
-    const [game, setGame] = useState<GameType | null>(null);
+  const { id } = useParams<{ id: string }>();
 
-    useEffect(() => {
-        getGames().then((games) => {
-            const foundGame = games.find((game) => game.id === id);
-            setGame(foundGame ?? null);
-        });
-    }, [id]);
+  const [game, setGame] = useState<GameType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    if (!game) {
-        return (
-            <main className="game-page">
-                <h1>Juego no encontrado</h1>
-            </main>
-        );
+  useEffect(() => {
+    let isCurrentRequest = true;
+
+    if (!id) {
+      // Resolve a missing route ID immediately instead of starting a game request.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- keeps the no-ID route state terminal.
+      setGame(null);
+      setError("Game not found.");
+      setLoading(false);
+      return;
     }
 
-    const gameUrl = `http://localhost:8080/games/${game.id}/index.html`;
+    setLoading(true);
+    setError("");
+    setGame(null);
 
+    getGameById(id)
+      .then((loadedGame) => {
+        if (isCurrentRequest) setGame(loadedGame);
+      })
+      .catch((requestError) => {
+        if (!isCurrentRequest) return;
+
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Could not load the game.",
+        );
+      })
+      .finally(() => {
+        if (isCurrentRequest) setLoading(false);
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [id]);
+
+  if (loading) {
     return (
-        <main className="game-page">
-            <header className="game-header">
-                <h1>{game.title}</h1>
-                <p>{game.description}</p>
-            </header>
-
-            <GameSection gameUrl={gameUrl} />
-        </main>
+      <main className="game-page">
+        <h1>Loading game...</h1>
+      </main>
     );
+  }
+
+  if (error || !game) {
+    return (
+      <main className="game-page">
+        <h1>{error || "Game not found."}</h1>
+      </main>
+    );
+  }
+
+  const gameUrl = `${GAME_CONTENT_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`;
+
+  return (
+    <main className="game-page">
+      <header className="game-header">
+        <h1>{game.title}</h1>
+        <p>{game.description}</p>
+      </header>
+
+      <GameSection gameUrl={gameUrl} />
+      <GameTagSection gameId={game.id} />
+      <CommentSection gameId={game.id} />
+      <GameRecommendations gameId={game.id} />
+    </main>
+  );
 }
 
 export default Game;

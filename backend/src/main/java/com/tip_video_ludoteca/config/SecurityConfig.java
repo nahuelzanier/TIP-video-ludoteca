@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.config;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,9 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 @Configuration
 public class SecurityConfig {
+
+    private static final String FORBIDDEN_BODY =
+            "{\"error\":\"No tenés permiso para realizar esta acción.\"}";
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -46,7 +50,7 @@ public class SecurityConfig {
             HttpSecurity http,
             SecurityContextRepository securityContextRepository,
             @Value("${app.frontend-origin}") String frontendOrigin) throws Exception {
-            http
+        http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf
                 .csrfTokenRepository(new HttpSessionCsrfTokenRepository()))
@@ -61,7 +65,12 @@ public class SecurityConfig {
                     response.setStatus(204)))
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, exception) ->
-                    response.sendError(401)))
+                    response.sendError(401))
+                .accessDeniedHandler((request, response, exception) -> {
+                    response.setStatus(403);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(FORBIDDEN_BODY);
+                }))
             .headers(headers -> headers
                 .frameOptions(frame -> frame.disable())
                 .contentSecurityPolicy(csp -> csp
@@ -69,11 +78,24 @@ public class SecurityConfig {
                 )
             )
             .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
                 .requestMatchers(HttpMethod.GET,
                     "/api/games", "/api/games/**", "/games/**",
-                    "/api/auth/csrf").permitAll()
+                    "/api/tags",
+                    "/api/search",
+                    "/api/users/*/profile",
+                    "/api/users/*/games",
+                    "/api/users/*/avatar",
+                    "/api/auth/csrf",
+                    "/error").permitAll()
+                .requestMatchers(HttpMethod.GET,
+                        "/api/forum/discussions",
+                        "/api/forum/discussions/*/replies",
+                        "/api/forum/discussions/**").permitAll()
                 .requestMatchers(HttpMethod.POST,
-                    "/api/auth/register", "/api/auth/login").permitAll()
+                        "/api/auth/register",
+                        "/api/auth/login").permitAll()
                 .anyRequest().authenticated());
 
         return http.build();

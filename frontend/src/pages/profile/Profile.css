@@ -1,0 +1,15 @@
+.profile-page {
+  max-width: var(--content-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  box-sizing: border-box;
+}
+
+.profile-status {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  opacity: 0.8;
+}
