@@ -34,7 +34,7 @@ class GameCoverControllerTests {
 
     @Test
     void returnsCoverWithStoredTypeAndNosniffHeader() throws Exception {
-        given(gameFiles.findById_GameIdAndId_Path(GAME_ID, "__metadata__/thumbnail"))
+        given(gameFiles.findPublishedByGameIdAndPath(GAME_ID, "__metadata__/thumbnail"))
                 .willReturn(Optional.of(cover("image/png")));
 
         mockMvc.perform(get("/api/games/{gameId}/cover", GAME_ID))
@@ -45,8 +45,8 @@ class GameCoverControllerTests {
     }
 
     @Test
-    void returnsNotFoundWhenTheGameHasNoCover() throws Exception {
-        given(gameFiles.findById_GameIdAndId_Path(GAME_ID, "__metadata__/thumbnail"))
+    void returnsNotFoundWhenTheGameIsDraftOrHasNoCover() throws Exception {
+        given(gameFiles.findPublishedByGameIdAndPath(GAME_ID, "__metadata__/thumbnail"))
                 .willReturn(Optional.empty());
 
         mockMvc.perform(get("/api/games/{gameId}/cover", GAME_ID))

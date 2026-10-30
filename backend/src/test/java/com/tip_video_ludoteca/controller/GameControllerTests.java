@@ -37,7 +37,7 @@ class GameControllerTests {
     @Test
     void returnsStoredGameContentWithItsValidatedContentType() {
         GameFile file = file("index.html", "text/html; charset=UTF-8");
-        when(gameFiles.findById_GameIdAndId_Path(GAME_ID, "index.html"))
+        when(gameFiles.findPublishedByGameIdAndPath(GAME_ID, "index.html"))
                 .thenReturn(Optional.of(file));
         MockHttpServletRequest request = request("/games/game-1/index.html");
 
@@ -57,12 +57,12 @@ class GameControllerTests {
                 request("/games/game-1/../../private.txt"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        verify(gameFiles, never()).findById_GameIdAndId_Path(GAME_ID, "../private.txt");
+        verify(gameFiles, never()).findPublishedByGameIdAndPath(GAME_ID, "../private.txt");
     }
 
     @Test
     void returnsNotFoundForAFileThatIsNotStored() {
-        when(gameFiles.findById_GameIdAndId_Path(GAME_ID, "missing.js"))
+        when(gameFiles.findPublishedByGameIdAndPath(GAME_ID, "missing.js"))
                 .thenReturn(Optional.empty());
 
         var response = controller.getGameFile(
@@ -70,6 +70,19 @@ class GameControllerTests {
                 request("/games/game-1/missing.js"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void doesNotReturnFilesForDraftGames() {
+        when(gameFiles.findPublishedByGameIdAndPath(GAME_ID, "index.html"))
+                .thenReturn(Optional.empty());
+
+        var response = controller.getGameFile(
+                GAME_ID,
+                request("/games/game-1/index.html"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(gameFiles).findPublishedByGameIdAndPath(GAME_ID, "index.html");
     }
 
     private MockHttpServletRequest request(String requestUri) {

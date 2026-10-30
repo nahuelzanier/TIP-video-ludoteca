@@ -30,6 +30,9 @@ class GameRepositoryTests {
     private GameRepository games;
 
     @Autowired
+    private GameFileRepository gameFiles;
+
+    @Autowired
     private UserRepository users;
 
     @Autowired
@@ -121,7 +124,7 @@ class GameRepositoryTests {
     }
 
     @Test
-    void withoutTagOrRatingFiltersReturnsAllPublishedGamesMatchingTitle() {
+    void publicSearchSpecificationReturnsOnlyPublishedGamesMatchingTitle() {
         User owner = users.save(new User("plain-owner", "plain-owner@test.com", "{noop}hash"));
         games.save(game("plain-published", owner, "Puzzle One", GameStatus.PUBLISHED));
         games.save(game("plain-draft", owner, "Puzzle Two", GameStatus.DRAFT));
@@ -135,6 +138,20 @@ class GameRepositoryTests {
         assertThat(result.getContent())
                 .extracting(Game::getId)
                 .containsExactly("plain-published");
+    }
+
+    @Test
+    void publicGameFileLookupReturnsPublishedFilesAndHidesDraftFiles() {
+        User owner = users.save(new User("file-owner", "file-owner@test.com", "{noop}hash"));
+        Game published = games.save(game("file-published", owner, GameStatus.PUBLISHED));
+        Game draft = games.save(game("file-draft", owner, GameStatus.DRAFT));
+        gameFiles.save(new GameFile(published, "index.html", "text/html", "published".getBytes()));
+        gameFiles.save(new GameFile(draft, "index.html", "text/html", "draft".getBytes()));
+
+        assertThat(gameFiles.findPublishedByGameIdAndPath(published.getId(), "index.html"))
+                .isPresent();
+        assertThat(gameFiles.findPublishedByGameIdAndPath(draft.getId(), "index.html"))
+                .isEmpty();
     }
 
     private Game game(String id, User owner, GameStatus status) {

@@ -23,7 +23,7 @@ public class GameCoverController {
 
     @GetMapping("/{gameId}/cover")
     public ResponseEntity<byte[]> getCover(@PathVariable String gameId) {
-        return gameFiles.findById_GameIdAndId_Path(gameId, COVER_FILE_PATH)
+        return gameFiles.findPublishedByGameIdAndPath(gameId, COVER_FILE_PATH)
                 .map(this::toResponse)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

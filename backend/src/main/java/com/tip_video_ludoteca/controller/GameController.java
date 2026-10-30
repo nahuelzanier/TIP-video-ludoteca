@@ -51,7 +51,7 @@ public class GameController {
 
             String databasePath = normalized.toString().replace("\\", "/");
 
-            return gameFiles.findById_GameIdAndId_Path(gameId, databasePath)
+            return gameFiles.findPublishedByGameIdAndPath(gameId, databasePath)
                     .map(this::toResponse)
                     .orElseGet(() -> ResponseEntity.notFound().build());
 
