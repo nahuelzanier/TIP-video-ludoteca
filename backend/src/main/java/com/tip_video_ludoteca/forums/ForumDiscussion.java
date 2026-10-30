@@ -1,7 +1,6 @@
 package com.tip_video_ludoteca.forums;
 
 import com.tip_video_ludoteca.games.Game;
-import com.tip_video_ludoteca.tags.Tag;
 import com.tip_video_ludoteca.users.User;
 import jakarta.persistence.*;
 
@@ -42,11 +41,11 @@ public class ForumDiscussion {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "forum_discussion_tags",
+            name = "forum_discussion_forum_tags",
             joinColumns = @JoinColumn(name = "discussion_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
+            inverseJoinColumns = @JoinColumn(name = "forum_tag_id")
     )
-    private Set<Tag> tags = new HashSet<>();
+    private Set<ForumTag> tags = new HashSet<>();
 
     protected ForumDiscussion() {
     }
@@ -98,7 +97,7 @@ public class ForumDiscussion {
         return createdAt;
     }
 
-    public Set<Tag> getTags() {
+    public Set<ForumTag> getTags() {
         return tags;
     }
 }

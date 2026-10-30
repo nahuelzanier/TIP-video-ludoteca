@@ -2,8 +2,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { getCurrentUser, type AuthUser } from "../../services/authService";
 import { getGamesPage } from "../../services/gameService";
-import { createForumDiscussion } from "../../services/forumService";
-import { getAvailableTags, type TagOption } from "../../services/tagService";
+import {
+  createForumDiscussion,
+  getForumTags,
+  type ForumTag,
+} from "../../services/forumService";
 import type { Game } from "../../types/Game";
 import "./ForumNewDiscussion.css";
 
@@ -16,7 +19,7 @@ function ForumNewDiscussion() {
 
   const [user, setUser] = useState<AuthUser | null>(null);
   const [games, setGames] = useState<Game[]>([]);
-  const [tags, setTags] = useState<TagOption[]>([]);
+  const [tags, setTags] = useState<ForumTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -41,7 +44,7 @@ function ForumNewDiscussion() {
 
         if (!currentUser) return;
 
-        const availableTags = await getAvailableTags();
+        const availableTags = await getForumTags();
 
         if (!isCurrentRequest) return;
         setTags(availableTags);

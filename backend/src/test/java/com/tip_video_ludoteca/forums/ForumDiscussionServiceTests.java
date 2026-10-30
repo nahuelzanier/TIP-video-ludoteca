@@ -3,8 +3,6 @@ package com.tip_video_ludoteca.forums;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
-import com.tip_video_ludoteca.tags.Tag;
-import com.tip_video_ludoteca.tags.TagRepository;
 import com.tip_video_ludoteca.users.User;
 import com.tip_video_ludoteca.users.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -13,7 +11,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -49,7 +46,7 @@ class ForumDiscussionServiceTests {
     private UserRepository users;
 
     @Mock
-    private TagRepository tags;
+    private ForumTagRepository tags;
 
     @Mock
     private ForumRatingRepository ratings;
@@ -84,7 +81,7 @@ class ForumDiscussionServiceTests {
         assertThat(saved.getDescription()).isEqualTo("Short description");
         assertThat(saved.getCoverImage()).isNull();
         assertThat(saved.getCoverImageContentType()).isNull();
-        assertThat(saved.getTags()).extracting(Tag::getId).containsExactly(TAG_ID);
+        assertThat(saved.getTags()).extracting(ForumTag::getId).containsExactly(TAG_ID);
     }
 
     @Test
@@ -237,8 +234,8 @@ class ForumDiscussionServiceTests {
         return user;
     }
 
-    private Tag tag() {
-        Tag tag = BeanUtils.instantiateClass(Tag.class);
+    private ForumTag tag() {
+        ForumTag tag = new ForumTag();
         ReflectionTestUtils.setField(tag, "id", TAG_ID);
         ReflectionTestUtils.setField(tag, "name", "Puzzle");
         ReflectionTestUtils.setField(tag, "slug", "puzzle");

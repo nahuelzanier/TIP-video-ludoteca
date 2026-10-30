@@ -3,6 +3,7 @@ import {
   createForumDiscussion,
   createForumReply,
   getForumDiscussion,
+  getForumTags,
   getForumDiscussions,
   getForumReplies,
   rateForumDiscussion,
@@ -22,6 +23,18 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("forumService", () => {
+  it("loads the separate forum tag catalog", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([
+      { id: 1, name: "Discussion", slug: "discussion" },
+      { id: 2, name: "Bug", slug: "bug" },
+    ]));
+
+    await expect(getForumTags()).resolves.toEqual([
+      { id: 1, name: "Discussion", slug: "discussion" },
+      { id: 2, name: "Bug", slug: "bug" },
+    ]);
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost:8080/api/forum/tags");
+  });
   it("resolves discussion cover and avatar URLs from the API origin", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({
       content: [{
