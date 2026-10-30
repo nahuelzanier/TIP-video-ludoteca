@@ -14,10 +14,10 @@ integrantes: Nahuel Zanier, Lucas Sanguinetti
 Requiere **PostgreSQL**, **Java 21** y **Node.js**. El backend no arranca sin `DB_PASSWORD`.
 
 ```bash
-createdb -U postgres ludarium
+createdb -U postgres ludarium_dev
 
 cd backend
-export DB_PASSWORD="tu-password-de-postgres"
+export DEV_DB_PASSWORD="tu-password-de-postgres"
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
@@ -28,7 +28,7 @@ printf 'VITE_API_URL=http://localhost:8080\nVITE_GAME_CONTENT_URL=http://127.0.0
 npm run dev
 ```
 
-Abrir `http://localhost:5173`. El perfil `dev` crea el usuario `lucas2` / `lucas222` y publica los juegos en `DRAFT`.
+Abrir `http://localhost:5173`. El perfil `dev` usa la base local `ludarium_dev` y crea el usuario de prueba `lucas2` / `lucas222` si todavía no existe. No reasigna propietarios ni cambia el estado de juegos existentes. No uses ese perfil con una base compartida o de producción.
 
 Los detalles, incluida la migracion `pg_trgm` y el troubleshooting, estan en [Getting Started](docs/wiki/Getting-Started.md).
 

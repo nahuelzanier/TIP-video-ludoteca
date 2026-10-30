@@ -110,12 +110,30 @@ and a publish.
 
 ### The `dev` profile
 
-The `dev` profile seeds a user so you can test comments and profiles without registering
-first:
+Use `dev` only with a local, disposable development database. Its datasource is separate
+from the default `ludarium` database and defaults to `ludarium_dev`:
+
+```bash
+createdb -U postgres ludarium_dev
+```
+
+Set a development database password (PowerShell shown):
+
+```powershell
+$env:DEV_DB_PASSWORD = "your-postgres-password"
+```
+
+Then start the backend with the profile:
 
 ```bash
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
+
+If needed, configure `DEV_DB_URL` and `DEV_DB_USERNAME` to point to a different **local
+development database**. Do not point these variables or the `dev` profile at a shared or
+production database.
+
+The profile creates a user so you can test comments and profiles without registering first:
 
 Credentials, from `backend/src/main/resources/application-dev.properties`:
 
@@ -125,23 +143,19 @@ Credentials, from `backend/src/main/resources/application-dev.properties`:
 | Email | `lucas2@gmail.com` |
 | Password | `lucas222` |
 
-The seeder is idempotent — starting the backend repeatedly does not duplicate the user. On each
-run it:
-
-1. creates `lucas2` if it does not exist,
-2. reassigns every game owned by anyone else to `lucas2`, so you always have something to
-   comment on, and
-3. publishes every `DRAFT` game, so the catalog is never empty.
+The seeder is idempotent — starting the backend repeatedly does not duplicate or rewrite the
+user. It only creates `lucas2` if that username does not exist. It does not query, reassign,
+publish, or otherwise modify games. Upload and publish test games through the application as
+needed.
 
 It logs a summary:
 
 ```text
-Seed dev listo: usuario=lucas2 juegos reasignados=0 juegos publicados=0
+Seed dev listo: usuario=lucas2
 ```
 
-Without the `dev` profile none of this runs, so it cannot touch a production database — though
-the plaintext password is committed to the repository. See
-[Known Issues](Known-Issues.md).
+Without the `dev` profile the seeder does not run. Seed credentials are for local development
+only; do not use them on a shared or production system.
 
 ## 3. Start the frontend
 
@@ -179,9 +193,9 @@ backend enables CORS with `allowCredentials(true)`.
 
 ```bash
 # terminal 1
-createdb -U postgres ludarium
+createdb -U postgres ludarium_dev
 cd backend
-export DB_PASSWORD="your-postgres-password"
+export DEV_DB_PASSWORD="your-postgres-password"
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
 # terminal 2
@@ -315,8 +329,8 @@ Check, in order:
 
 - Check the response directly: `curl http://localhost:8080/games/<gameId>/index.html`. A
   `404` means the row is missing; `400` means the path failed validation.
-- Confirm the game is `PUBLISHED`. Drafts are invisible to every endpoint except the asset
-  routes, so the player will 404.
+- Confirm the game is `PUBLISHED`. Draft games are hidden from public search, game files, and
+  cover routes, so the player will 404.
 - Check the browser console for a CSP violation from `frame-ancestors`.
 - Check that the frontend uses the game-content host (`127.0.0.1`) and that the iframe has
   `sandbox="allow-scripts allow-same-origin"`.

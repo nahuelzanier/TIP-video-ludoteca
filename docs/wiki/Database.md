@@ -37,6 +37,11 @@ spring.servlet.multipart.max-request-size=105MB
 | `DB_USERNAME` | no | `postgres` |
 | `FRONTEND_ORIGIN` | no | `http://localhost:5173` |
 
+When the `dev` profile is active, `application-dev.properties` overrides the datasource to
+use `ludarium_dev` on localhost. It reads `DEV_DB_URL`, `DEV_DB_USERNAME`, and
+`DEV_DB_PASSWORD` (with `DB_PASSWORD` as a password fallback). Use this profile and database
+only for local development; do not point them at shared or production data.
+
 Two settings are worth calling out:
 
 - `ddl-auto=validate` — Hibernate never creates or alters a table. If a migration and an
@@ -248,12 +253,11 @@ rewrites the parent to the root, so the tree never grows past one level.
 | Repository | Key queries |
 | --- | --- |
 | `UserRepository` | `findByEmailIgnoreCase`, `findByUsernameIgnoreCase`, `existsByEmailIgnoreCase`, `existsByUsernameIgnoreCase`, `findByUsernameContainingIgnoreCase(String, Pageable)` |
-| `GameRepository` | `findByStatus(GameStatus, Pageable)`, `findByStatusOrderByCreatedAtDesc`, `findByOwner_IdNot`, `findByTitleContainingIgnoreCase(String, Pageable)` |
-| `GameFileRepository` | `findById_GameIdAndId_Path(gameId, path)` |
+| `GameRepository` | `findByStatus(GameStatus, Pageable)`, `findByOwner_IdOrderByCreatedAtDesc`, `findByTitleContainingIgnoreCase(String, Pageable)` |
+| `GameFileRepository` | `findPublishedByGameIdAndPath(gameId, path)`, `findAllById_GameId(gameId)` |
 | `CommentRepository` | `findByGame_IdAndParentCommentIsNullOrderByCreatedAtDescIdDesc`, `findByGame_IdAndParentCommentIsNotNullOrderByCreatedAtAscIdAsc` — both with `@EntityGraph(attributePaths = "author")` to avoid N+1 on the author |
 
-Two declared methods are currently unused: `GameRepository.findByOwner_IdOrderByCreatedAtDesc`
-and `GameFileRepository.findAllById_GameId`.
+`GameFileRepository.findAllById_GameId` is currently unused.
 
 ## Transaction boundaries
 
@@ -283,21 +287,20 @@ app.seed.email=lucas2@gmail.com
 app.seed.password=lucas222
 ```
 
-On startup it:
-
-1. Creates the seed user if `findByUsernameIgnoreCase` finds nothing (idempotent).
-2. Reassigns every game owned by another user to the seed user, via `findByOwner_IdNot`.
-3. Publishes every `DRAFT` game, via `findByStatusOrderByCreatedAtDesc`.
+On startup it creates the seed user only if `findByUsernameIgnoreCase` finds nothing. Repeated
+starts do not duplicate or rewrite that user. The seeder does not read or modify games: owners
+and `DRAFT`/`PUBLISHED` statuses remain as they were. Create sample games through the upload
+flow and publish them explicitly.
 
 It logs a summary:
 
 ```text
-Seed dev listo: usuario=lucas2 juegos reasignados=0 juegos publicados=3
+Seed dev listo: usuario=lucas2
 ```
 
-Running it twice does not duplicate the user. It is only active when the `dev` profile is
-enabled explicitly, so it never touches a production database — though the plaintext
-password is committed to the repository. See [Known Issues](Known-Issues.md).
+It is only active when the `dev` profile is enabled explicitly. Keep its datasource pointed at
+the local `ludarium_dev` database. The plaintext seed password is intended only for local
+development; see [Known Issues](Known-Issues.md).
 
 ## Inspecting the data
 
