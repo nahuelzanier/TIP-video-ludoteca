@@ -1,0 +1,40 @@
+.favorites-page {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+.favorites-header {
+  margin-bottom: 20px;
+}
+
+.favorites-status,
+.favorites-empty {
+  padding: 24px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-sm);
+}
+
+.favorites-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.favorites-pagination button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+  border-radius: var(--radius-control);
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.favorites-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

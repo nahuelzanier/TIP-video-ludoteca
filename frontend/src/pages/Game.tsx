@@ -4,6 +4,7 @@ import GameSection from "../components/games/GameSection";
 import GameTagSection from "../components/games/GameTagSection";
 import GameRecommendations from "../components/games/GameRecommendations";
 import CommentSection from "../components/comments/CommentSection";
+import FavoriteButton from "../components/games/FavoriteButton";
 import type { Game as GameType } from "../types/Game";
 import { getGameById } from "../services/gameService";
 import { GAME_CONTENT_BASE_URL } from "../services/api";
@@ -75,8 +76,16 @@ function Game() {
   return (
     <main className="game-page">
       <header className="game-header">
-        <h1>{game.title}</h1>
-        <p>{game.description}</p>
+        <div className="game-header-main">
+          <div>
+            <h1>{game.title}</h1>
+            <p>{game.description}</p>
+          </div>
+          <FavoriteButton
+            gameId={game.id}
+            initialFavorite={Boolean(game.favorite)}
+          />
+        </div>
       </header>
 
       <GameSection gameUrl={gameUrl} />

@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.controller;
 
+import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameNotFoundException;
 import com.tip_video_ludoteca.games.GameRecommendationSummary;
@@ -9,11 +10,14 @@ import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.games.NoGamesAvailableException;
 import com.tip_video_ludoteca.tags.GameTagAssignmentRepository;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,12 +31,15 @@ public class GameApiController {
 
     private final GameRepository games;
     private final GameTagAssignmentRepository tagAssignments;
+    private final FavoriteService favorites;
 
     public GameApiController(
             GameRepository games,
-            GameTagAssignmentRepository tagAssignments) {
+            GameTagAssignmentRepository tagAssignments,
+            FavoriteService favorites) {
         this.games = games;
         this.tagAssignments = tagAssignments;
+        this.favorites = favorites;
     }
 
     @GetMapping
@@ -41,7 +48,8 @@ public class GameApiController {
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) List<Long> tagIds,
-            @RequestParam(required = false) Double minRating) {
+            @RequestParam(required = false) Double minRating,
+            @AuthenticationPrincipal UserDetails principal) {
 
         if (minRating != null
                 && (!Double.isFinite(minRating) || minRating < 1 || minRating > 5)) {
@@ -65,12 +73,17 @@ public class GameApiController {
                 pageRequest
         );
 
+        Set<String> favoriteIds = principal == null
+                ? Set.of()
+                : favorites.findFavoriteGameIdsForUser(principal.getUsername());
+
         List<GameSummary> content = result.getContent().stream()
                 .map(game -> new GameSummary(
                         game.getId(),
                         game.getTitle(),
                         game.getCoverImageUrl(),
-                        game.getDescription()
+                        game.getDescription(),
+                        favoriteIds.contains(game.getId())
                 ))
                 .toList();
 
@@ -86,30 +99,41 @@ public class GameApiController {
     }
 
     @GetMapping("/random")
-    public GameSummary getRandomGame() {
-        return games.findRandomByStatus(GameStatus.PUBLISHED.name())
-                .map(game -> new GameSummary(
-                        game.getId(),
-                        game.getTitle(),
-                        game.getCoverImageUrl(),
-                        game.getDescription()
-                ))
+    public GameSummary getRandomGame(@AuthenticationPrincipal UserDetails principal) {
+        Game randomGame = games.findRandomByStatus(GameStatus.PUBLISHED.name())
                 .orElseThrow(NoGamesAvailableException::new);
+
+        boolean favorite = principal != null
+                && favorites.isFavorite(randomGame.getId(), principal.getUsername());
+
+        return new GameSummary(
+                randomGame.getId(),
+                randomGame.getTitle(),
+                randomGame.getCoverImageUrl(),
+                randomGame.getDescription(),
+                favorite
+        );
     }
 
     @GetMapping("/{gameId}")
-    public ResponseEntity<GameSummary> getGame(@PathVariable String gameId) {
+    public ResponseEntity<GameSummary> getGame(
+            @PathVariable String gameId,
+            @AuthenticationPrincipal UserDetails principal) {
         Game game = games.findById(gameId).orElse(null);
 
         if (game == null || game.getStatus() != GameStatus.PUBLISHED) {
             return ResponseEntity.notFound().build();
         }
 
+        boolean favorite = principal != null
+                && favorites.isFavorite(gameId, principal.getUsername());
+
         return ResponseEntity.ok(new GameSummary(
                 game.getId(),
                 game.getTitle(),
                 game.getCoverImageUrl(),
-                game.getDescription()
+                game.getDescription(),
+                favorite
         ));
     }
 
@@ -132,7 +156,8 @@ public class GameApiController {
             String id,
             String title,
             String image,
-            String description
+            String description,
+            boolean favorito
     ) {
     }
 

@@ -4,13 +4,18 @@ import type { Game } from "../../types/Game";
 
 interface GameGridProps {
     games: Game[];
+    onFavoriteChange?: (gameId: string, nextFavorite: boolean) => void;
 }
 
-function GameGrid({ games }: GameGridProps) {
+function GameGrid({ games, onFavoriteChange }: GameGridProps) {
     return (
         <div className="game-grid">
             {games.map((game) => (
-                <GameCard key={game.id} game={game} />
+                <GameCard
+                    key={game.id}
+                    game={game}
+                    onFavoriteChange={onFavoriteChange}
+                />
             ))}
         </div>
     );

@@ -53,7 +53,8 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf
-                .csrfTokenRepository(new HttpSessionCsrfTokenRepository()))
+                .csrfTokenRepository(new HttpSessionCsrfTokenRepository())
+                .ignoringRequestMatchers("/api/favorites/**"))
             .securityContext(context -> context
                 .securityContextRepository(securityContextRepository))
             .formLogin(form -> form.disable())

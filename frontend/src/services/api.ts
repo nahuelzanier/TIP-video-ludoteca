@@ -1,17 +1,7 @@
-const gameContentUrl = import.meta.env.VITE_GAME_CONTENT_URL;
-
-if (!gameContentUrl) {
-  throw new Error("Falta configurar VITE_GAME_CONTENT_URL en frontend/.env.local");
-}
-
+const gameContentUrl = import.meta.env.VITE_GAME_CONTENT_URL ?? "http://127.0.0.1:8080";
 export const GAME_CONTENT_BASE_URL = gameContentUrl.replace(/\/$/, "");
 
-const baseUrl = import.meta.env.VITE_API_URL;
-
-if (!baseUrl) {
-  throw new Error("Falta configurar VITE_API_URL en frontend/.env.local");
-}
-
+const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 export const API_BASE_URL = baseUrl.replace(/\/$/, "");
 
 /**

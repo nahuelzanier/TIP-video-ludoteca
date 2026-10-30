@@ -3,6 +3,7 @@ export interface Game {
     title: string;
     image: string;
     description: string;
+    favorite?: boolean;
 }
 
 export interface GameRecommendation {
