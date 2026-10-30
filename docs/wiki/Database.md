@@ -52,7 +52,17 @@ Two settings are worth calling out:
 ## Migrations
 
 All migrations live in `backend/src/main/resources/db/migration/` and run automatically on
-startup.
+startup. The current forum/favorites sequence is:
+
+| Version | Migration |
+| --- | --- |
+| V11 | `create_forum_tags` |
+| V12 | `remove_legacy_forum_discussion_tags` |
+| V13 | `create_favorites` |
+
+Two feature branches independently introduced a V11. The forum-tags migration was already
+applied by the `dev` database, so it stays V11; the later favorites migration is V13. Migration
+versions must be unique across branches before they are merged.
 
 ### V1: create_users
 
@@ -321,13 +331,15 @@ createdb -U postgres ludarium
 ## Editing a migration that already ran
 
 Flyway refuses to start when a checksum in `flyway_schema_history` no longer matches the file
-on disk. There is no Flyway Maven plugin in `pom.xml`, so the practical fix for local
-development is to drop and recreate the database:
+on disk. Restore the exact contents of an already-applied migration and put later changes in a
+new migration. If a conflict came from two branches assigning the same version, keep the
+already-applied migration at that version and renumber the newer, unapplied migration. Never
+drop a database that contains data you need. Drop and recreate only a disposable local database:
 
 ```bash
 dropdb -U postgres ludarium
 createdb -U postgres ludarium
 ```
 
-The rule of thumb: once a migration is on a shared branch, add a new `V<n>__...` file instead
-of editing an existing one.
+Once a migration is on a shared branch, add a new `V<n>__...` file instead of editing an
+existing one. Confirm migration versions are unique when merging feature branches.
