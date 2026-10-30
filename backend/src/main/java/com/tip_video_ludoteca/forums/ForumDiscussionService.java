@@ -4,8 +4,6 @@ import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.media.ImageValidation;
-import com.tip_video_ludoteca.tags.Tag;
-import com.tip_video_ludoteca.tags.TagRepository;
 import com.tip_video_ludoteca.users.User;
 import com.tip_video_ludoteca.users.UserRepository;
 import org.springframework.data.domain.Page;
@@ -36,7 +34,7 @@ public class ForumDiscussionService {
     private final ForumDiscussionRepository discussions;
     private final GameRepository games;
     private final UserRepository users;
-    private final TagRepository tags;
+    private final ForumTagRepository tags;
     private final ForumRatingRepository ratings;
     private final ForumReplyRepository replies;
 
@@ -44,7 +42,7 @@ public class ForumDiscussionService {
             ForumDiscussionRepository discussions,
             GameRepository games,
             UserRepository users,
-            TagRepository tags,
+            ForumTagRepository tags,
             ForumRatingRepository ratings,
             ForumReplyRepository replies) {
         this.discussions = discussions;
@@ -90,7 +88,7 @@ public class ForumDiscussionService {
                 ));
 
         ImageData image = readCover(cover);
-        Set<Tag> selectedTags = findTags(tagIds);
+        Set<ForumTag> selectedTags = findTags(tagIds);
 
         ForumDiscussion discussion = new ForumDiscussion(
                 game,
@@ -107,7 +105,7 @@ public class ForumDiscussionService {
         return new CreatedDiscussion(saved.getId(), saved.getTitle());
     }
 
-    private Set<Tag> findTags(List<Long> tagIds) {
+    private Set<ForumTag> findTags(List<Long> tagIds) {
         if (tagIds == null || tagIds.isEmpty()) {
             throw badRequest("Elegí al menos un tag.");
         }
@@ -122,7 +120,7 @@ public class ForumDiscussionService {
             throw badRequest("La selección de tags no es válida.");
         }
 
-        List<Tag> selectedTags = tags.findAllById(uniqueIds);
+        List<ForumTag> selectedTags = tags.findAllById(uniqueIds);
 
         if (selectedTags.size() != uniqueIds.size()) {
             throw badRequest("Uno o más tags no existen.");

@@ -11,6 +11,15 @@ export interface ForumTag {
   slug: string;
 }
 
+export async function getForumTags(): Promise<ForumTag[]> {
+  const response = await fetch(API_BASE_URL + "/api/forum/tags");
+
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+
+  return response.json();
+}
 export interface ForumDiscussion {
   id: number;
   title: string;

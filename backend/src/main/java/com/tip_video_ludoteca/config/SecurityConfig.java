@@ -88,6 +88,7 @@ public class SecurityConfig {
                     "/api/users/*/games",
                     "/api/users/*/avatar",
                     "/api/auth/csrf",
+                    "/api/forum/tags",
                     "/error").permitAll()
                 .requestMatchers(HttpMethod.GET,
                         "/api/forum/discussions",
