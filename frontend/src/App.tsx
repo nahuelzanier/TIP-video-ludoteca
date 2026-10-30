@@ -10,6 +10,7 @@ import Settings from "./pages/settings/Settings";
 import UploadGame from "./pages/uploadgame/UploadGame";
 import Search from "./pages/search/Search";
 import User from "./pages/user/User";
+import Favorites from "./pages/favorites/Favorites";
 import ForumDiscussionPage from "./pages/forum/ForumDiscussionPage";
 import ForumNewDiscussion from "./pages/forum/ForumNewDiscussion";
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/forum" element={<Forum />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/search" element={<Search />} />
           <Route path="/user/:username" element={<User />} />
           <Route path="/games/upload" element={<UploadGame />} />

@@ -1,6 +1,7 @@
 package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.config.SecurityConfig;
+import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRecommendationSummary;
 import com.tip_video_ludoteca.games.GameRepository;
@@ -50,6 +51,9 @@ class GameApiControllerTests {
 
     @MockitoBean
     private GameTagAssignmentRepository gameTagAssignmentRepository;
+
+    @MockitoBean
+    private FavoriteService favoriteService;
 
     @Autowired
     private MockMvc mockMvc;

@@ -127,6 +127,13 @@ function Navbar() {
                     >
                         Settings
                     </NavLink>
+                    <NavLink
+                        className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`}
+                        to="/favorites"
+                        onClick={closeNavbar}
+                    >
+                        Mis favoritos
+                    </NavLink>
                 </nav>
 
                 <div className="navbar-divider" />

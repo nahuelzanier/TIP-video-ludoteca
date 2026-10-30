@@ -12,6 +12,14 @@ export interface GamePage {
   hasPrevious: boolean;
 }
 
+function normalizeGame(game: Game): Game {
+  return {
+    ...game,
+    favorite: Boolean((game as Game & { favorito?: boolean }).favorito),
+    image: new URL(game.image, API_BASE_URL).toString(),
+  };
+}
+
 export async function getGamesPage(
   page = 0,
   size = 12,
@@ -41,10 +49,7 @@ export async function getGamesPage(
 
   return {
     ...result,
-    content: result.content.map((game) => ({
-      ...game,
-      image: new URL(game.image, API_BASE_URL).toString(),
-    })),
+    content: result.content.map(normalizeGame),
   };
 }
 
@@ -67,10 +72,7 @@ export async function getGameById(gameId: string): Promise<Game> {
 
   const game: Game = await response.json();
 
-  return {
-    ...game,
-    image: new URL(game.image, API_BASE_URL).toString(),
-  };
+  return normalizeGame(game);
 }
 
 export async function getRandomGame(): Promise<Game> {
@@ -86,10 +88,7 @@ export async function getRandomGame(): Promise<Game> {
 
   const game: Game = await response.json();
 
-  return {
-    ...game,
-    image: new URL(game.image, API_BASE_URL).toString(),
-  };
+  return normalizeGame(game);
 }
 
 export async function getGameRecommendations(

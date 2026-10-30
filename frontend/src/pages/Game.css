@@ -12,6 +12,17 @@
   margin: 0 auto 30px;
 }
 
+.game-header-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.game-header-main > div {
+  flex: 1;
+}
+
 .game-header h1 {
   margin: 0 0 8px;
   font-size: clamp(2rem, 5vw, 2.8rem);

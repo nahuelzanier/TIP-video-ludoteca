@@ -75,7 +75,8 @@ public class ProfileApiController {
                             game.getId(),
                             game.getTitle(),
                             game.getCoverImageUrl(),
-                            game.getDescription()
+                            game.getDescription(),
+                            false
                     ))
                     .toList();
 
@@ -94,7 +95,8 @@ public class ProfileApiController {
                 String id,
                 String title,
                 String image,
-                String description
+                String description,
+                boolean favorito
         ) {}
 
         public record GamePage(
