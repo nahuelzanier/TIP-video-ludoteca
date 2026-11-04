@@ -1,6 +1,7 @@
 package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.favorites.FavoriteService;
+import com.tip_video_ludoteca.forums.ForumDiscussionRepository;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
@@ -38,22 +39,38 @@ public class ProfileApiController {
     private final UserProfileImageService profileImages;
     private final GameRepository games;
     private final FavoriteService favorites;
+    private final ForumDiscussionRepository discussions;
 
     public ProfileApiController(
             UserProfileService userProfiles,
             UserProfileImageService profileImages,
             GameRepository games,
-            FavoriteService favorites) {
+            FavoriteService favorites,
+            ForumDiscussionRepository discussions) {
         this.userProfiles = userProfiles;
         this.profileImages = profileImages;
         this.games = games;
         this.favorites = favorites;
+        this.discussions = discussions;
     }
 
     @GetMapping("/{username}/profile")
     public UserProfileResponse getProfile(@PathVariable String username) {
         return userProfiles.getProfile(username);
     }
+
+    @GetMapping("/{username}/forums")
+    public List<ForumSummary> getUserForums(@PathVariable String username) {
+        return discussions.findByAuthorUsernameAndGameStatus(username, GameStatus.PUBLISHED)
+                .stream()
+                .map(discussion -> new ForumSummary(
+                        discussion.getId(),
+                        discussion.getTitle(),
+                        discussion.getCreatedAt()))
+                .toList();
+    }
+
+    public record ForumSummary(Long id, String title, java.time.Instant createdAt) {}
 
     @GetMapping("/{username}/games")
     public GamePage getUserGames(

@@ -24,6 +24,7 @@ function FavoriteButton({
   const location = useLocation();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the server-loaded favorite prop can change after the game list refreshes.
     setFavorite(initialFavorite);
   }, [initialFavorite]);
 

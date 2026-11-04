@@ -87,6 +87,7 @@ public class SecurityConfig {
                     "/api/search",
                     "/api/users/*/profile",
                     "/api/users/*/games",
+                    "/api/users/*/forums",
                     "/api/users/*/avatar",
                     "/api/auth/csrf",
                     "/api/forum/tags",

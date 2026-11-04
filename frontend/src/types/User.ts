@@ -6,7 +6,7 @@ export interface UserProfile {
 }
 
 export interface ForumSummary {
-    id: string;
+    id: number;
     title: string;
     createdAt: string;
 }

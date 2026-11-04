@@ -81,8 +81,10 @@ class GameRepositoryTests {
         User owner = users.save(new User("filter-owner", "filter-owner@test.com", "{noop}hash"));
         User player = users.save(new User("filter-player", "filter-player@test.com", "{noop}hash"));
 
-        Tag puzzle = tags.save(tag("Puzzle", "puzzle"));
-        Tag action = tags.save(tag("Action", "action"));
+        Tag puzzle = tags.findBySlug("puzzle")
+                .orElseGet(() -> tags.save(tag("Puzzle", "puzzle")));
+        Tag action = tags.findBySlug("action")
+                .orElseGet(() -> tags.save(tag("Action", "action")));
 
         Game matching = games.saveAndFlush(game(
                 "filter-matching", owner, "Puzzle Adventure", GameStatus.PUBLISHED));

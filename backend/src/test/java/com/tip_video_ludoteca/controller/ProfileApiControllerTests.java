@@ -2,6 +2,8 @@ package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.favorites.FavoriteService;
+import com.tip_video_ludoteca.forums.ForumDiscussion;
+import com.tip_video_ludoteca.forums.ForumDiscussionRepository;
 import com.tip_video_ludoteca.users.ProfileEditForbiddenException;
 import com.tip_video_ludoteca.users.UserNotFoundException;
 import com.tip_video_ludoteca.users.UserProfileImageService;
@@ -31,12 +33,14 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -77,6 +81,9 @@ class ProfileApiControllerTests {
     @MockitoBean
     private FavoriteService favorites;
 
+    @MockitoBean
+    private ForumDiscussionRepository discussions;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -103,6 +110,25 @@ class ProfileApiControllerTests {
         mockMvc.perform(get("/api/users/{username}/profile", USERNAME))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.avatarUrl").value(AVATAR_URL));
+    }
+
+    @Test
+    void getUserForumsIsPublicAndReturnsTheUsersPublishedGameDiscussions() throws Exception {
+        ForumDiscussion discussion = mock(ForumDiscussion.class);
+        given(discussion.getId()).willReturn(42L);
+        given(discussion.getTitle()).willReturn("A good game");
+        given(discussion.getCreatedAt()).willReturn(Instant.parse("2026-10-30T10:00:00Z"));
+        given(discussions.findByAuthorUsernameAndGameStatus(USERNAME, GameStatus.PUBLISHED))
+                .willReturn(List.of(discussion));
+
+        mockMvc.perform(get("/api/users/{username}/forums", USERNAME))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(42))
+                .andExpect(jsonPath("$[0].title").value("A good game"))
+                .andExpect(jsonPath("$[0].createdAt")
+                        .value("2026-10-30T10:00:00Z"));
+
+        verify(discussions).findByAuthorUsernameAndGameStatus(USERNAME, GameStatus.PUBLISHED);
     }
 
     @Test

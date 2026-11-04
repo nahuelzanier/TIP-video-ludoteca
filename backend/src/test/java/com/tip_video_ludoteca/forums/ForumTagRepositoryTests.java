@@ -12,6 +12,8 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -78,5 +80,52 @@ class ForumTagRepositoryTests {
                 "SELECT to_regclass('forum_discussion_tags')",
                 String.class);
         assertThat(legacyTable).isNull();
+    }
+
+    @Test
+    void authorDiscussionsIncludeOnlyPublishedGamesAndMatchUsernameIgnoringCase() {
+        User author = users.save(new User(
+                "forum-profile-author",
+                "forum-profile-author@test.com",
+                "{noop}hash"));
+        User anotherAuthor = users.save(new User(
+                "forum-profile-other",
+                "forum-profile-other@test.com",
+                "{noop}hash"));
+
+        Game publishedGame = games.save(new Game(
+                "forum-profile-published",
+                author,
+                "Published game",
+                "",
+                null,
+                "index.html",
+                GameStatus.PUBLISHED));
+        Game draftGame = games.save(new Game(
+                "forum-profile-draft",
+                author,
+                "Draft game",
+                "",
+                null,
+                "index.html",
+                GameStatus.DRAFT));
+        Game anotherPublishedGame = games.save(new Game(
+                "forum-profile-other-published",
+                anotherAuthor,
+                "Another published game",
+                "",
+                null,
+                "index.html",
+                GameStatus.PUBLISHED));
+
+        discussions.saveAllAndFlush(List.of(
+                new ForumDiscussion(publishedGame, author, "Visible", "description", null, null),
+                new ForumDiscussion(draftGame, author, "Hidden", "description", null, null),
+                new ForumDiscussion(anotherPublishedGame, anotherAuthor, "Other", "description", null, null)));
+
+        assertThat(discussions.findByAuthorUsernameAndGameStatus(
+                "FORUM-PROFILE-AUTHOR", GameStatus.PUBLISHED))
+                .extracting(ForumDiscussion::getTitle)
+                .containsExactly("Visible");
     }
 }

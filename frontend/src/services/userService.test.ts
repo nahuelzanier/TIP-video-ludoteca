@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { deleteAvatar, getUserGamesPage, getUserProfile, updateDescription, uploadAvatar } from "./userService";
+import { deleteAvatar, getUserForums, getUserGamesPage, getUserProfile, updateDescription, uploadAvatar } from "./userService";
 
 let fetchMock: ReturnType<typeof vi.fn>;
 
@@ -20,6 +20,22 @@ describe("userService", () => {
 
     await expect(getUserProfile("user/name")).resolves.toBeNull();
     expect(fetchMock).toHaveBeenCalledWith("http://localhost:8080/api/users/user%2Fname/profile");
+  });
+
+  it("loads the discussions created by a user and encodes the username", async () => {
+    const forums = [{ id: 8, title: "A discussion", createdAt: "2026-10-30T10:00:00Z" }];
+    fetchMock.mockResolvedValueOnce(jsonResponse(forums));
+
+    await expect(getUserForums("user/name")).resolves.toEqual(forums);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8080/api/users/user%2Fname/forums",
+    );
+  });
+
+  it("reports an API error when a user's discussions cannot be loaded", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: "Could not load discussions." }, 500));
+
+    await expect(getUserForums("luqui")).rejects.toThrow("Could not load discussions.");
   });
 
   it("updates a description with a CSRF token and resolves an avatar URL", async () => {

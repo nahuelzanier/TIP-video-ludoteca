@@ -11,6 +11,7 @@ import {
 } from "../../services/authService";
 import {
     deleteAvatar,
+    getUserForums,
     getUserGamesPage,
     getUserProfile,
     updateDescription,
@@ -24,8 +25,6 @@ import GameGrid from "../../components/games/GameGrid";
 
 
 const MAX_DESCRIPTION_LENGTH = 500;
-
-const FORUMS: ForumSummary[] = [];
 
 interface ProfileState {
     username: string;
@@ -63,6 +62,9 @@ function User() {
     const [gamesPageNumber, setGamesPageNumber] = useState(0);
     const [gamesLoading, setGamesLoading] = useState(true);
     const [gamesError, setGamesError] = useState("");
+    const [forums, setForums] = useState<ForumSummary[]>([]);
+    const [forumsLoading, setForumsLoading] = useState(true);
+    const [forumsError, setForumsError] = useState("");
 
     useEffect(() => {
         getCurrentUser()
@@ -140,6 +142,34 @@ function User() {
             cancelled = true;
         };
     }, [requestedUsername, gamesPageNumber]);
+
+    useEffect(() => {
+        let cancelled = false;
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- a username change starts a new profile-discussions request.
+        setForumsLoading(true);
+        setForumsError("");
+
+        getUserForums(requestedUsername)
+            .then((data) => {
+                if (!cancelled) setForums(data);
+            })
+            .catch((requestError: unknown) => {
+                if (!cancelled) {
+                    setForumsError(
+                        requestError instanceof Error
+                            ? requestError.message
+                            : "Could not load discussions.",
+                    );
+                }
+            })
+            .finally(() => {
+                if (!cancelled) setForumsLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [requestedUsername]);
 
     async function handleSave(description: string) {
         if (!profile) {
@@ -294,7 +324,11 @@ function User() {
                 onLogout={handleLogout}
             />
 
-            <UserActivity forums={FORUMS} />
+            <UserActivity
+                forums={forums}
+                loading={forumsLoading}
+                error={forumsError}
+            />
 
             {!gamesLoading && !gamesError && (gamesPage?.totalElements ?? 0) > 0 && (
                 <section className="user-games">
