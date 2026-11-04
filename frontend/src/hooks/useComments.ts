@@ -8,7 +8,7 @@ import {
 import { getCurrentUser, type AuthUser } from "../services/authService";
 import type { Comment } from "../types/Comment";
 
-const LOAD_ERROR = "No se pudieron cargar los comentarios.";
+const LOAD_ERROR = "Could not load comments.";
 
 interface UseCommentsResult {
   comments: Comment[];
@@ -85,7 +85,7 @@ export function useComments(gameId: string): UseCommentsResult {
         setComments(await getGameComments(gameId));
         return true;
       } catch (requestError) {
-        setSubmitError(messageOf(requestError, "No se pudo publicar."));
+        setSubmitError(messageOf(requestError, "Could not post your comment."));
         return false;
       } finally {
         setSubmitting(false);

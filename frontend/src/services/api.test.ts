@@ -44,6 +44,6 @@ describe("api helpers", () => {
   it("rejects when a CSRF token cannot be fetched", async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 403 }));
 
-    await expect(fetchCsrfToken()).rejects.toThrow("No se pudo preparar la solicitud.");
+    await expect(fetchCsrfToken()).rejects.toThrow("Could not prepare the request.");
   });
 });

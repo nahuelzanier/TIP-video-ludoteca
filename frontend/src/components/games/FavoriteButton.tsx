@@ -49,7 +49,7 @@ function FavoriteButton({
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "No se pudo actualizar tu favorito.",
+          : "Could not update your favorites. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -63,9 +63,9 @@ function FavoriteButton({
         className={`favorite-button ${favorite ? "favorite-button--active" : ""} ${className}`.trim()}
         onClick={handleClick}
         disabled={loading}
-        aria-label={favorite ? "Quitar de favoritos" : "Guardar en favoritos"}
+        aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
         aria-pressed={favorite}
-        title={favorite ? "Quitar de favoritos" : "Guardar en favoritos"}
+        title={favorite ? "Remove from favorites" : "Add to favorites"}
       >
         <span aria-hidden="true">{favorite ? "♥" : "♡"}</span>
       </button>

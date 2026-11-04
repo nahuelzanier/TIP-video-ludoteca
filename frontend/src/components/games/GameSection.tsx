@@ -9,7 +9,7 @@ function GameSection({ gameUrl }: GameSectionProps) {
         <section className="game-section">
             <iframe
                 src={gameUrl}
-                title="Juego"
+                title="Game"
                 className="game-frame"
                 sandbox="allow-scripts allow-same-origin"
                 />

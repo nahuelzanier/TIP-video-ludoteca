@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pencil, Camera, LogOut } from "lucide-react";
 import "./ProfileHeader.css";
 
-const EMPTY_DESCRIPTION = "Este usuario aún no agregó una descripción";
+const EMPTY_DESCRIPTION = "This user hasn't added a description yet.";
 
 interface ProfileHeaderProps {
     username: string;
@@ -54,8 +54,8 @@ function ProfileHeader({
                         className="profile-avatar-edit"
                         type="button"
                         onClick={onChangePhoto}
-                        aria-label="Cambiar foto de perfil"
-                        title="Cambiar foto de perfil"
+                        aria-label="Change profile picture"
+                        title="Change profile picture"
                     >
                         <Camera size={18} aria-hidden="true" />
                     </button>
@@ -66,14 +66,14 @@ function ProfileHeader({
                 <h1 className="profile-header-name">{username}</h1>
 
                 <div className="profile-description-header">
-                    <h2 className="profile-description-title">Descripción</h2>
+                    <h2 className="profile-description-title">About</h2>
                     {isOwnProfile && (
                         <button
                             className="profile-description-edit"
                             type="button"
                             onClick={onEdit}
-                            aria-label="Editar descripción"
-                            title="Editar descripción"
+                            aria-label="Edit description"
+                            title="Edit description"
                         >
                             <Pencil size={16} aria-hidden="true" />
                         </button>
@@ -92,7 +92,7 @@ function ProfileHeader({
             {isOwnProfile && (
                 <div className="profile-actions">
                     <button className="profile-upload" type="button" onClick={onUpload}>
-                        Subir un juego
+                        Upload a game
                     </button>
 
                     <button
@@ -100,8 +100,8 @@ function ProfileHeader({
                         type="button"
                         onClick={onLogout}
                         disabled={loggingOut}
-                        aria-label="Cerrar sesión"
-                        title="Cerrar sesión"
+                        aria-label="Log out"
+                        title="Log out"
                     >
                         <LogOut size={18} aria-hidden="true" />
                     </button>

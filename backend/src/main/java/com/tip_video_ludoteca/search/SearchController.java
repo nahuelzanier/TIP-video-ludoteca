@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.search;
 
+import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameSpecifications;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @RestController
@@ -30,10 +34,15 @@ public class SearchController {
 
     private final GameRepository games;
     private final UserRepository users;
+    private final FavoriteService favorites;
 
-    public SearchController(GameRepository games, UserRepository users) {
+    public SearchController(
+            GameRepository games,
+            UserRepository users,
+            FavoriteService favorites) {
         this.games = games;
         this.users = users;
+        this.favorites = favorites;
     }
 
     @GetMapping
@@ -43,7 +52,8 @@ public class SearchController {
             @RequestParam(name = "usersPage", required = false, defaultValue = "0") int usersPage,
             @RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE) int size,
             @RequestParam(name = "tagIds", required = false) List<Long> tagIds,
-            @RequestParam(name = "minRating", required = false) Double minRating) {
+            @RequestParam(name = "minRating", required = false) Double minRating,
+            @AuthenticationPrincipal UserDetails principal) {
 
         String validationError = validate(query, gamesPage, usersPage, size, minRating);
         if (validationError != null) {
@@ -59,9 +69,14 @@ public class SearchController {
         );
         PageRequest usersRequest = PageRequest.of(usersPage, size);
 
+        Page<Game> matchingGames = games.findAll(
+                GameSpecifications.withFilters(term, tagIds, minRating), gamesRequest);
+        Set<String> favoriteIds = principal == null
+                ? Set.of()
+                : favorites.findFavoriteGameIdsForUser(principal.getUsername());
         PageResult<GameItem> gameResults = toPage(
-                games.findAll(GameSpecifications.withFilters(term, tagIds, minRating), gamesRequest),
-                GameItem::from);
+                matchingGames,
+                game -> GameItem.from(game, favoriteIds.contains(game.getId())));
         PageResult<UserItem> userResults = toPage(
                 users.findByUsernameContainingIgnoreCase(term, usersRequest),
                 UserItem::from);
@@ -117,14 +132,16 @@ public class SearchController {
             String id,
             String title,
             String image,
-            String description) {
+            String description,
+            boolean favorito) {
 
-        static GameItem from(Game game) {
+        static GameItem from(Game game, boolean favorito) {
             return new GameItem(
                     game.getId(),
                     game.getTitle(),
                     game.getCoverImageUrl(),
-                    game.getDescription());
+                    game.getDescription(),
+                    favorito);
         }
     }
 

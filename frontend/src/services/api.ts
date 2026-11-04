@@ -44,7 +44,7 @@ export async function fetchCsrfToken(): Promise<CsrfToken> {
   });
 
   if (!response.ok) {
-    throw new Error("No se pudo preparar la solicitud.");
+    throw new Error("Could not prepare the request.");
   }
 
   return response.json();

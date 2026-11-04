@@ -39,10 +39,13 @@ export async function getGamesPage(
     params.set("minRating", String(filters.minRating));
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/games?${params}`);
+  const response = await fetch(`${API_BASE_URL}/api/games?${params}`, {
+    credentials: "include",
+    cache: "no-store",
+  });
 
   if (!response.ok) {
-    throw new Error("No se pudieron cargar los juegos");
+    throw new Error("Could not load games.");
   }
 
   const result: GamePage = await response.json();
@@ -53,7 +56,7 @@ export async function getGamesPage(
   };
 }
 
-// Mantiene funcionando temporalmente la página Game, que todavía usa getGames().
+// Keeps the Game page working while it still uses getGames().
 export async function getGames(): Promise<Game[]> {
   const result = await getGamesPage(0, 24);
   return result.content;
@@ -62,6 +65,7 @@ export async function getGames(): Promise<Game[]> {
 export async function getGameById(gameId: string): Promise<Game> {
   const response = await fetch(
     `${API_BASE_URL}/api/games/${encodeURIComponent(gameId)}`,
+    { credentials: "include", cache: "no-store" },
   );
 
   if (!response.ok) {
@@ -76,7 +80,10 @@ export async function getGameById(gameId: string): Promise<Game> {
 }
 
 export async function getRandomGame(): Promise<Game> {
-  const response = await fetch(`${API_BASE_URL}/api/games/random`);
+  const response = await fetch(`${API_BASE_URL}/api/games/random`, {
+    credentials: "include",
+    cache: "no-store",
+  });
 
   if (response.status === 404) {
     throw new Error("There are no games available yet.");

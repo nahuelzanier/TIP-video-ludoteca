@@ -92,7 +92,7 @@ function User() {
                         error:
                             requestError instanceof Error
                                 ? requestError.message
-                                : "No se pudo cargar el perfil.",
+                                : "Could not load the profile.",
                         loaded: true,
                     });
                 }
@@ -126,7 +126,7 @@ function User() {
                     setGamesError(
                         requestError instanceof Error
                             ? requestError.message
-                            : "No se pudieron cargar los juegos.",
+                            : "Could not load the games.",
                     );
                 }
             })
@@ -158,7 +158,7 @@ function User() {
             setSaveError(
                 requestError instanceof Error
                     ? requestError.message
-                    : "No se pudo guardar la descripción.",
+                    : "Could not save the description.",
             );
         } finally {
             setSaving(false);
@@ -176,7 +176,7 @@ function User() {
             setLogoutError(
                 requestError instanceof Error
                     ? requestError.message
-                    : "No se pudo cerrar sesión. Intentá de nuevo.",
+                    : "Could not log out. Please try again.",
             );
         } finally {
             setLoggingOut(false);
@@ -200,7 +200,7 @@ function User() {
             setAvatarError(
                 requestError instanceof Error
                     ? requestError.message
-                    : "No se pudo guardar la foto.",
+                    : "Could not save the picture.",
             );
         } finally {
             setAvatarSaving(false);
@@ -224,7 +224,7 @@ function User() {
             setAvatarError(
                 requestError instanceof Error
                     ? requestError.message
-                    : "No se pudo quitar la foto.",
+                    : "Could not remove the picture.",
             );
         } finally {
             setAvatarRemoving(false);
@@ -235,7 +235,7 @@ function User() {
         return (
             <main className="user-page">
                 <p className="user-status" role="status">
-                    Cargando perfil...
+                    Loading profile...
                 </p>
             </main>
         );
@@ -244,14 +244,14 @@ function User() {
     if (error) {
         return (
             <main className="user-page">
-                <h1>No se pudo cargar el perfil</h1>
+                <h1>Could not load the profile</h1>
 
                 <p className="user-status" role="alert">
                     {error}
                 </p>
 
                 <Link className="user-back" to="/search">
-                    Volver a buscar
+                    Back to search
                 </Link>
             </main>
         );
@@ -260,14 +260,14 @@ function User() {
     if (!profile) {
         return (
             <main className="user-page">
-                <h1>Usuario no encontrado</h1>
+                <h1>User not found</h1>
 
                 <p className="user-status">
-                    No existe ningún usuario con el nombre {requestedUsername}.
+                    No user named {requestedUsername} exists.
                 </p>
 
                 <Link className="user-back" to="/search">
-                    Buscar usuarios
+                    Search for users
                 </Link>
             </main>
         );
@@ -298,24 +298,24 @@ function User() {
 
             {!gamesLoading && !gamesError && (gamesPage?.totalElements ?? 0) > 0 && (
                 <section className="user-games">
-                    <h2>{isOwnProfile ? "Mis juegos" : "Juegos publicados"}</h2>
+                    <h2>{isOwnProfile ? "My games" : "Published games"}</h2>
 
                     {gamesPage && gamesPage.content.length > 0 && (
                         <>
                             <GameGrid games={gamesPage.content} />
 
                             {gamesPage.totalPages > 1 && (
-                                <nav className="user-games-pagination" aria-label="Páginas de juegos">
+                                <nav className="user-games-pagination" aria-label="Game pages">
                                     <button
                                         type="button"
                                         onClick={() => setGamesPageNumber((page) => page - 1)}
                                         disabled={!gamesPage.hasPrevious || gamesLoading}
                                     >
-                                        Anterior
+                                        Previous
                                     </button>
 
                                     <span>
-                                        Página {gamesPage.page + 1} de {gamesPage.totalPages}
+                                        Page {gamesPage.page + 1} of {gamesPage.totalPages}
                                     </span>
 
                                     <button
@@ -323,7 +323,7 @@ function User() {
                                         onClick={() => setGamesPageNumber((page) => page + 1)}
                                         disabled={!gamesPage.hasNext || gamesLoading}
                                     >
-                                        Siguiente
+                                        Next
                                     </button>
                                 </nav>
                             )}

@@ -26,13 +26,13 @@ function CommentSection({ gameId }: CommentSectionProps) {
   return (
     <section className="comment-section" aria-labelledby="comment-section-title">
       <h2 id="comment-section-title" className="comment-section__title">
-        Comentarios
+        Comments
       </h2>
 
       {isAuthenticated ? (
         <CommentForm
-          placeholder="Compartí tu opinión sobre el juego..."
-          submitLabel="Subir"
+          placeholder="Share your thoughts about this game..."
+          submitLabel="Post comment"
           submitting={submitting}
           error={submitError}
           allowRating
@@ -40,13 +40,13 @@ function CommentSection({ gameId }: CommentSectionProps) {
         />
       ) : (
         <p className="comment-section__login-notice">
-          <Link to="/login">Iniciá sesión</Link> para comentar y valorar este juego.
+          <Link to="/login">Log in</Link> to comment on and rate this game.
         </p>
       )}
 
       {loading && (
         <p className="comment-section__status" role="status">
-          Cargando comentarios...
+          Loading comments...
         </p>
       )}
 
@@ -58,7 +58,7 @@ function CommentSection({ gameId }: CommentSectionProps) {
 
       {!loading && !error && comments.length === 0 && (
         <p className="comment-section__empty">
-          Todavía no hay comentarios. ¡Sé el primero!
+          There are no comments yet. Be the first!
         </p>
       )}
 

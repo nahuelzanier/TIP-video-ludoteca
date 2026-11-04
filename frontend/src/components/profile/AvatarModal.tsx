@@ -66,12 +66,12 @@ function AvatarModal({
     }
 
     if (!ACCEPTED_TYPES.includes(selected.type)) {
-      setLocalError("La foto tiene que ser un archivo PNG o JPEG.");
+      setLocalError("The photo must be a PNG or JPEG file.");
       return;
     }
 
     if (selected.size > MAX_AVATAR_BYTES) {
-      setLocalError("La foto no puede superar los 2 MB.");
+      setLocalError("The photo cannot exceed 2 MB.");
       return;
     }
 
@@ -100,7 +100,7 @@ function AvatarModal({
         aria-labelledby="avatar-modal-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 id="avatar-modal-title">Cambiar foto de perfil</h2>
+        <h2 id="avatar-modal-title">Change profile picture</h2>
 
         <div className="avatar-modal-preview">
           {shownUrl ? (
@@ -111,7 +111,7 @@ function AvatarModal({
         </div>
 
         <label className="modal-label" htmlFor="avatar-input">
-          Elegí una imagen
+          Choose an image
         </label>
 
         <input
@@ -125,7 +125,7 @@ function AvatarModal({
         />
 
         <div className="modal-meta">
-          <span>PNG o JPEG, hasta 2 MB. Se muestra como imagen cuadrada.</span>
+          <span>PNG or JPEG, up to 2 MB. The image is displayed as a square.</span>
 
           {file && <span className="avatar-modal-file">{file.name}</span>}
         </div>
@@ -144,7 +144,7 @@ function AvatarModal({
               onClick={onRemove}
               disabled={busy}
             >
-              {removing ? "Quitando..." : "Quitar foto"}
+              {removing ? "Removing..." : "Remove picture"}
             </button>
           )}
 
@@ -154,7 +154,7 @@ function AvatarModal({
             onClick={onClose}
             disabled={busy}
           >
-            Cancelar
+            Cancel
           </button>
 
           <button
@@ -163,7 +163,7 @@ function AvatarModal({
             onClick={() => file && onSave(file)}
             disabled={busy || !file}
           >
-            {saving ? "Guardando..." : "Guardar foto"}
+            {saving ? "Saving..." : "Save picture"}
           </button>
         </div>
       </div>

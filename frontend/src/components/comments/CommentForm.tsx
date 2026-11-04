@@ -86,7 +86,7 @@ function CommentForm({
       {expanded && (
         <div className="comment-form__footer">
           {allowRating && (
-            <StarRating value={rating} onChange={setRating} label="Tu valoración" />
+            <StarRating value={rating} onChange={setRating} label="Your rating" />
           )}
 
           <div className="comment-form__actions">
@@ -102,7 +102,7 @@ function CommentForm({
               onClick={handleCancel}
               disabled={submitting}
             >
-              Cancelar
+              Cancel
             </button>
 
             <button
@@ -110,7 +110,7 @@ function CommentForm({
               className="comment-form__submit"
               disabled={submitting || content.trim().length === 0 || isTooLong}
             >
-              {submitting ? "Subiendo..." : submitLabel}
+              {submitting ? "Posting..." : submitLabel}
             </button>
           </div>
         </div>

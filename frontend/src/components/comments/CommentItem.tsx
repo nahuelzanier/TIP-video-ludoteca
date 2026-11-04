@@ -59,7 +59,7 @@ function CommentItem({
     const trimmed = editContent.trim();
 
     if (trimmed.length === 0) {
-      setLocalEditError("El comentario no puede estar vacío.");
+      setLocalEditError("A comment cannot be empty.");
       return;
     }
 
@@ -69,7 +69,7 @@ function CommentItem({
       setIsEditing(false);
       setLocalEditError("");
     } else {
-      setLocalEditError(submitError || "No se pudo guardar la edición.");
+      setLocalEditError(submitError || "Could not save your changes.");
     }
   }
 
@@ -124,7 +124,7 @@ function CommentItem({
                 onClick={handleEditCancel}
                 disabled={submitting}
               >
-                Cancelar
+                Cancel
               </button>
 
               <button
@@ -137,7 +137,7 @@ function CommentItem({
                   editContent.trim() === comment.content.trim()
                 }
               >
-                {submitting ? "Guardando..." : "Guardar"}
+                {submitting ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
@@ -160,7 +160,7 @@ function CommentItem({
                 onClick={() => setIsReplying(true)}
                 disabled={submitting}
               >
-                Responder
+                Reply
               </button>
             )}
 
@@ -173,10 +173,10 @@ function CommentItem({
                   setEditContent(comment.content);
                 }}
                 disabled={submitting}
-                aria-label="Editar comentario"
-                title="Editar comentario"
+                aria-label="Edit comment"
+                title="Edit comment"
               >
-                <Pencil size={14} aria-hidden="true" /> Editar
+                <Pencil size={14} aria-hidden="true" /> Edit
               </button>
             )}
           </div>
@@ -185,8 +185,8 @@ function CommentItem({
 
       {isReplying && (
         <CommentForm
-          placeholder={`Responder a ${comment.username}...`}
-          submitLabel="Responder"
+          placeholder={`Reply to ${comment.username}...`}
+          submitLabel="Reply"
           submitting={submitting}
           error={submitError}
           autoFocus

@@ -1,15 +1,46 @@
 import { useEffect, useState } from "react";
-import type { ForumDiscussion } from "../../services/forumService";
-import { getForumDiscussions } from "../../services/forumService";
+import type { ForumDiscussion, ForumTag } from "../../services/forumService";
+import { getForumDiscussions, getForumTags } from "../../services/forumService";
 import { Link } from "react-router-dom";
 import "./Forum.css";
 
 function Forum() {
   const [discussions, setDiscussions] = useState<ForumDiscussion[]>([]);
+  const [tags, setTags] = useState<ForumTag[]>([]);
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [tagsError, setTagsError] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+
+    getForumTags()
+      .then((availableTags) => {
+        if (isCurrentRequest) setTags(availableTags);
+      })
+      .catch(() => {
+        if (isCurrentRequest) setTagsError("Could not load forum tags.");
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedQuery(query.trim());
+      setPage(0);
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [query]);
 
   useEffect(() => {
     let isCurrentRequest = true;
@@ -18,7 +49,10 @@ function Forum() {
     setLoading(true);
     setError("");
 
-    getForumDiscussions(page)
+    getForumDiscussions(page, 12, {
+      query: debouncedQuery,
+      tagIds: selectedTagIds,
+    })
       .then((result) => {
         if (!isCurrentRequest) return;
 
@@ -41,20 +75,105 @@ function Forum() {
     return () => {
       isCurrentRequest = false;
     };
-  }, [page]);
+  }, [page, debouncedQuery, selectedTagIds]);
+
+  function toggleTag(tagId: number) {
+    setSelectedTagIds((current) =>
+      current.includes(tagId)
+        ? current.filter((selectedId) => selectedId !== tagId)
+        : [...current, tagId],
+    );
+    setPage(0);
+  }
+
+  function clearFilters() {
+    setQuery("");
+    setDebouncedQuery("");
+    setSelectedTagIds([]);
+    setPage(0);
+  }
+
+  const hasActiveFilters = Boolean(query.trim()) || selectedTagIds.length > 0;
+  const activeFilterCount = Number(Boolean(query.trim())) + selectedTagIds.length;
 
   return (
     <main className="forum-page">
       <header className="forum-header">
         <div>
-            <h1>Forum</h1>
-            <p>Discuss the games you play.</p>
+          <h1>Forum</h1>
+          <p>Discuss the games you play.</p>
         </div>
 
         <Link className="forum-create-link" to="/forum/new">
-            Start a discussion
+          Start a discussion
         </Link>
-        </header>
+      </header>
+
+      <section className="forum-search-filters" aria-labelledby="forum-search-filters-title">
+        <div className="forum-search-filters__header">
+          <div>
+            <h2 id="forum-search-filters-title">Find a discussion</h2>
+            {hasActiveFilters && (
+              <p className="forum-search-filters__summary" aria-live="polite">
+                {activeFilterCount} active {activeFilterCount === 1 ? "filter" : "filters"}
+              </p>
+            )}
+          </div>
+          <div className="forum-search-filters__actions">
+            {hasActiveFilters && (
+              <button className="forum-clear-filters" type="button" onClick={clearFilters}>
+                Clear
+              </button>
+            )}
+            <button
+              className="forum-filter-toggle"
+              type="button"
+              aria-expanded={filtersOpen}
+              aria-controls="forum-filter-controls"
+              onClick={() => setFiltersOpen((open) => !open)}
+            >
+              {filtersOpen ? "Hide filters" : "Show filters"}
+            </button>
+          </div>
+        </div>
+
+        <div
+          className="forum-search-filters__content"
+          id="forum-filter-controls"
+          hidden={!filtersOpen}
+        >
+          <label className="forum-search-label" htmlFor="forum-search">
+            Search discussions
+          </label>
+          <input
+            id="forum-search"
+            className="forum-search-input"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Title, description, or game"
+          />
+
+          <fieldset className="forum-filter-tags">
+            <legend>Filter by forum tags</legend>
+            <p className="forum-filter-hint">
+              Selecting multiple tags shows discussions that include all of them.
+            </p>
+            {tags.length === 0 && !tagsError && <span>Loading tags...</span>}
+            {tagsError && <span className="forum-filter-error" role="alert">{tagsError}</span>}
+            {tags.map((tag) => (
+              <label className="forum-filter-tag" key={tag.id}>
+                <input
+                  type="checkbox"
+                  checked={selectedTagIds.includes(tag.id)}
+                  onChange={() => toggleTag(tag.id)}
+                />
+                <span>{tag.name}</span>
+              </label>
+            ))}
+          </fieldset>
+        </div>
+      </section>
 
       {loading && <p role="status">Loading discussions...</p>}
 
@@ -65,7 +184,11 @@ function Forum() {
       )}
 
       {!loading && !error && discussions.length === 0 && (
-        <p className="forum-empty">There are no discussions yet.</p>
+        <p className="forum-empty">
+          {hasActiveFilters
+            ? "No discussions match your search and filters."
+            : "There are no discussions yet."}
+        </p>
       )}
 
       {!loading && !error && discussions.length > 0 && (
@@ -76,8 +199,24 @@ function Forum() {
                 className="forum-card"
                 key={discussion.id}
                 to={`/forum/${discussion.id}`}
+              >
+                <img
+                  className="forum-card__cover"
+                  src={discussion.coverImageUrl}
+                  alt=""
+                  loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.hidden = true;
+                    event.currentTarget.nextElementSibling?.removeAttribute("hidden");
+                  }}
+                />
+                <div
+                  className="forum-card__cover forum-card__cover-fallback"
+                  hidden
+                  aria-hidden="true"
                 >
-
+                  No cover image
+                </div>
                 <div className="forum-card__body">
                   <div className="forum-card__author">
                     {discussion.authorAvatarUrl ? (
@@ -95,7 +234,7 @@ function Forum() {
 
                     <span>{discussion.authorUsername}</span>
                     <time dateTime={discussion.createdAt}>
-                      {new Date(discussion.createdAt).toLocaleDateString()}
+                      {new Date(discussion.createdAt).toLocaleDateString("en-US")}
                     </time>
                   </div>
 

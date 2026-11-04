@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.search;
 
+import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.users.UserRepository;
@@ -33,6 +34,9 @@ class SearchControllerTests {
 
     @MockitoBean
     private UserRepository users;
+
+    @MockitoBean
+    private FavoriteService favorites;
 
     @Autowired
     private MockMvc mockMvc;

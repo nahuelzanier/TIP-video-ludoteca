@@ -57,10 +57,10 @@ function EditDescriptionModal({
                 aria-labelledby="edit-description-title"
                 onClick={(event) => event.stopPropagation()}
             >
-                <h2 id="edit-description-title">Editar descripción</h2>
+                <h2 id="edit-description-title">Edit description</h2>
 
                 <label className="modal-label" htmlFor="description-input">
-                    Contá algo sobre vos
+                    Tell us about yourself
                 </label>
 
                 <textarea
@@ -79,8 +79,8 @@ function EditDescriptionModal({
                 <div className="modal-meta">
                     <span>
                         {isOverLimit
-                            ? `Te pasaste por ${description.length - maxLength} caracteres.`
-                            : "Podés dejar la descripción vacía si no querés escribir nada."}
+                            ? `You are ${description.length - maxLength} characters over the limit.`
+                            : "You can leave this blank if you don't want to add a description."}
                     </span>
 
                     <span
@@ -107,7 +107,7 @@ function EditDescriptionModal({
                         onClick={onClose}
                         disabled={saving}
                     >
-                        Cancelar
+                        Cancel
                     </button>
 
                     <button
@@ -116,7 +116,7 @@ function EditDescriptionModal({
                         onClick={() => onSave(description)}
                         disabled={saving || isOverLimit}
                     >
-                        {saving ? "Guardando..." : "Guardar"}
+                        {saving ? "Saving..." : "Save"}
                     </button>
                 </div>
             </div>

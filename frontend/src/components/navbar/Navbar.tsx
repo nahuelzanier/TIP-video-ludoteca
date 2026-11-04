@@ -91,7 +91,7 @@ function Navbar() {
 
             <aside className={`navbar-drawer ${isOpen ? "navbar-drawer--open" : ""}`} aria-hidden={!isOpen}>
                 <header className="navbar-header">
-                    <span className="navbar-brand">Ludoteca</span>
+                    <span className="navbar-brand">Ludarium</span>
                     <button
                         className="navbar-close"
                         type="button"
@@ -132,7 +132,7 @@ function Navbar() {
                         to="/favorites"
                         onClick={closeNavbar}
                     >
-                        Mis favoritos
+                        My favorites
                     </NavLink>
                 </nav>
 

@@ -21,7 +21,10 @@ export async function searchEverything(
         params.set("minRating", String(filters.minRating));
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`, {
+        credentials: "include",
+        cache: "no-store",
+    });
 
     if (!response.ok) {
         throw new Error(await readError(response));
@@ -35,6 +38,7 @@ export async function searchEverything(
             ...result.games,
             items: result.games.items.map((game) => ({
                 ...game,
+                favorite: Boolean((game as typeof game & { favorito?: boolean }).favorito),
                 image: game.image
                     ? new URL(game.image, API_BASE_URL).toString()
                     : "",

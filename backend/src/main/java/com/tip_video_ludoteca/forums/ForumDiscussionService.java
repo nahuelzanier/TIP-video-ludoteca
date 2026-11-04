@@ -6,9 +6,14 @@ import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.media.ImageValidation;
 import com.tip_video_ludoteca.users.User;
 import com.tip_video_ludoteca.users.UserRepository;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +22,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -167,11 +175,57 @@ public class ForumDiscussionService {
 
     @Transactional(readOnly = true)
     public DiscussionPage listPublished(int page, int size) {
+        return listPublished(page, size, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public DiscussionPage listPublished(
+            int page,
+            int size,
+            String queryText,
+            List<Long> requestedTagIds) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 24);
+        String normalizedQuery = queryText == null
+                ? ""
+                : queryText.trim().toLowerCase(Locale.ROOT);
+        Set<Long> selectedTagIds = requestedTagIds == null
+                ? Set.of()
+                : new LinkedHashSet<>(requestedTagIds);
 
-        Page<ForumDiscussion> result = discussions.findByGame_Status(
-                GameStatus.PUBLISHED,
+        Specification<ForumDiscussion> filters = (root, query, criteria) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteria.equal(
+                    root.get("game").get("status"), GameStatus.PUBLISHED));
+
+            if (!normalizedQuery.isEmpty()) {
+                String pattern = "%" + normalizedQuery + "%";
+                predicates.add(criteria.or(
+                        criteria.like(criteria.lower(root.get("title")), pattern),
+                        criteria.like(criteria.lower(root.get("description")), pattern),
+                        criteria.like(criteria.lower(root.get("game").get("title")), pattern)
+                ));
+            }
+
+            if (!selectedTagIds.isEmpty()) {
+                Subquery<Long> matchingTagCount = query.subquery(Long.class);
+                Root<ForumDiscussion> correlatedDiscussion =
+                        matchingTagCount.correlate(root);
+                Join<ForumDiscussion, ForumTag> tagJoin =
+                        correlatedDiscussion.join("tags");
+                matchingTagCount.select(criteria.countDistinct(tagJoin.get("id")));
+                matchingTagCount.where(tagJoin.get("id").in(selectedTagIds));
+                predicates.add(criteria.equal(
+                        matchingTagCount,
+                        (long) selectedTagIds.size()
+                ));
+            }
+
+            return criteria.and(predicates.toArray(Predicate[]::new));
+        };
+
+        Page<ForumDiscussion> result = discussions.findAll(
+                filters,
                 PageRequest.of(
                         safePage,
                         safeSize,

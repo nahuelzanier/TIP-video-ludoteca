@@ -45,7 +45,7 @@ function Favorites() {
         setError(
           requestError instanceof Error
             ? requestError.message
-            : "No se pudieron cargar tus favoritos.",
+            : "Could not load your favorites.",
         );
       } finally {
         if (isCurrent) {
@@ -82,14 +82,14 @@ function Favorites() {
   return (
     <main className="favorites-page">
       <header className="favorites-header">
-        <h1>Mis favoritos</h1>
+        <h1>My favorites</h1>
       </header>
 
-      {loading && <p className="favorites-status">Cargando favoritos...</p>}
+      {loading && <p className="favorites-status">Loading favorites...</p>}
       {!loading && error && <p className="favorites-status" role="alert">{error}</p>}
 
       {!loading && !error && games.length === 0 && (
-        <p className="favorites-empty">Todavía no tenés favoritos.</p>
+        <p className="favorites-empty">You don't have any favorites yet.</p>
       )}
 
       {!loading && !error && games.length > 0 && (
@@ -97,17 +97,17 @@ function Favorites() {
           <GameGrid games={games} onFavoriteChange={handleFavoriteChange} />
 
           {totalPages > 1 && (
-            <nav className="favorites-pagination" aria-label="Páginas de favoritos">
+            <nav className="favorites-pagination" aria-label="Favorite pages">
               <button
                 type="button"
                 onClick={() => setPage((current) => current - 1)}
                 disabled={page === 0}
               >
-                Anterior
+                Previous
               </button>
 
               <span>
-                Página {page + 1} de {totalPages}
+                Page {page + 1} of {totalPages}
               </span>
 
               <button
@@ -115,7 +115,7 @@ function Favorites() {
                 onClick={() => setPage((current) => current + 1)}
                 disabled={page + 1 >= totalPages}
               >
-                Siguiente
+                Next
               </button>
             </nav>
           )}

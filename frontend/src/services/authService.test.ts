@@ -48,7 +48,7 @@ describe("authService", () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ error: "forbidden" }, 403));
 
     await expect(register("luqui", currentUser.email, "secret"))
-      .rejects.toThrow("No se pudo iniciar la solicitud de autenticación.");
+      .rejects.toThrow("Could not start the authentication request.");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 

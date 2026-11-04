@@ -46,7 +46,7 @@ describe("commentService", () => {
       .mockResolvedValueOnce(new Response(null, { status: 403 }));
 
     await expect(updateComment(5, "Edited")).rejects.toThrow(
-      "No podés editar un comentario de otro usuario.",
+      "You can't edit another user's comment.",
     );
   });
 
@@ -56,7 +56,7 @@ describe("commentService", () => {
       .mockResolvedValueOnce(new Response(null, { status: 401 }));
 
     await expect(createComment("g-1", { content: "Hello" })).rejects.toThrow(
-      "Tu sesión expiró. Volvé a iniciar sesión.",
+      "Your session expired. Please log in again.",
     );
   });
 });

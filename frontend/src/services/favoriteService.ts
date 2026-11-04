@@ -34,7 +34,7 @@ export async function getFavoriteGamesPage(
   });
 
   if (response.status === 401) {
-    throw new Error("Iniciá sesión para ver tus favoritos.");
+    throw new Error("Log in to view your favorites.");
   }
 
   if (!response.ok) {
@@ -64,7 +64,7 @@ export async function addFavorite(gameId: string): Promise<boolean> {
   );
 
   if (response.status === 401) {
-    throw new Error("Iniciá sesión para guardar favoritos.");
+    throw new Error("Log in to add favorites.");
   }
 
   if (!response.ok) {
@@ -89,7 +89,7 @@ export async function removeFavorite(gameId: string): Promise<boolean> {
   );
 
   if (response.status === 401) {
-    throw new Error("Iniciá sesión para quitar favoritos.");
+    throw new Error("Log in to remove favorites.");
   }
 
   if (!response.ok && response.status !== 204) {

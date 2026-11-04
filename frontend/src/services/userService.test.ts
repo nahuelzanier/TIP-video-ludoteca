@@ -66,14 +66,18 @@ describe("userService", () => {
 
   it("loads a user's games and resolves each game image URL", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({
-      content: [{ id: "g-1", title: "Game", image: "/api/games/g-1/cover", description: "" }],
+      content: [{ id: "g-1", title: "Game", image: "/api/games/g-1/cover", description: "", favorito: true }],
       page: 1, size: 12, totalElements: 13, totalPages: 2, hasNext: false, hasPrevious: true,
     }));
 
     const page = await getUserGamesPage("luqui", 1);
 
-    expect(fetchMock).toHaveBeenCalledWith("http://localhost:8080/api/users/luqui/games?page=1&size=12");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8080/api/users/luqui/games?page=1&size=12",
+      { credentials: "include", cache: "no-store" },
+    );
     expect(page.content[0].image).toBe("http://localhost:8080/api/games/g-1/cover");
+    expect(page.content[0].favorite).toBe(true);
     expect(page.hasPrevious).toBe(true);
   });
 });

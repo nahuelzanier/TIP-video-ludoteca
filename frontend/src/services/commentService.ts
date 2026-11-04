@@ -17,7 +17,7 @@ async function postComment<T>(url: string, body: Record<string, unknown>): Promi
   });
 
   if (response.status === 401) {
-    throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+    throw new Error("Your session expired. Please log in again.");
   }
 
   if (!response.ok) {
@@ -41,11 +41,11 @@ async function putComment<T>(url: string, body: Record<string, unknown>): Promis
   });
 
   if (response.status === 401) {
-    throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+    throw new Error("Your session expired. Please log in again.");
   }
 
   if (response.status === 403) {
-    throw new Error("No podés editar un comentario de otro usuario.");
+    throw new Error("You can't edit another user's comment.");
   }
 
   if (!response.ok) {

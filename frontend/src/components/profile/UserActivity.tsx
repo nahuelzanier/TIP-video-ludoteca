@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import type { ForumSummary } from "../../types/User";
 import "./UserActivity.css";
 
-const dateFormat = new Intl.DateTimeFormat("es-AR", { dateStyle: "medium" });
+const dateFormat = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" });
 
 interface UserActivityProps {
     forums: ForumSummary[];
@@ -11,10 +11,10 @@ interface UserActivityProps {
 function UserActivity({ forums }: UserActivityProps) {
     return (
         <section className="user-activity">
-            <h2>Mi actividad</h2>
+            <h2>Activity</h2>
 
             {forums.length === 0 ? (
-                <p className="user-activity-empty">Todavía no creó ningún foro</p>
+                <p className="user-activity-empty">No discussions started yet.</p>
             ) : (
                 <ul className="user-activity-list">
                     {forums.map((forum) => (

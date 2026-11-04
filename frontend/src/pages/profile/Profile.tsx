@@ -13,7 +13,7 @@ function Profile() {
     useEffect(() => {
         getCurrentUser()
             .then(setUser)
-            .catch(() => setError("No se pudo cargar tu perfil."))
+            .catch(() => setError("Could not load your profile."))
             .finally(() => setLoading(false));
     }, []);
 
@@ -21,7 +21,7 @@ function Profile() {
         return (
             <main className="profile-page">
                 <p className="profile-status" role="status">
-                    Cargando perfil...
+                    Loading profile...
                 </p>
             </main>
         );

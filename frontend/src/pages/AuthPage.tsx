@@ -30,7 +30,7 @@ function AuthPage({ mode }: AuthPageProps) {
     setMessage("");
 
     if (isRegister && password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -47,7 +47,7 @@ function AuthPage({ mode }: AuthPageProps) {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "Ocurrió un error. Inténtalo de nuevo.",
+          : "Something went wrong. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -58,21 +58,21 @@ function AuthPage({ mode }: AuthPageProps) {
     <main className="auth-page">
       <section className="auth-card">
         <Link className="auth-back" to="/">
-          ← Volver a la ludoteca
+          ← Back to Ludarium
         </Link>
 
-        <h1>{isRegister ? "Crear cuenta" : "Iniciar sesión"}</h1>
+        <h1>{isRegister ? "Create account" : "Log in"}</h1>
 
         <p className="auth-description">
           {isRegister
-            ? "Crea una cuenta para participar en la comunidad."
-            : "Inicia sesión en tu cuenta de Ludarium."}
+            ? "Create an account to join the community."
+            : "Log in to your Ludarium account."}
         </p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {isRegister && (
             <label>
-              Nombre de usuario
+              Username
               <input
                 type="text"
                 value={username}
@@ -81,14 +81,14 @@ function AuthPage({ mode }: AuthPageProps) {
                 minLength={3}
                 maxLength={30}
                 pattern="[A-Za-z0-9_]+"
-                title="Usa letras, números o guion bajo."
+                title="Use letters, numbers, or underscores."
                 required
               />
             </label>
           )}
 
           <label>
-            Correo electrónico
+            Email address
             <input
               type="email"
               value={email}
@@ -99,7 +99,7 @@ function AuthPage({ mode }: AuthPageProps) {
           </label>
 
           <label>
-            Contraseña
+            Password
             <input
               type="password"
               value={password}
@@ -113,7 +113,7 @@ function AuthPage({ mode }: AuthPageProps) {
 
           {isRegister && (
             <label>
-              Confirmar contraseña
+              Confirm password
               <input
                 type="password"
                 value={confirmPassword}
@@ -131,17 +131,17 @@ function AuthPage({ mode }: AuthPageProps) {
 
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading
-              ? "Un momento..."
+              ? "Please wait..."
               : isRegister
-                ? "Crear cuenta"
-                : "Iniciar sesión"}
+                ? "Create account"
+                : "Log in"}
           </button>
         </form>
 
         <p className="auth-switch">
-          {isRegister ? "¿Ya tienes cuenta?" : "¿Todavía no tienes cuenta?"}{" "}
+          {isRegister ? "Already have an account?" : "Don't have an account yet?"}{" "}
           <Link to={isRegister ? "/login" : "/register"}>
-            {isRegister ? "Inicia sesión" : "Regístrate"}
+            {isRegister ? "Log in" : "Sign up"}
           </Link>
         </p>
       </section>

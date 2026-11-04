@@ -21,7 +21,7 @@ async function postAuth(
   });
 
   if (!csrfResponse.ok) {
-    throw new Error("No se pudo iniciar la solicitud de autenticación.");
+    throw new Error("Could not start the authentication request.");
   }
 
   const csrf: CsrfResponse = await csrfResponse.json();

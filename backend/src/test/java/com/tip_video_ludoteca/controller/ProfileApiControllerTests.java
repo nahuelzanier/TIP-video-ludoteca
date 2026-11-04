@@ -1,6 +1,7 @@
 package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.config.SecurityConfig;
+import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.users.ProfileEditForbiddenException;
 import com.tip_video_ludoteca.users.UserNotFoundException;
 import com.tip_video_ludoteca.users.UserProfileImageService;
@@ -72,6 +73,9 @@ class ProfileApiControllerTests {
 
     @MockitoBean
     private GameRepository games;
+
+    @MockitoBean
+    private FavoriteService favorites;
 
     @Autowired
     private MockMvc mockMvc;

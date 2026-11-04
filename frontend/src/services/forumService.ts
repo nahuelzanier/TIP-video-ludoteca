@@ -48,11 +48,16 @@ export interface ForumDiscussionPage {
 export async function getForumDiscussions(
   page = 0,
   size = 12,
+  filters: { query?: string; tagIds?: number[] } = {},
 ): Promise<ForumDiscussionPage> {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
   });
+  const query = filters.query?.trim();
+
+  if (query) params.set("q", query);
+  filters.tagIds?.forEach((tagId) => params.append("tagIds", String(tagId)));
 
   const response = await fetch(
     `${API_BASE_URL}/api/forum/discussions?${params.toString()}`,

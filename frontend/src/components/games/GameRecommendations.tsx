@@ -51,7 +51,7 @@ function GameRecommendations({ gameId }: GameRecommendationsProps) {
     if (loading) {
         return (
             <section className="game-recommendations">
-                <h2>Recomendaciones</h2>
+                <h2>Recommendations</h2>
                 <p>Loading recommendations...</p>
             </section>
         );
@@ -60,7 +60,7 @@ function GameRecommendations({ gameId }: GameRecommendationsProps) {
     if (error) {
         return (
             <section className="game-recommendations">
-                <h2>Recomendaciones</h2>
+                <h2>Recommendations</h2>
                 <p className="game-recommendations-error" role="alert">
                     {error}
                 </p>
@@ -70,7 +70,7 @@ function GameRecommendations({ gameId }: GameRecommendationsProps) {
 
     return (
         <section className="game-recommendations">
-            <h2>Recomendaciones</h2>
+            <h2>Recommendations</h2>
 
             {recommendations.length > 0 ? (
                 <div className="game-recommendation-grid">
@@ -79,7 +79,7 @@ function GameRecommendations({ gameId }: GameRecommendationsProps) {
                     ))}
                 </div>
             ) : (
-                <p>No hay recomendaciones.</p>
+                <p>No recommendations yet.</p>
             )}
         </section>
     );

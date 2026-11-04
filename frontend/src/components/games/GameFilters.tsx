@@ -12,6 +12,7 @@ function GameFilters({ filters, onChange }: GameFiltersProps) {
   const [tags, setTags] = useState<TagOption[]>([]);
   const [loadingTags, setLoadingTags] = useState(true);
   const [tagError, setTagError] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     let isCurrentRequest = true;
@@ -46,22 +47,44 @@ function GameFilters({ filters, onChange }: GameFiltersProps) {
   }
 
   const hasActiveFilters = filters.tagIds.length > 0 || filters.minRating !== null;
+  const activeFilterCount = filters.tagIds.length + Number(filters.minRating !== null);
 
   return (
     <section className="game-filters" aria-labelledby="game-filters-title">
       <div className="game-filters__header">
         <h2 id="game-filters-title">Filter games</h2>
-        <button
-          className="game-filters__clear"
-          type="button"
-          onClick={() => onChange({ tagIds: [], minRating: null })}
-          disabled={!hasActiveFilters}
-        >
-          Clear filters
-        </button>
+        <div className="game-filters__actions">
+          {hasActiveFilters && (
+            <span className="game-filters__active-count" aria-live="polite">
+              {activeFilterCount} active
+            </span>
+          )}
+          <button
+            className="game-filters__toggle"
+            type="button"
+            aria-expanded={filtersOpen}
+            aria-controls="game-filter-controls"
+            onClick={() => setFiltersOpen((open) => !open)}
+          >
+            {filtersOpen ? "Hide filters" : "Show filters"}
+          </button>
+          {hasActiveFilters && (
+            <button
+              className="game-filters__clear"
+              type="button"
+              onClick={() => onChange({ tagIds: [], minRating: null })}
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="game-filters__controls">
+      <div
+        className="game-filters__controls"
+        id="game-filter-controls"
+        hidden={!filtersOpen}
+      >
         <label className="game-filters__rating">
           <span>Minimum rating</span>
           <select

@@ -99,7 +99,7 @@ function Search() {
                     error:
                         requestError instanceof Error
                             ? requestError.message
-                            : "No se pudo completar la búsqueda.",
+                            : "Could not complete the search.",
                 });
             });
 
@@ -144,10 +144,9 @@ function Search() {
     if (!isSearchable) {
         return (
             <main className="search-page">
-                <h1>Búsqueda</h1>
+                <h1>Search</h1>
                 <p className="search-hint">
-                    Usá la barra de búsqueda de la página de inicio para encontrar
-                    juegos y usuarios por nombre.
+                    Use the search bar on the home page to find games and users by name.
                 </p>
             </main>
         );
@@ -164,7 +163,7 @@ function Search() {
     if (isLoading) {
         return (
             <main className="search-page">
-                <h1>Resultados para “{term}”</h1>
+                <h1>Results for “{term}”</h1>
                 <p className="search-status">Buscando...</p>
             </main>
         );
@@ -176,28 +175,28 @@ function Search() {
 
     return (
         <main className="search-page">
-            <h1>Resultados para “{term}”</h1>
+                <h1>Results for “{term}”</h1>
 
             {error ? (
                 <p className="search-error" role="alert">{error}</p>
             ) : (
                 <p className="search-status">
-                    {isRefreshing ? "Actualizando..." : `${totalResults} resultados`}
+                    {isRefreshing ? "Updating..." : `${totalResults} results`}
                 </p>
             )}
 
             <section className="search-section">
-                <h2>Juegos</h2>
+                <h2>Games</h2>
                 <GameFilters
                     filters={{ tagIds: selectedTagIds, minRating }}
                     onChange={updateFilters}
                 />
 
-                {error && <p className="search-empty">No se pudieron buscar los juegos.</p>}
+                {error && <p className="search-empty">Could not search games.</p>}
 
                 {isEmptyState && results && results.games.items.length === 0 && (
                     <p className="search-empty">
-                        No se encontraron juegos para esta búsqueda.
+                        No games found for this search.
                     </p>
                 )}
 
@@ -205,7 +204,7 @@ function Search() {
                     <>
                         <GameGrid games={results.games.items} />
                         <Pagination
-                            label="Paginación de juegos"
+                            label="Game pages"
                             page={results.games}
                             onChange={(page) => goToPage("gamesPage", page)}
                         />
@@ -214,20 +213,20 @@ function Search() {
             </section>
 
             <section className="search-section">
-                <h2>Foros</h2>
+                <h2>Forums</h2>
                 <p className="search-empty">
-                    La búsqueda en foros estará disponible próximamente.
+                    Forum search will be available soon.
                 </p>
             </section>
 
             <section className="search-section">
-                <h2>Usuarios</h2>
+                <h2>Users</h2>
 
-                {error && <p className="search-empty">No se pudieron buscar los usuarios.</p>}
+                {error && <p className="search-empty">Could not search users.</p>}
 
                 {isEmptyState && results && results.users.items.length === 0 && (
                     <p className="search-empty">
-                        No se encontraron usuarios para esta búsqueda.
+                        No users found for this search.
                     </p>
                 )}
 
@@ -244,7 +243,7 @@ function Search() {
                             ))}
                         </ul>
                         <Pagination
-                            label="Paginación de usuarios"
+                            label="User pages"
                             page={results.users}
                             onChange={(page) => goToPage("usersPage", page)}
                         />
@@ -268,10 +267,10 @@ function Pagination({ label, page, onChange }: PaginationProps) {
                 disabled={page.page === 0}
                 onClick={() => onChange(page.page - 1)}
             >
-                Anterior
+                Previous
             </button>
             <span className="search-page-status">
-                Página {page.page + 1} de {page.totalPages} · {page.totalItems} resultados
+                Page {page.page + 1} of {page.totalPages} · {page.totalItems} results
             </span>
             <button
                 className="search-page-button"
@@ -279,7 +278,7 @@ function Pagination({ label, page, onChange }: PaginationProps) {
                 disabled={page.page + 1 >= page.totalPages}
                 onClick={() => onChange(page.page + 1)}
             >
-                Siguiente
+                Next
             </button>
         </nav>
     );

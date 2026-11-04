@@ -111,10 +111,10 @@ function Home() {
         <input
           className="home-search"
           type="search"
-          placeholder="Buscar juegos y usuarios"
+          placeholder="Search games and users"
           value={searchQuery}
           onChange={handleSearchChange}
-          aria-label="Buscar juegos y usuarios"
+          aria-label="Search games and users"
           minLength={2}
           required
         />

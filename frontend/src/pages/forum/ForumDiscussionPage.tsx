@@ -183,7 +183,7 @@ function ForumDiscussionPage() {
               {discussion.authorUsername}
             </Link>
             {" · "}
-            {new Date(discussion.createdAt).toLocaleDateString()}
+            {new Date(discussion.createdAt).toLocaleDateString("en-US")}
           </p>
 
           <p className="forum-detail__description">{discussion.description}</p>
@@ -267,7 +267,7 @@ function ForumDiscussionPage() {
               <p className="forum-reply__meta">
                 <strong>{reply.authorUsername}</strong>
                 {" · "}
-                {new Date(reply.createdAt).toLocaleString()}
+                {new Date(reply.createdAt).toLocaleString("en-US")}
                 {reply.parentReplyId !== null &&
                   ` · Reply to #${reply.parentReplyId}`}
               </p>

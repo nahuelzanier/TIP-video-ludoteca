@@ -49,7 +49,7 @@ export async function updateDescription(
     );
 
     if (response.status === 401) {
-        throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+        throw new Error("Your session expired. Please log in again.");
     }
 
     if (!response.ok) {
@@ -82,7 +82,7 @@ export async function uploadAvatar(
     );
 
     if (response.status === 401) {
-        throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+        throw new Error("Your session expired. Please log in again.");
     }
 
     if (!response.ok) {
@@ -109,7 +109,7 @@ export async function deleteAvatar(username: string): Promise<UserProfile> {
     );
 
     if (response.status === 401) {
-        throw new Error("Tu sesión expiró. Volvé a iniciar sesión.");
+        throw new Error("Your session expired. Please log in again.");
     }
 
     if (!response.ok) {
@@ -133,6 +133,7 @@ export async function getUserGamesPage(
 
     const response = await fetch(
         `${API_BASE_URL}/api/users/${encodeURIComponent(username)}/games?${params}`,
+        { credentials: "include", cache: "no-store" },
     );
 
     if (!response.ok) {
@@ -145,6 +146,7 @@ export async function getUserGamesPage(
         ...result,
         content: result.content.map((game) => ({
             ...game,
+            favorite: Boolean((game as typeof game & { favorito?: boolean }).favorito),
             image: new URL(game.image, API_BASE_URL).toString(),
         })),
     };

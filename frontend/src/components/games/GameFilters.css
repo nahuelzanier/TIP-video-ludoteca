@@ -12,7 +12,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 16px;
 }
 
 .game-filters__header h2 {
@@ -20,14 +19,41 @@
   font-size: 1.15rem;
 }
 
+.game-filters__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.game-filters__active-count {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.game-filters__toggle,
 .game-filters__clear {
+  min-height: 40px;
   padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   background: var(--surface);
   color: var(--text-h);
   font: inherit;
   cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.game-filters__toggle:hover,
+.game-filters__clear:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.game-filters__toggle:focus-visible,
+.game-filters__clear:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .game-filters__clear:disabled {
@@ -40,6 +66,14 @@
   grid-template-columns: minmax(160px, 220px) 1fr;
   gap: 20px;
   align-items: start;
+}
+
+.game-filters__controls[hidden] {
+  display: none;
+}
+
+.game-filters__controls:not([hidden]) {
+  margin-top: 16px;
 }
 
 .game-filters__rating {
@@ -115,5 +149,9 @@
 
   .game-filters__header {
     align-items: flex-start;
+  }
+
+  .game-filters__actions {
+    flex-wrap: wrap;
   }
 }

@@ -31,6 +31,7 @@ describe("gameService", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8080/api/games?page=2&size=8&q=puzzle",
+      { credentials: "include", cache: "no-store" },
     );
     expect(result.content[0].image).toBe(
       "http://localhost:8080/api/games/game%201/cover",
@@ -48,6 +49,7 @@ describe("gameService", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8080/api/games?page=0&size=12&tagIds=3&tagIds=5&minRating=4",
+      { credentials: "include", cache: "no-store" },
     );
   });
 
@@ -55,7 +57,10 @@ describe("gameService", () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 404 }));
 
     await expect(getGameById("a/b")).rejects.toThrow("Game not found.");
-    expect(fetchMock).toHaveBeenCalledWith("http://localhost:8080/api/games/a%2Fb");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8080/api/games/a%2Fb",
+      { credentials: "include", cache: "no-store" },
+    );
   });
 
   it("returns a random game with an API-based image URL", async () => {
@@ -64,6 +69,10 @@ describe("gameService", () => {
     await expect(getRandomGame()).resolves.toMatchObject({
       id: "game 1",
       image: "http://localhost:8080/api/games/game%201/cover",
+    });
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost:8080/api/games/random", {
+      credentials: "include",
+      cache: "no-store",
     });
   });
 

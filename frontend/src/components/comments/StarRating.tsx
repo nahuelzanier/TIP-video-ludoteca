@@ -8,13 +8,13 @@ interface StarRatingProps {
   label?: string;
 }
 
-function StarRating({ value, onChange, label = "Valoración" }: StarRatingProps) {
+function StarRating({ value, onChange, label = "Rating" }: StarRatingProps) {
   if (onChange === undefined) {
     return (
       <span
         className="star-rating star-rating--readonly"
         role="img"
-        aria-label={`${value} de 5 estrellas`}
+        aria-label={`${value} out of 5 stars`}
       >
         <span aria-hidden="true">
           {"★".repeat(value)}
@@ -32,7 +32,7 @@ function StarRating({ value, onChange, label = "Valoración" }: StarRatingProps)
           type="button"
           className="star-rating__star"
           onClick={() => onChange(star === value ? 0 : star)}
-          aria-label={`${star} ${star === 1 ? "estrella" : "estrellas"}`}
+          aria-label={`${star} ${star === 1 ? "star" : "stars"}`}
           aria-pressed={star <= value}
         >
           <span aria-hidden="true">{star <= value ? "★" : "☆"}</span>
@@ -44,9 +44,9 @@ function StarRating({ value, onChange, label = "Valoración" }: StarRatingProps)
           type="button"
           className="star-rating__clear"
           onClick={() => onChange(0)}
-          aria-label="Quitar valoración"
+          aria-label="Clear rating"
         >
-          Quitar valoración
+          Clear rating
         </button>
       )}
     </div>

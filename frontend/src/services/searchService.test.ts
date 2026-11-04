@@ -28,6 +28,7 @@ describe("searchService", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8080/api/search?q=puzzle+games&gamesPage=1&usersPage=2&size=6",
+      { credentials: "include", cache: "no-store" },
     );
     expect(result.games.items[0].image).toBe("http://localhost:8080/api/games/g-1/cover");
     expect(result.users.items[0].avatarUrl).toBe("http://localhost:8080/api/users/luqui/avatar");
@@ -44,6 +45,7 @@ describe("searchService", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8080/api/search?q=puzzle&gamesPage=0&usersPage=0&size=9&tagIds=2&tagIds=7&minRating=4",
+      { credentials: "include", cache: "no-store" },
     );
   });
 

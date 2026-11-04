@@ -55,8 +55,14 @@ public class ForumApiController {
     @GetMapping
     public ForumDiscussionService.DiscussionPage listDiscussions(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size) {
-        return discussions.listPublished(page, size);
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) List<Long> tagIds) {
+        if ((q == null || q.isBlank()) && (tagIds == null || tagIds.isEmpty())) {
+            return discussions.listPublished(page, size);
+        }
+
+        return discussions.listPublished(page, size, q, tagIds);
     }
 
     @GetMapping("/{discussionId}/cover")

@@ -60,6 +60,161 @@
   outline-offset: 3px;
 }
 
+.forum-search-filters {
+  margin-bottom: 28px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+}
+
+.forum-search-filters__header,
+.forum-search-filters__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.forum-search-filters__header h2 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 1.1rem;
+}
+
+.forum-search-filters__summary {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.forum-search-filters__actions {
+  justify-content: flex-end;
+}
+
+.forum-filter-toggle {
+  min-height: 40px;
+  padding: 8px 12px;
+  color: var(--text-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.forum-filter-toggle:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+.forum-filter-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.forum-search-filters__content {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.forum-search-filters__content[hidden] {
+  display: none;
+}
+
+.forum-search-label,
+.forum-filter-tags legend {
+  color: var(--text-h);
+  font-weight: 650;
+}
+
+.forum-search-input {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  color: var(--text-h);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  font: inherit;
+}
+
+.forum-search-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.forum-filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.forum-filter-tags legend {
+  margin-bottom: 10px;
+  flex-basis: 100%;
+}
+
+.forum-filter-hint {
+  flex-basis: 100%;
+  margin: 0 0 4px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.forum-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.forum-filter-tag:has(input:checked) {
+  color: var(--accent-hover);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.forum-filter-tag input {
+  accent-color: var(--accent);
+}
+
+.forum-filter-error {
+  color: var(--error);
+}
+
+.forum-clear-filters {
+  min-height: 40px;
+  padding: 8px 10px;
+  color: var(--accent-hover);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.forum-clear-filters:hover {
+  text-decoration: underline;
+}
+
+.forum-clear-filters:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .forum-list {
   display: grid;
   gap: 16px;
@@ -67,7 +222,7 @@
 
 .forum-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
   overflow: hidden;
   color: inherit;
   background: var(--surface);
@@ -92,9 +247,21 @@
 .forum-card__cover {
   width: 100%;
   height: 100%;
-  min-height: 210px;
+  min-height: 220px;
   object-fit: cover;
   background: var(--surface-muted);
+}
+
+.forum-card__cover-fallback {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.forum-card__cover-fallback[hidden] {
+  display: none;
 }
 
 .forum-card__body {
@@ -142,6 +309,10 @@
   color: var(--text);
   line-height: 1.6;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .forum-card__game,
@@ -236,7 +407,25 @@
     gap: 16px;
   }
 
+  .forum-search-filters__header {
+    align-items: flex-start;
+  }
+
+  .forum-search-filters__actions {
+    flex-wrap: wrap;
+  }
+
+  .forum-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .forum-card__cover {
+    height: 190px;
+    min-height: 0;
+  }
+
   .forum-card__body {
     padding: 18px;
   }
 }
+

@@ -53,7 +53,7 @@ function UserBadge({
             {username}
           </Link>
 
-          {isGameAuthor && <span className="user-badge__author">(autor)</span>}
+          {isGameAuthor && <span className="user-badge__author">(creator)</span>}
 
           {rating !== null && <StarRating value={rating} />}
         </div>
@@ -62,7 +62,7 @@ function UserBadge({
           <time className="user-badge__date" dateTime={createdAt}>
             {formatDate(createdAt)}
           </time>
-          {edited && <span className="user-badge__edited">(editado)</span>}
+          {edited && <span className="user-badge__edited">(edited)</span>}
         </div>
       </div>
     </div>
@@ -76,7 +76,7 @@ function formatDate(value: string): string {
     return "";
   }
 
-  return date.toLocaleDateString("es-AR", {
+  return date.toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
