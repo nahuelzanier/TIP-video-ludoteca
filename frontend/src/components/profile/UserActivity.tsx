@@ -25,11 +25,39 @@ function UserActivity({ forums, loading = false, error = "" }: UserActivityProps
                 <ul className="user-activity-list">
                     {forums.map((forum) => (
                         <li className="user-activity-item" key={forum.id}>
-                            <Link to={`/forum/${forum.id}`}>{forum.title}</Link>
-
-                            <time dateTime={forum.createdAt}>
-                                {dateFormat.format(new Date(forum.createdAt))}
-                            </time>
+                            <Link className="user-activity-cover-link" to={`/forum/${forum.id}`}>
+                                {forum.coverImageUrl ? (
+                                    <>
+                                        <img
+                                            className="user-activity-cover"
+                                            src={forum.coverImageUrl}
+                                            alt=""
+                                            loading="lazy"
+                                            onError={(event) => {
+                                                event.currentTarget.hidden = true;
+                                                event.currentTarget.nextElementSibling?.removeAttribute("hidden");
+                                            }}
+                                        />
+                                        <span
+                                            className="user-activity-cover-fallback"
+                                            hidden
+                                            aria-hidden="true"
+                                        >
+                                            No cover image
+                                        </span>
+                                    </>
+                                ) : (
+                                    <span className="user-activity-cover-fallback" aria-hidden="true">
+                                        No cover image
+                                    </span>
+                                )}
+                            </Link>
+                            <div className="user-activity-item-body">
+                                <Link to={`/forum/${forum.id}`}>{forum.title}</Link>
+                                <time dateTime={forum.createdAt}>
+                                    {dateFormat.format(new Date(forum.createdAt))}
+                                </time>
+                            </div>
                         </li>
                     ))}
                 </ul>

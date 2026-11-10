@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import GameGrid from "../../components/games/GameGrid";
 import GameFilters from "../../components/games/GameFilters";
+import { getGamesPage } from "../../services/gameService";
 import { searchEverything } from "../../services/searchService";
 import type { GameFilters as GameFiltersState } from "../../types/GameFilters";
 import type { PageResult, SearchResponse, SearchUser } from "../../types/Search";
@@ -60,6 +61,8 @@ function Search() {
 
     const term = query.trim();
     const isSearchable = term.length >= MIN_TERM_LENGTH;
+    const hasActiveFilters = selectedTagIds.length > 0 || minRating !== null;
+    const canLoadResults = isSearchable || hasActiveFilters;
     const currentKey = buildKey(term, gamesPage, usersPage, selectedTagIds, minRating);
     const selectedTagsKey = selectedTagIds.join(",");
 
@@ -71,7 +74,7 @@ function Search() {
     });
 
     useEffect(() => {
-        if (!isSearchable) {
+        if (!canLoadResults) {
             return;
         }
 
@@ -81,7 +84,27 @@ function Search() {
             : selectedTagsKey.split(",").map(Number);
         const filters: GameFiltersState = { tagIds: requestTagIds, minRating };
 
-        searchEverything(term, gamesPage, usersPage, 9, filters)
+        const request = isSearchable
+            ? searchEverything(term, gamesPage, usersPage, 9, filters)
+            : getGamesPage(gamesPage, 9, "", filters).then((page) => ({
+                query: "",
+                games: {
+                    items: page.content,
+                    page: page.page,
+                    size: page.size,
+                    totalItems: page.totalElements,
+                    totalPages: page.totalPages,
+                },
+                users: {
+                    items: [],
+                    page: 0,
+                    size: 9,
+                    totalItems: 0,
+                    totalPages: 0,
+                },
+            }));
+
+        request
             .then((data) => {
                 if (!cancelled) {
                     setState({ term, key: currentKey, results: data, error: "" });
@@ -112,6 +135,7 @@ function Search() {
         usersPage,
         minRating,
         selectedTagsKey,
+        canLoadResults,
         isSearchable,
         currentKey,
     ]);
@@ -141,19 +165,19 @@ function Search() {
         });
     }
 
-    if (!isSearchable) {
+    if (!canLoadResults) {
         return (
             <main className="search-page">
                 <h1>Search</h1>
                 <p className="search-hint">
-                    Use the search bar on the home page to find games and users by name.
+                    Search for games or creators, or choose a category from the home page.
                 </p>
             </main>
         );
     }
 
     const isSettled = state.key === currentKey;
-    const isRefreshing = !isSettled && state.term === term;
+    const isRefreshing = !isSettled && state.key !== "" && state.term === term;
     const isLoading = !isSettled && !isRefreshing;
 
     const results = isLoading ? null : state.results;
@@ -163,8 +187,8 @@ function Search() {
     if (isLoading) {
         return (
             <main className="search-page">
-                <h1>Results for “{term}”</h1>
-                <p className="search-status">Buscando...</p>
+                <h1>{term ? `Results for “${term}”` : "Games by category"}</h1>
+                <p className="search-status">Loading games...</p>
             </main>
         );
     }
@@ -175,7 +199,7 @@ function Search() {
 
     return (
         <main className="search-page">
-                <h1>Results for “{term}”</h1>
+                <h1>{term ? `Results for “${term}”` : "Games by category"}</h1>
 
             {error ? (
                 <p className="search-error" role="alert">{error}</p>
@@ -212,14 +236,15 @@ function Search() {
                 )}
             </section>
 
-            <section className="search-section">
-                <h2>Forums</h2>
-                <p className="search-empty">
-                    Forum search will be available soon.
-                </p>
-            </section>
-
-            <section className="search-section">
+            {isSearchable && (
+              <>
+                <section className="search-section">
+                    <h2>Forums</h2>
+                    <p className="search-empty">
+                        Forum search will be available soon.
+                    </p>
+                </section>
+                <section className="search-section">
                 <h2>Users</h2>
 
                 {error && <p className="search-empty">Could not search users.</p>}
@@ -249,7 +274,9 @@ function Search() {
                         />
                     </>
                 )}
-            </section>
+                </section>
+              </>
+            )}
         </main>
     );
 }

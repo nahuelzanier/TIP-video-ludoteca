@@ -118,6 +118,7 @@ class ProfileApiControllerTests {
         given(discussion.getId()).willReturn(42L);
         given(discussion.getTitle()).willReturn("A good game");
         given(discussion.getCreatedAt()).willReturn(Instant.parse("2026-10-30T10:00:00Z"));
+        given(discussion.getCoverImage()).willReturn(new byte[] {1});
         given(discussions.findByAuthorUsernameAndGameStatus(USERNAME, GameStatus.PUBLISHED))
                 .willReturn(List.of(discussion));
 
@@ -126,7 +127,9 @@ class ProfileApiControllerTests {
                 .andExpect(jsonPath("$[0].id").value(42))
                 .andExpect(jsonPath("$[0].title").value("A good game"))
                 .andExpect(jsonPath("$[0].createdAt")
-                        .value("2026-10-30T10:00:00Z"));
+                        .value("2026-10-30T10:00:00Z"))
+                .andExpect(jsonPath("$[0].coverImageUrl")
+                        .value("/api/forum/discussions/42/cover"));
 
         verify(discussions).findByAuthorUsernameAndGameStatus(USERNAME, GameStatus.PUBLISHED);
     }

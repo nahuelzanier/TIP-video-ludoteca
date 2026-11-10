@@ -38,7 +38,12 @@ export async function getUserForums(username: string): Promise<ForumSummary[]> {
         throw new Error(await readError(response));
     }
 
-    return response.json();
+    const forums: ForumSummary[] = await response.json();
+
+    return forums.map((forum) => ({
+        ...forum,
+        coverImageUrl: resolveAssetUrl(forum.coverImageUrl),
+    }));
 }
 
 export async function updateDescription(

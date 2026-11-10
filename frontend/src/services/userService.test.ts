@@ -23,10 +23,18 @@ describe("userService", () => {
   });
 
   it("loads the discussions created by a user and encodes the username", async () => {
-    const forums = [{ id: 8, title: "A discussion", createdAt: "2026-10-30T10:00:00Z" }];
+    const forums = [{
+      id: 8,
+      title: "A discussion",
+      createdAt: "2026-10-30T10:00:00Z",
+      coverImageUrl: "/api/forum/discussions/8/cover",
+    }];
     fetchMock.mockResolvedValueOnce(jsonResponse(forums));
 
-    await expect(getUserForums("user/name")).resolves.toEqual(forums);
+    await expect(getUserForums("user/name")).resolves.toEqual([{
+      ...forums[0],
+      coverImageUrl: "http://localhost:8080/api/forum/discussions/8/cover",
+    }]);
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8080/api/users/user%2Fname/forums",
     );
