@@ -1,8 +1,6 @@
 package com.tip_video_ludoteca.games;
 
 import com.tip_video_ludoteca.users.User;
-import com.tip_video_ludoteca.users.UserNotFoundException;
-import com.tip_video_ludoteca.users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +12,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,31 +19,23 @@ import static org.mockito.Mockito.when;
 class GameServiceTests {
 
     private static final String GAME_ID = "game-1";
-    private static final String EMAIL = "autor@test.com";
-    private static final long OWNER_ID = 7L;
 
     @Mock
     private GameRepository games;
-
-    @Mock
-    private UserRepository users;
 
     private GameService gameService;
 
     @BeforeEach
     void setUp() {
-        gameService = new GameService(games, users);
+        gameService = new GameService(games);
     }
 
     @Test
-    void publishesADraftGameWhenTheRequesterIsTheAuthor() {
-        User author = user(OWNER_ID, "autor");
-        Game game = game(author, GameStatus.DRAFT);
-
+    void publishesADraftGameAfterAdministrativeApproval() {
+        Game game = game(GameStatus.DRAFT);
         when(games.findById(GAME_ID)).thenReturn(Optional.of(game));
-        when(users.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(author));
 
-        GameService.PublishResult result = gameService.publish(GAME_ID, EMAIL);
+        GameService.PublishResult result = gameService.publishAsAdmin(GAME_ID);
 
         assertThat(game.getStatus()).isEqualTo(GameStatus.PUBLISHED);
         assertThat(result.id()).isEqualTo(GAME_ID);
@@ -57,69 +45,16 @@ class GameServiceTests {
     }
 
     @Test
-    void keepsTheGamePublishedWhenItWasAlreadyPublished() {
-        User author = user(OWNER_ID, "autor");
-        Game game = game(author, GameStatus.PUBLISHED);
-
-        when(games.findById(GAME_ID)).thenReturn(Optional.of(game));
-        when(users.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(author));
-
-        GameService.PublishResult result = gameService.publish(GAME_ID, EMAIL);
-
-        assertThat(game.getStatus()).isEqualTo(GameStatus.PUBLISHED);
-        assertThat(result.status()).isEqualTo(GameStatus.PUBLISHED);
-        verify(games).save(game);
-    }
-
-    @Test
-    void rejectsPublishingAGameOwnedBySomebodyElse() {
-        User author = user(OWNER_ID, "autor");
-        User otherUser = user(99L, "otro");
-        Game game = game(author, GameStatus.DRAFT);
-
-        when(games.findById(GAME_ID)).thenReturn(Optional.of(game));
-        when(users.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(otherUser));
-
-        assertThatThrownBy(() -> gameService.publish(GAME_ID, EMAIL))
-                .isInstanceOf(GameEditForbiddenException.class);
-
-        assertThat(game.getStatus()).isEqualTo(GameStatus.DRAFT);
-        verify(games, never()).save(any(Game.class));
-    }
-
-    @Test
     void failsWhenTheGameDoesNotExist() {
         when(games.findById(GAME_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> gameService.publish(GAME_ID, EMAIL))
+        assertThatThrownBy(() -> gameService.publishAsAdmin(GAME_ID))
                 .isInstanceOf(GameNotFoundException.class);
-
-        verify(users, never()).findByEmailIgnoreCase(any());
-        verify(games, never()).save(any(Game.class));
     }
 
-    @Test
-    void failsWhenTheAuthenticatedUserDoesNotExist() {
-        User author = user(OWNER_ID, "autor");
-        Game game = game(author, GameStatus.DRAFT);
-
-        when(games.findById(GAME_ID)).thenReturn(Optional.of(game));
-        when(users.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> gameService.publish(GAME_ID, EMAIL))
-                .isInstanceOf(UserNotFoundException.class);
-
-        assertThat(game.getStatus()).isEqualTo(GameStatus.DRAFT);
-        verify(games, never()).save(any(Game.class));
-    }
-
-    private User user(long id, String username) {
-        User user = new User(username, username + "@test.com", "{bcrypt}hash");
-        ReflectionTestUtils.setField(user, "id", id);
-        return user;
-    }
-
-    private Game game(User owner, GameStatus status) {
+    private Game game(GameStatus status) {
+        User owner = new User("autor", "autor@test.com", "{bcrypt}hash");
+        ReflectionTestUtils.setField(owner, "id", 7L);
         return new Game(GAME_ID, owner, "Aventura", "", null, "index.html", status);
     }
 }

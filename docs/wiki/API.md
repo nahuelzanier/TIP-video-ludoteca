@@ -71,7 +71,11 @@ endpoints, so those responses look like:
 | `GET` | `/api/games` | public |
 | `POST` | `/api/games` | **session** |
 | `GET` | `/api/games/{gameId}/cover` | public |
-| `POST` | `/api/games/{gameId}/publish` | **session** |
+| `GET` | `/api/admin/games` | **ADMIN** |
+| `POST` | `/api/admin/games/{gameId}/publish` | **ADMIN** |
+| `POST` | `/api/admin/users/promote` | **ADMIN** |
+| `POST` | `/api/admin/setup` | **session + setup key; only before the first admin** |
+| `GET` | `/api/admin/setup/status` | **session** |
 | `GET` | `/games/{gameId}/**` | public |
 | `GET` | `/api/games/{gameId}/comments` | public |
 | `POST` | `/api/games/{gameId}/comments` | **session** |
@@ -167,13 +171,14 @@ is published.
 
 Full validation table and the limits: [Game Upload](Game-Upload.md#validation-limits).
 
-## POST /api/games/{gameId}/publish
+## Admin game review
 
-Moves a game from `DRAFT` to `PUBLISHED`. Requires a session and a CSRF token. Only the owner
-may publish. Idempotent.
+`GET /api/admin/games` lists drafts awaiting review. `POST /api/admin/games/{gameId}/publish`
+moves a draft to `PUBLISHED`. Both endpoints require the administrator role; the POST also
+requires a CSRF token.
 
 ```http
-POST http://localhost:8080/api/games/3f9c2a41-7b5e-4c8d-9e10-2a6b8c4d1f35/publish
+POST http://localhost:8080/api/admin/games/3f9c2a41-7b5e-4c8d-9e10-2a6b8c4d1f35/publish
 X-CSRF-TOKEN: 0d9f1c22-...
 ```
 
@@ -189,8 +194,20 @@ X-CSRF-TOKEN: 0d9f1c22-...
 | --- | --- |
 | `200` | Published, or already published |
 | `401` | No session |
-| `403` | `No podés publicar el juego de otro usuario.` |
+| `403` | The session does not have the administrator role |
 | `404` | `El juego no existe.` |
+
+## POST /api/admin/users/promote
+
+Promotes an existing registered account to `ADMIN`. Only an administrator can grant this
+role. The account must first be created through the normal registration page.
+
+```json
+{ "email": "new-admin@example.test" }
+```
+
+Returns the username, email and new role. The promoted user must sign out and back in to load
+the new role into their session.
 
 ---
 

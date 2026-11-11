@@ -1,0 +1,125 @@
+.admin-setup {
+  --text: #e8e6ef;
+  --text-h: #f5f4f8;
+  --text-muted: #a4a4b8;
+  --surface: #191b2a;
+  --surface-muted: #141622;
+  --border: #292b3d;
+  --border-strong: #34364c;
+  --accent: #963cff;
+  --accent-hover: #c49aff;
+  --error: #ff8a9a;
+  --success: #8fe4ae;
+  width: 100%;
+  display: grid;
+  min-height: calc(100svh - 68px);
+  place-items: start center;
+  padding: 42px 16px;
+  box-sizing: border-box;
+  color: var(--text);
+  background: #0f1018;
+}
+
+.admin-setup__card {
+  width: min(100%, 560px);
+  padding: 28px;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-setup__eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-setup__card h1 {
+  margin: 0 0 12px;
+}
+
+.admin-setup__card > p:not(.admin-setup__eyebrow) {
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.admin-setup__card form {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.admin-setup__card label {
+  font-weight: 700;
+}
+
+.admin-setup__card input {
+  min-height: 44px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  color: var(--text-h);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  font: inherit;
+}
+
+.admin-setup__card input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.admin-setup__card button {
+  min-height: 44px;
+  margin-top: 4px;
+  color: white;
+  background: #e52e79;
+  border: 1px solid #e52e79;
+  border-radius: var(--radius-control);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-setup__card button:hover:not(:disabled) {
+  background: #c92368;
+  border-color: #c92368;
+}
+
+.admin-setup__card button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.admin-setup__error {
+  color: var(--error);
+}
+
+.admin-setup__success {
+  color: var(--success);
+}
+
+.admin-setup__note {
+  margin-bottom: 14px;
+  font-size: 0.875rem;
+}
+
+.admin-setup__card a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .admin-setup {
+    padding: 28px 16px;
+  }
+
+  .admin-setup__card {
+    padding: 22px 18px;
+  }
+}

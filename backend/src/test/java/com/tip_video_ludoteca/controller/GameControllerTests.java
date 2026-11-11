@@ -3,6 +3,7 @@ package com.tip_video_ludoteca.controller;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameFile;
 import com.tip_video_ludoteca.games.GameFileRepository;
+import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.users.User;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class GameControllerTests {
     @Mock
     private GameFileRepository gameFiles;
 
+    @Mock
+    private GameRepository games;
+
     @InjectMocks
     private GameController controller;
 
@@ -39,9 +43,10 @@ class GameControllerTests {
         GameFile file = file("index.html", "text/html; charset=UTF-8");
         when(gameFiles.findById_GameIdAndId_Path(GAME_ID, "index.html"))
                 .thenReturn(Optional.of(file));
+        when(games.findById(GAME_ID)).thenReturn(Optional.of(file.getGame()));
         MockHttpServletRequest request = request("/games/game-1/index.html");
 
-        var response = controller.getGameFile(GAME_ID, request);
+        var response = controller.getGameFile(GAME_ID, request, null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType())
@@ -54,7 +59,7 @@ class GameControllerTests {
     void rejectsTraversalPathsBeforeLookingUpFiles() {
         var response = controller.getGameFile(
                 GAME_ID,
-                request("/games/game-1/../../private.txt"));
+                request("/games/game-1/../../private.txt"), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         verify(gameFiles, never()).findById_GameIdAndId_Path(GAME_ID, "../private.txt");
@@ -64,10 +69,12 @@ class GameControllerTests {
     void returnsNotFoundForAFileThatIsNotStored() {
         when(gameFiles.findById_GameIdAndId_Path(GAME_ID, "missing.js"))
                 .thenReturn(Optional.empty());
+        when(games.findById(GAME_ID))
+                .thenReturn(Optional.of(file("index.html", "text/html").getGame()));
 
         var response = controller.getGameFile(
                 GAME_ID,
-                request("/games/game-1/missing.js"));
+                request("/games/game-1/missing.js"), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }

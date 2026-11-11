@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface GameRepository extends JpaRepository<Game, String>, JpaSpecificationExecutor<Game> {
     Page<Game> findByStatus(GameStatus status, Pageable pageable);
+    List<Game> findByStatus(GameStatus status, org.springframework.data.domain.Sort sort);
     List<Game> findByOwner_IdOrderByCreatedAtDesc(Long ownerId);
     Page<Game> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     Page<Game> findByOwner_UsernameIgnoreCaseAndStatus(

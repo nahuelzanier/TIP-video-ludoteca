@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Pencil, Camera, LogOut } from "lucide-react";
 import "./ProfileHeader.css";
 
@@ -9,6 +10,7 @@ interface ProfileHeaderProps {
     description: string | null;
     avatarUrl: string | null;
     isOwnProfile: boolean;
+    isAdmin: boolean;
     loggingOut: boolean;
     error: string;
     onEdit: () => void;
@@ -22,6 +24,7 @@ function ProfileHeader({
     description,
     avatarUrl,
     isOwnProfile,
+    isAdmin,
     loggingOut,
     error,
     onEdit,
@@ -94,6 +97,12 @@ function ProfileHeader({
                     <button className="profile-upload" type="button" onClick={onUpload}>
                         Upload a game
                     </button>
+
+                    {isAdmin && (
+                        <Link className="profile-admin-review" to="/admin/review">
+                            Review games
+                        </Link>
+                    )}
 
                     <button
                         className="profile-logout"

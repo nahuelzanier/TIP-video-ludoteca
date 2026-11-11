@@ -1,5 +1,6 @@
 import { API_BASE_URL, fetchCsrfToken, readError, resolveAssetUrl } from "./api";
-import type { ForumSummary, UserProfile } from "../types/User";
+import type { UserProfile } from "../types/User";
+import type { ForumDiscussion } from "./forumService";
 import type { GamePage } from "./gameService";
 
 export const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
@@ -29,7 +30,7 @@ export async function getUserProfile(
     return withResolvedAvatar(profile);
 }
 
-export async function getUserForums(username: string): Promise<ForumSummary[]> {
+export async function getUserForums(username: string): Promise<ForumDiscussion[]> {
     const response = await fetch(
         `${API_BASE_URL}/api/users/${encodeURIComponent(username)}/forums`,
     );
@@ -38,11 +39,12 @@ export async function getUserForums(username: string): Promise<ForumSummary[]> {
         throw new Error(await readError(response));
     }
 
-    const forums: ForumSummary[] = await response.json();
+    const forums: ForumDiscussion[] = await response.json();
 
     return forums.map((forum) => ({
         ...forum,
         coverImageUrl: resolveAssetUrl(forum.coverImageUrl),
+        authorAvatarUrl: resolveAssetUrl(forum.authorAvatarUrl),
     }));
 }
 

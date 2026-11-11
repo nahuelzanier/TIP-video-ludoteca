@@ -13,6 +13,8 @@ import User from "./pages/user/User";
 import Favorites from "./pages/favorites/Favorites";
 import ForumDiscussionPage from "./pages/forum/ForumDiscussionPage";
 import ForumNewDiscussion from "./pages/forum/ForumNewDiscussion";
+import AdminReview from "./pages/admin/AdminReview";
+import AdminSetup from "./pages/admin/AdminSetup";
 
 function MainLayout() {
   return (
@@ -39,6 +41,8 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/user/:username" element={<User />} />
           <Route path="/games/upload" element={<UploadGame />} />
+          <Route path="/admin/review" element={<AdminReview />} />
+          <Route path="/admin/setup" element={<AdminSetup />} />
           <Route path="/forum/:discussionId" element={<ForumDiscussionPage />} />
           <Route path="/forum/new" element={<ForumNewDiscussion />} />
         </Route>

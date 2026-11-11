@@ -16,5 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsernameIgnoreCase(String username);
 
+    long countByRole(String role);
+
     Page<User> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
 }

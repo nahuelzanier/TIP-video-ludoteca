@@ -11,7 +11,7 @@ search the catalog.
 | Paginated game catalog | working |
 | Play a game in an embedded player | working |
 | Registration, login, logout (session-based) | working |
-| Upload a game as a ZIP, then publish it | working |
+| Submit a game as a ZIP for administrator review | working |
 | Threaded comments with a 1-5 star rating | working |
 | Public user profiles with a description | working |
 | Combined search over games and users | working |
@@ -64,7 +64,8 @@ PostgreSQL
 ```
 
 Uploaded games are stored as rows in `game_files`, not as files on disk. A game is uploaded as
-a ZIP in `DRAFT` state and becomes visible in the catalog only after its owner publishes it.
+a ZIP in `DRAFT` state and becomes visible in the catalog only after an administrator tests
+and publishes it.
 
 ## Project structure
 
@@ -119,7 +120,8 @@ TIP-video-ludoteca/
 | `/search` | combined results for games and users, paged per section |
 | `/user/:username` | public profile with description and activity |
 | `/profile` | redirect shim to `/user/{username}` |
-| `/games/upload` | upload a ZIP and publish it |
+| `/games/upload` | submit a ZIP for review |
+| `/admin/review` | test and publish draft games (administrators only) |
 | `/forum`, `/settings`, `/randomgame` | placeholders |
 
 ## Documentation map

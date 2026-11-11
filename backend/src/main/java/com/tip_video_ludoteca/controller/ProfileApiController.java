@@ -2,6 +2,10 @@ package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.forums.ForumDiscussionRepository;
+import com.tip_video_ludoteca.forums.ForumDiscussion;
+import com.tip_video_ludoteca.forums.ForumDiscussionService;
+import com.tip_video_ludoteca.forums.ForumRatingAggregate;
+import com.tip_video_ludoteca.forums.ForumRatingRepository;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
@@ -27,9 +31,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -40,18 +47,21 @@ public class ProfileApiController {
     private final GameRepository games;
     private final FavoriteService favorites;
     private final ForumDiscussionRepository discussions;
+    private final ForumRatingRepository forumRatings;
 
     public ProfileApiController(
             UserProfileService userProfiles,
             UserProfileImageService profileImages,
             GameRepository games,
             FavoriteService favorites,
-            ForumDiscussionRepository discussions) {
+            ForumDiscussionRepository discussions,
+            ForumRatingRepository forumRatings) {
         this.userProfiles = userProfiles;
         this.profileImages = profileImages;
         this.games = games;
         this.favorites = favorites;
         this.discussions = discussions;
+        this.forumRatings = forumRatings;
     }
 
     @GetMapping("/{username}/profile")
@@ -60,26 +70,44 @@ public class ProfileApiController {
     }
 
     @GetMapping("/{username}/forums")
-    public List<ForumSummary> getUserForums(@PathVariable String username) {
-        return discussions.findByAuthorUsernameAndGameStatus(username, GameStatus.PUBLISHED)
-                .stream()
-                .map(discussion -> new ForumSummary(
-                        discussion.getId(),
-                        discussion.getTitle(),
-                        discussion.getCreatedAt(),
-                        discussion.getCoverImage() == null
-                                ? null
-                                : "/api/forum/discussions/"
-                                        + discussion.getId()
-                                        + "/cover"))
+    @Transactional(readOnly = true)
+    public List<ForumDiscussionService.DiscussionSummary> getUserForums(
+            @PathVariable String username) {
+        List<ForumDiscussion> authoredDiscussions = discussions
+                .findByAuthorUsernameAndGameStatus(username, GameStatus.PUBLISHED);
+        if (authoredDiscussions.isEmpty()) return List.of();
+
+        List<Long> discussionIds = authoredDiscussions.stream()
+                .map(ForumDiscussion::getId)
+                .toList();
+        Map<Long, ForumRatingAggregate> ratingByDiscussion = new HashMap<>();
+        forumRatings.aggregateByDiscussionIds(discussionIds).forEach(rating ->
+                ratingByDiscussion.put(rating.getDiscussionId(), rating));
+
+        return authoredDiscussions.stream()
+                .map(discussion -> {
+                    ForumRatingAggregate rating = ratingByDiscussion.get(discussion.getId());
+                    return new ForumDiscussionService.DiscussionSummary(
+                            discussion.getId(),
+                            discussion.getTitle(),
+                            discussion.getDescription(),
+                            discussion.getCreatedAt(),
+                            discussion.getGame().getId(),
+                            discussion.getGame().getTitle(),
+                            discussion.getAuthor().getUsername(),
+                            discussion.getAuthor().getProfileImageUrl(),
+                            discussion.getCoverImage() == null
+                                    ? null
+                                    : "/api/forum/discussions/" + discussion.getId() + "/cover",
+                            discussion.getTags().stream()
+                                    .map(tag -> new ForumDiscussionService.DiscussionTag(
+                                            tag.getId(), tag.getName(), tag.getSlug()))
+                                    .toList(),
+                            rating == null ? null : rating.getAverageRating(),
+                            rating == null ? 0 : rating.getRatingCount());
+                })
                 .toList();
     }
-
-    public record ForumSummary(
-            Long id,
-            String title,
-            java.time.Instant createdAt,
-            String coverImageUrl) {}
 
     @GetMapping("/{username}/games")
     public GamePage getUserGames(

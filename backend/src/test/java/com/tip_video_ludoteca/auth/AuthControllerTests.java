@@ -77,7 +77,7 @@ class AuthControllerTests {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isEqualTo(new AuthController.UserResponse(
-                11L, "luqui", EMAIL));
+                11L, "luqui", EMAIL, "USER"));
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(users).save(captor.capture());
@@ -111,7 +111,7 @@ class AuthControllerTests {
                 request,
                 response);
 
-        assertThat(loggedIn).isEqualTo(new AuthController.UserResponse(11L, "luqui", EMAIL));
+        assertThat(loggedIn).isEqualTo(new AuthController.UserResponse(11L, "luqui", EMAIL, "USER"));
         verify(sessionAuthenticationStrategy).onAuthentication(authentication, request, response);
         ArgumentCaptor<SecurityContext> contextCaptor = ArgumentCaptor.forClass(SecurityContext.class);
         verify(securityContextRepository).saveContext(

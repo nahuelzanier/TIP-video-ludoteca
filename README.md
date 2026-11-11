@@ -32,6 +32,14 @@ Abrir `http://localhost:5173`. El perfil `dev` usa la base local `ludarium_dev` 
 
 Los detalles, incluida la migracion `pg_trgm` y el troubleshooting, estan en [Getting Started](docs/wiki/Getting-Started.md).
 
+### Cuenta administradora y revisión de juegos
+
+Los juegos nuevos quedan como borradores y solo un administrador puede probarlos y publicarlos desde `/admin/review`. Las cuentas admin usan el registro y el inicio de sesión normales. En desarrollo local, registra una cuenta, inicia sesión y abre `/admin/setup`. La clave local predeterminada es `ludarium-local-admin-setup`.
+
+En otros entornos, configura `APP_ADMIN_SETUP_TOKEN` con una clave secreta antes de iniciar el backend y usa esa clave en `/admin/setup`. Esta configuración solo sirve mientras no exista ningún administrador.
+
+Una vez que exista el primer administrador, abre `/admin/review` para agregar otros por email. Cada persona primero se registra normalmente; un administrador actual le otorga el permiso desde esa página. La nueva persona debe volver a iniciar sesión para que su sesión reciba el rol. Más detalles en [Authentication](docs/wiki/Authentication.md).
+
 ## Tests
 
 ```bash

@@ -4,6 +4,7 @@ import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.forums.ForumDiscussion;
 import com.tip_video_ludoteca.forums.ForumDiscussionRepository;
+import com.tip_video_ludoteca.forums.ForumRatingRepository;
 import com.tip_video_ludoteca.users.ProfileEditForbiddenException;
 import com.tip_video_ludoteca.users.UserNotFoundException;
 import com.tip_video_ludoteca.users.UserProfileImageService;
@@ -33,6 +34,7 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -84,6 +86,9 @@ class ProfileApiControllerTests {
     @MockitoBean
     private ForumDiscussionRepository discussions;
 
+    @MockitoBean
+    private ForumRatingRepository forumRatings;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -115,17 +120,32 @@ class ProfileApiControllerTests {
     @Test
     void getUserForumsIsPublicAndReturnsTheUsersPublishedGameDiscussions() throws Exception {
         ForumDiscussion discussion = mock(ForumDiscussion.class);
+        Game game = mock(Game.class);
+        User author = mock(User.class);
         given(discussion.getId()).willReturn(42L);
         given(discussion.getTitle()).willReturn("A good game");
+        given(discussion.getDescription()).willReturn("A discussion about this game.");
         given(discussion.getCreatedAt()).willReturn(Instant.parse("2026-10-30T10:00:00Z"));
         given(discussion.getCoverImage()).willReturn(new byte[] {1});
+        given(discussion.getGame()).willReturn(game);
+        given(game.getId()).willReturn("game-1");
+        given(game.getTitle()).willReturn("Published game");
+        given(discussion.getAuthor()).willReturn(author);
+        given(author.getUsername()).willReturn(USERNAME);
+        given(author.getProfileImageUrl()).willReturn(AVATAR_URL);
+        given(discussion.getTags()).willReturn(Set.of());
         given(discussions.findByAuthorUsernameAndGameStatus(USERNAME, GameStatus.PUBLISHED))
                 .willReturn(List.of(discussion));
+        given(forumRatings.aggregateByDiscussionIds(List.of(42L))).willReturn(List.of());
 
         mockMvc.perform(get("/api/users/{username}/forums", USERNAME))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(42))
                 .andExpect(jsonPath("$[0].title").value("A good game"))
+                .andExpect(jsonPath("$[0].description").value("A discussion about this game."))
+                .andExpect(jsonPath("$[0].gameTitle").value("Published game"))
+                .andExpect(jsonPath("$[0].authorUsername").value(USERNAME))
+                .andExpect(jsonPath("$[0].authorAvatarUrl").value(AVATAR_URL))
                 .andExpect(jsonPath("$[0].createdAt")
                         .value("2026-10-30T10:00:00Z"))
                 .andExpect(jsonPath("$[0].coverImageUrl")
