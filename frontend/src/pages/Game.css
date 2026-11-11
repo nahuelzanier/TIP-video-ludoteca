@@ -67,6 +67,29 @@
   overflow-wrap: anywhere;
 }
 
+.game-header .game-uploader {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.game-uploader a {
+  color: #c49aff;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.game-uploader a:hover {
+  color: #e0c7ff;
+  text-decoration: underline;
+}
+
+.game-uploader a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .game-header-main > .favorite-button {
   flex: 0 0 auto;
   background: var(--surface);

@@ -202,7 +202,8 @@ class GameApiControllerTests {
 
         mockMvc.perform(get("/api/games/{gameId}", GAME_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Aventura"));
+                .andExpect(jsonPath("$.title").value("Aventura"))
+                .andExpect(jsonPath("$.uploaderUsername").value("autor"));
         mockMvc.perform(get("/api/games/{gameId}", "draft"))
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/api/games/{gameId}", "missing"))

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 @RequestMapping("/api/games")
@@ -116,7 +117,8 @@ public class GameApiController {
     }
 
     @GetMapping("/{gameId}")
-    public ResponseEntity<GameSummary> getGame(
+    @Transactional(readOnly = true)
+    public ResponseEntity<GameDetail> getGame(
             @PathVariable String gameId,
             @AuthenticationPrincipal UserDetails principal) {
         Game game = games.findById(gameId).orElse(null);
@@ -128,12 +130,13 @@ public class GameApiController {
         boolean favorite = principal != null
                 && favorites.isFavorite(gameId, principal.getUsername());
 
-        return ResponseEntity.ok(new GameSummary(
+        return ResponseEntity.ok(new GameDetail(
                 game.getId(),
                 game.getTitle(),
                 game.getCoverImageUrl(),
                 game.getDescription(),
-                favorite
+                favorite,
+                game.getOwner().getUsername()
         ));
     }
 
@@ -160,6 +163,15 @@ public class GameApiController {
             boolean favorito
     ) {
     }
+
+    public record GameDetail(
+            String id,
+            String title,
+            String image,
+            String description,
+            boolean favorito,
+            String uploaderUsername
+    ) { }
 
     public record GamePage(
             List<GameSummary> content,
