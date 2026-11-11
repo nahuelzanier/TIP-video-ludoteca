@@ -1,171 +1,242 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import GameGrid from "../components/games/GameGrid";
-import GameFilters from "../components/games/GameFilters";
-import type { GameFilters as GameFiltersState } from "../types/GameFilters";
+import { useEffect, useState } from "react";
+import { ArrowRight, Gamepad2, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import FavoriteButton from "../components/games/FavoriteButton";
 import type { Game } from "../types/Game";
+import {
+  getForumDiscussions,
+  type ForumDiscussion,
+} from "../services/forumService";
 import { getGamesPage } from "../services/gameService";
+import { getAvailableTags, type TagOption } from "../services/tagService";
 import "./Home.css";
+
+function relativeTime(dateValue: string): string {
+  const timestamp = new Date(dateValue).getTime();
+
+  if (!Number.isFinite(timestamp)) return "recently";
+
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  if (elapsedSeconds < 60) return "just now";
+  if (elapsedSeconds < 3600) return `${Math.floor(elapsedSeconds / 60)} min ago`;
+  if (elapsedSeconds < 86400) return `${Math.floor(elapsedSeconds / 3600)} hr ago`;
+  return `${Math.floor(elapsedSeconds / 86400)} days ago`;
+}
 
 function Home() {
   const [games, setGames] = useState<Game[]>([]);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<GameFiltersState>({
-    tagIds: [],
-    minRating: null,
-  });
+  const [tags, setTags] = useState<TagOption[]>([]);
+  const [discussions, setDiscussions] = useState<ForumDiscussion[]>([]);
+  const [gameError, setGameError] = useState("");
+  const [tagError, setTagError] = useState("");
+  const [discussionError, setDiscussionError] = useState("");
+  const [gamesLoading, setGamesLoading] = useState(true);
+  const [tagsLoading, setTagsLoading] = useState(true);
+  const [discussionsLoading, setDiscussionsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     let isCurrentRequest = true;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- pagination and filters start a new request and must show its pending state.
-    setLoading(true);
-    setError("");
-
-    getGamesPage(page, 12, "", filters)
+    getGamesPage(0, 5)
       .then((result) => {
-        if (!isCurrentRequest) return;
-
-        setGames(result.content);
-        setTotalPages(result.totalPages);
-        setTotalElements(result.totalElements);
+        if (isCurrentRequest) setGames(result.content);
       })
-      .catch((requestError) => {
-        if (!isCurrentRequest) return;
-
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Could not load games.",
-        );
+      .catch((requestError: unknown) => {
+        if (isCurrentRequest) {
+          setGameError(
+            requestError instanceof Error
+              ? requestError.message
+              : "Could not load games.",
+          );
+        }
       })
       .finally(() => {
-        if (isCurrentRequest) setLoading(false);
+        if (isCurrentRequest) setGamesLoading(false);
+      });
+
+    getAvailableTags()
+      .then((result) => {
+        if (isCurrentRequest) setTags(result);
+      })
+      .catch((requestError: unknown) => {
+        if (isCurrentRequest) {
+          setTagError(
+            requestError instanceof Error
+              ? requestError.message
+              : "Could not load categories.",
+          );
+        }
+      })
+      .finally(() => {
+        if (isCurrentRequest) setTagsLoading(false);
+      });
+
+    getForumDiscussions(0, 3)
+      .then((result) => {
+        if (isCurrentRequest) setDiscussions(result.content);
+      })
+      .catch((requestError: unknown) => {
+        if (isCurrentRequest) {
+          setDiscussionError(
+            requestError instanceof Error
+              ? requestError.message
+              : "Could not load community activity.",
+          );
+        }
+      })
+      .finally(() => {
+        if (isCurrentRequest) setDiscussionsLoading(false);
       });
 
     return () => {
       isCurrentRequest = false;
     };
-  }, [page, filters]);
+  }, []);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const term = searchQuery.trim();
-
-    if (term.length < 2) {
-      return;
-    }
-
-    const params = new URLSearchParams({ q: term });
-    filters.tagIds.forEach((tagId) => params.append("tagIds", String(tagId)));
-    if (filters.minRating !== null) {
-      params.set("minRating", String(filters.minRating));
-    }
-
+  function handleCategoryClick(tag: TagOption) {
+    const params = new URLSearchParams({ tagIds: String(tag.id) });
     navigate(`/search?${params.toString()}`);
-  };
-
-  function updateFilters(nextFilters: GameFiltersState) {
-    setPage(0);
-    setFilters(nextFilters);
   }
 
-  const hasActiveFilters = filters.tagIds.length > 0 || filters.minRating !== null;
+  function handleExplore() {
+    navigate("/search");
+  }
+
+  function handleUpload() {
+    navigate("/games/upload");
+  }
 
   return (
     <main className="home">
-      <h1>Games</h1>
-
-      <form
-        className="home-search-form"
-        role="search"
-        onSubmit={handleSearchSubmit}
-      >
-        <svg
-          className="home-search-icon"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-          <path
-            d="M20 20l-3.6-3.6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-        <input
-          className="home-search"
-          type="search"
-          placeholder="Search games and users"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          aria-label="Search games and users"
-          minLength={2}
-          required
-        />
-      </form>
-
-      <GameFilters filters={filters} onChange={updateFilters} />
-
-      <p className="game-count">
-        {totalElements} {totalElements === 1 ? "game" : "games"}
-      </p>
-
-      {loading && <p>Loading games...</p>}
-      {error && <p role="alert">{error}</p>}
-
-      {!loading && !error && games.length === 0 && (
-        <p>
-          {hasActiveFilters
-            ? "No games match the selected filters."
-            : "No published games yet."}
-        </p>
-      )}
-
-      {!loading && !error && games.length > 0 && (
-        <>
-          <GameGrid games={games} />
-
-          {totalPages > 1 && (
-            <nav className="game-pagination" aria-label="Game pages">
-              <button
-                type="button"
-                onClick={() => setPage((current) => current - 1)}
-                disabled={page === 0 || loading}
-              >
-                Previous
+      <div className="home__content">
+        <section className="home__hero" aria-labelledby="home-title">
+          <div className="home__hero-copy">
+            <h1 id="home-title">
+              Your place
+              <br />
+              to play
+            </h1>
+            <p className="home__intro">
+              Discover incredible indie games, support their creators, and
+              become part of the community.
+            </p>
+            <div className="home__hero-actions">
+              <button className="home__button home__button--primary" onClick={handleExplore}>
+                Explore games
               </button>
-
-              <span>
-                Page {page + 1} of {totalPages}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setPage((current) => current + 1)}
-                disabled={page + 1 >= totalPages || loading}
-              >
-                Next
+              <button className="home__button home__button--outline" onClick={handleUpload}>
+                Upload your game
               </button>
-            </nav>
+            </div>
+          </div>
+          <div className="home__hero-art">
+            <img src="/images/home-hero.png" alt="A traveler looks out over a fantasy valley at sunset" />
+          </div>
+        </section>
+
+        <section className="home__featured" aria-labelledby="featured-title">
+          <div className="home__section-heading">
+            <h2 id="featured-title">Featured games</h2>
+          </div>
+
+          {gamesLoading && <p className="home__message">Loading games...</p>}
+          {gameError && <p className="home__message home__message--error" role="alert">{gameError}</p>}
+          {!gamesLoading && !gameError && games.length === 0 && (
+            <p className="home__message">No games have been published yet. Be the first to share one!</p>
           )}
-        </>
-      )}
+          {!gameError && games.length > 0 && (
+            <div className="home__game-grid">
+              {games.map((game) => (
+                <article className="home-game-card" key={game.id}>
+                  <Link className="home-game-card__cover" to={`/game/${encodeURIComponent(game.id)}`}>
+                    <img src={game.image} alt={game.title} />
+                  </Link>
+                  <FavoriteButton
+                    gameId={game.id}
+                    initialFavorite={Boolean(game.favorite)}
+                    className="home-game-card__favorite"
+                  />
+                  <Link className="home-game-card__body" to={`/game/${encodeURIComponent(game.id)}`}>
+                    <h3>{game.title}</h3>
+                    <p>{game.description}</p>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <div className="home__community-grid">
+          <section className="home__categories" aria-labelledby="categories-title">
+            <div className="home__section-heading">
+              <h2 id="categories-title">Browse by category</h2>
+              <Sparkles size={16} aria-hidden="true" />
+            </div>
+            {tagsLoading && <p className="home__message">Loading categories...</p>}
+            {tagError && <p className="home__message home__message--error" role="alert">{tagError}</p>}
+            {!tagsLoading && !tagError && tags.length === 0 && (
+              <p className="home__message">No categories are available yet.</p>
+            )}
+            {!tagError && tags.length > 0 && (
+              <div className="home__category-grid">
+                {tags.slice(0, 8).map((tag) => (
+                  <button
+                    className="home__category"
+                    key={tag.id}
+                    type="button"
+                    onClick={() => handleCategoryClick(tag)}
+                  >
+                    <Gamepad2 size={17} aria-hidden="true" />
+                    <span>{tag.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="home__activity" aria-labelledby="activity-title">
+            <div className="home__section-heading">
+              <h2 id="activity-title">Recent activity</h2>
+              <Link className="home__text-link" to="/forum">
+                Community <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+            </div>
+            {discussionsLoading && <p className="home__message">Loading activity...</p>}
+            {discussionError && <p className="home__message home__message--error" role="alert">{discussionError}</p>}
+            {!discussionsLoading && !discussionError && discussions.length === 0 && (
+              <p className="home__message">No discussions yet. Start one in the community!</p>
+            )}
+            {!discussionError && discussions.length > 0 && (
+              <div className="home__activity-list">
+                {discussions.map((discussion) => (
+                  <Link
+                    className="home__activity-item"
+                    key={discussion.id}
+                    to={`/forum/${discussion.id}`}
+                  >
+                    {discussion.coverImageUrl ? (
+                      <img src={discussion.coverImageUrl} alt="" />
+                    ) : (
+                      <span className="home__activity-placeholder" aria-hidden="true">
+                        <Gamepad2 size={19} />
+                      </span>
+                    )}
+                    <span className="home__activity-copy">
+                      <span className="home__activity-title">{discussion.title}</span>
+                      <span className="home__activity-meta">
+                        {discussion.authorUsername} · {relativeTime(discussion.createdAt)}
+                      </span>
+                    </span>
+                    <span className="home__activity-tag">{discussion.gameTitle}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+
     </main>
   );
 }

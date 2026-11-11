@@ -9,4 +9,5 @@ export interface ForumSummary {
     id: number;
     title: string;
     createdAt: string;
+    coverImageUrl: string | null;
 }

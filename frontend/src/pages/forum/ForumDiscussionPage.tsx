@@ -161,11 +161,17 @@ function ForumDiscussionPage() {
       </Link>
 
       <article className="forum-detail">
-        <img
-          className="forum-detail__cover"
-          src={discussion.coverImageUrl}
-          alt=""
-        />
+        {discussion.coverImageUrl ? (
+          <img
+            className="forum-detail__cover"
+            src={discussion.coverImageUrl}
+            alt=""
+          />
+        ) : (
+          <div className="forum-detail__cover forum-detail__cover--fallback">
+            {discussion.gameTitle}
+          </div>
+        )}
 
         <div className="forum-detail__content">
           <p className="forum-detail__game">
@@ -205,9 +211,13 @@ function ForumDiscussionPage() {
               {discussion.ratingCount === 1 ? "rating" : "ratings"}
             </p>
 
-            {user ? (
-              <div className="forum-rating__buttons" aria-label="Rate this discussion">
-                {[1, 2, 3, 4, 5].map((score) => (
+            <div className="forum-rating__buttons" aria-label="Discussion rating">
+              {[1, 2, 3, 4, 5].map((score) => {
+                const displayedRating =
+                  discussion.myRating ??
+                  Math.round(discussion.averageRating ?? 0);
+
+                return user ? (
                   <button
                     key={score}
                     type="button"
@@ -216,11 +226,21 @@ function ForumDiscussionPage() {
                     disabled={ratingSaving}
                     onClick={() => handleRating(score)}
                   >
-                    {score <= (discussion.myRating ?? 0) ? "★" : "☆"}
+                    {score <= displayedRating ? "★" : "☆"}
                   </button>
-                ))}
-              </div>
-            ) : (
+                ) : (
+                  <span
+                    className="forum-rating__star"
+                    key={score}
+                    aria-hidden="true"
+                  >
+                    {score <= displayedRating ? "★" : "☆"}
+                  </span>
+                );
+              })}
+            </div>
+
+            {!user && (
               <p>
                 <Link to="/login" state={{ from: location.pathname }}>
                   Sign in

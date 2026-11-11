@@ -66,11 +66,20 @@ public class ProfileApiController {
                 .map(discussion -> new ForumSummary(
                         discussion.getId(),
                         discussion.getTitle(),
-                        discussion.getCreatedAt()))
+                        discussion.getCreatedAt(),
+                        discussion.getCoverImage() == null
+                                ? null
+                                : "/api/forum/discussions/"
+                                        + discussion.getId()
+                                        + "/cover"))
                 .toList();
     }
 
-    public record ForumSummary(Long id, String title, java.time.Instant createdAt) {}
+    public record ForumSummary(
+            Long id,
+            String title,
+            java.time.Instant createdAt,
+            String coverImageUrl) {}
 
     @GetMapping("/{username}/games")
     public GamePage getUserGames(

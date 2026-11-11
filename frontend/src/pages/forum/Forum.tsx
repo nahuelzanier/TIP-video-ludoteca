@@ -200,23 +200,34 @@ function Forum() {
                 key={discussion.id}
                 to={`/forum/${discussion.id}`}
               >
-                <img
-                  className="forum-card__cover"
-                  src={discussion.coverImageUrl}
-                  alt=""
-                  loading="lazy"
-                  onError={(event) => {
-                    event.currentTarget.hidden = true;
-                    event.currentTarget.nextElementSibling?.removeAttribute("hidden");
-                  }}
-                />
-                <div
-                  className="forum-card__cover forum-card__cover-fallback"
-                  hidden
-                  aria-hidden="true"
-                >
-                  No cover image
-                </div>
+                {discussion.coverImageUrl ? (
+                  <>
+                    <img
+                      className="forum-card__cover"
+                      src={discussion.coverImageUrl}
+                      alt=""
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.hidden = true;
+                        event.currentTarget.nextElementSibling?.removeAttribute("hidden");
+                      }}
+                    />
+                    <div
+                      className="forum-card__cover forum-card__cover-fallback"
+                      hidden
+                      aria-hidden="true"
+                    >
+                      No cover image
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    className="forum-card__cover forum-card__cover-fallback"
+                    aria-hidden="true"
+                  >
+                    No cover image
+                  </div>
+                )}
                 <div className="forum-card__body">
                   <div className="forum-card__author">
                     {discussion.authorAvatarUrl ? (
