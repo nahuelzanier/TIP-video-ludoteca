@@ -1,5 +1,6 @@
 package com.tip_video_ludoteca.controller;
 
+import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameFile;
 import com.tip_video_ludoteca.games.GameFileRepository;
@@ -8,7 +9,12 @@ import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.users.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GameCoverController.class)
+@AutoConfigureMockMvc
+@Import({SecurityConfig.class, SecurityAutoConfiguration.class,
+        ServletWebSecurityAutoConfiguration.class})
+@TestPropertySource(properties = "app.frontend-origin=http://localhost:5173")
 class GameCoverControllerTests {
 
     private static final String GAME_ID = "game-1";

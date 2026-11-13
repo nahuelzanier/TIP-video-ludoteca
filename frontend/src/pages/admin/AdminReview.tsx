@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { getCurrentUser, type AuthUser } from "../../services/authService";
 import { getDraftGames, promoteUserToAdmin, publishDraft, type ReviewGame } from "../../services/adminGameService";
@@ -17,17 +17,6 @@ function AdminReview() {
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [promoting, setPromoting] = useState(false);
 
-  const loadDrafts = useCallback(async () => {
-    setError("");
-    try {
-      setGames(await getDraftGames());
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Could not load drafts.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     getCurrentUser().then(setUser)
       .catch(() => setError("Could not check your session."))
@@ -35,8 +24,25 @@ function AdminReview() {
   }, []);
 
   useEffect(() => {
-    if (user?.role === "ADMIN") void loadDrafts();
-  }, [user, loadDrafts]);
+    if (user?.role !== "ADMIN") return;
+
+    let isCurrentRequest = true;
+    getDraftGames()
+      .then((drafts) => {
+        if (isCurrentRequest) setGames(drafts);
+      })
+      .catch((requestError: unknown) => {
+        if (!isCurrentRequest) return;
+        setError(requestError instanceof Error ? requestError.message : "Could not load drafts.");
+      })
+      .finally(() => {
+        if (isCurrentRequest) setLoading(false);
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [user]);
 
   async function handlePublish(game: ReviewGame) {
     setBusyId(game.id);

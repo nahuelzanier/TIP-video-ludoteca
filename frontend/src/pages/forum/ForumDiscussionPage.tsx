@@ -22,6 +22,7 @@ function ForumDiscussionPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [ratingError, setRatingError] = useState("");
+  const [ratingSaved, setRatingSaved] = useState(false);
   const [replyError, setReplyError] = useState("");
   const [ratingSaving, setRatingSaving] = useState(false);
   const [replySaving, setReplySaving] = useState(false);
@@ -73,6 +74,7 @@ function ForumDiscussionPage() {
     if (!discussion || !user) return;
 
     setRatingError("");
+    setRatingSaved(false);
     setRatingSaving(true);
 
     try {
@@ -87,6 +89,7 @@ function ForumDiscussionPage() {
             }
           : current,
       );
+      setRatingSaved(true);
     } catch (requestError) {
       setRatingError(
         requestError instanceof Error
@@ -213,32 +216,41 @@ function ForumDiscussionPage() {
 
             <div className="forum-rating__buttons" aria-label="Discussion rating">
               {[1, 2, 3, 4, 5].map((score) => {
-                const displayedRating =
-                  discussion.myRating ??
-                  Math.round(discussion.averageRating ?? 0);
-
                 return user ? (
                   <button
                     key={score}
                     type="button"
-                    aria-label={`Rate ${score} out of 5`}
+                    className={discussion.myRating !== null && score <= discussion.myRating ? "is-selected" : ""}
+                    aria-label={`Rate ${score} out of 5${discussion.myRating === score ? ", your current rating" : ""}`}
                     aria-pressed={discussion.myRating === score}
                     disabled={ratingSaving}
                     onClick={() => handleRating(score)}
                   >
-                    {score <= displayedRating ? "★" : "☆"}
+                    {discussion.myRating !== null && score <= discussion.myRating ? "★" : "☆"}
                   </button>
                 ) : (
                   <span
-                    className="forum-rating__star"
+                    className={`forum-rating__star${score <= Math.round(discussion.averageRating ?? 0) ? " is-selected" : ""}`}
                     key={score}
                     aria-hidden="true"
                   >
-                    {score <= displayedRating ? "★" : "☆"}
+                    {score <= Math.round(discussion.averageRating ?? 0) ? "★" : "☆"}
                   </span>
                 );
               })}
             </div>
+
+            {user && (
+              <p aria-live="polite">
+                {ratingSaving
+                  ? "Saving your rating…"
+                  : discussion.myRating === null
+                    ? "Select a star to rate this discussion."
+                    : `Your rating: ${discussion.myRating} out of 5. Select another star to update it.`}
+              </p>
+            )}
+
+            {ratingSaved && <p role="status">Rating saved.</p>}
 
             {!user && (
               <p>

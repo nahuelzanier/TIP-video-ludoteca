@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Gamepad2, Sparkles } from "lucide-react";
+import { ArrowRight, Gamepad2, MessageSquare, Sparkles, Star } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import FavoriteButton from "../components/games/FavoriteButton";
 import type { Game } from "../types/Game";
@@ -215,17 +215,35 @@ function Home() {
                     key={discussion.id}
                     to={`/forum/${discussion.id}`}
                   >
-                    {discussion.coverImageUrl ? (
-                      <img src={discussion.coverImageUrl} alt="" />
-                    ) : (
-                      <span className="home__activity-placeholder" aria-hidden="true">
-                        <Gamepad2 size={19} />
-                      </span>
-                    )}
+                    {discussion.authorAvatarUrl ? (
+                      <img
+                        className="home__activity-avatar"
+                        src={discussion.authorAvatarUrl}
+                        alt=""
+                        loading="lazy"
+                        onError={(event) => {
+                          event.currentTarget.hidden = true;
+                          event.currentTarget.nextElementSibling?.removeAttribute("hidden");
+                        }}
+                      />
+                    ) : null}
+                    <span
+                      className="home__activity-placeholder"
+                      aria-hidden="true"
+                      hidden={Boolean(discussion.authorAvatarUrl)}
+                    >
+                      <MessageSquare size={19} />
+                    </span>
                     <span className="home__activity-copy">
                       <span className="home__activity-title">{discussion.title}</span>
                       <span className="home__activity-meta">
                         {discussion.authorUsername} · {relativeTime(discussion.createdAt)}
+                      </span>
+                      <span className="home__activity-rating" aria-label="Discussion rating">
+                        <Star size={13} aria-hidden="true" />
+                        {discussion.averageRating === null
+                          ? "No ratings"
+                          : `${discussion.averageRating.toFixed(1)} / 5 (${discussion.ratingCount})`}
                       </span>
                     </span>
                     <span className="home__activity-tag">{discussion.gameTitle}</span>

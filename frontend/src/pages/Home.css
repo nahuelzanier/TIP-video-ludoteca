@@ -324,6 +324,10 @@
   background: #2a2030;
 }
 
+.home__activity-placeholder[hidden] {
+  display: none;
+}
+
 .home__activity-copy {
   display: grid;
   min-width: 0;
@@ -345,6 +349,14 @@
   font-size: 0.69rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.home__activity-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #f4c95d;
+  font-size: 0.68rem;
 }
 
 .home__activity-tag {

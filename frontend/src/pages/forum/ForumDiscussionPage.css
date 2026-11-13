@@ -189,6 +189,15 @@
   cursor: pointer;
 }
 
+.forum-rating__buttons .is-selected,
+.forum-rating__star.is-selected {
+  color: #ffba08;
+}
+
+.forum-rating__buttons button:not(.is-selected) {
+  color: var(--forum-detail-muted);
+}
+
 .forum-rating__buttons button:hover:not(:disabled) {
   transform: scale(1.12);
 }

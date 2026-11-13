@@ -141,4 +141,21 @@ class ForumApiControllerTests {
                         .content("{\"rating\":4}"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void authenticatedUserCanRateDiscussionAndReceivesUpdatedAggregate() throws Exception {
+        given(discussions.rateDiscussion(1L, 4, "reader@ludarium.test"))
+                .willReturn(new ForumDiscussionService.RatingResult(1L, 4, 3.5, 2L));
+
+        mockMvc.perform(put("/api/forum/discussions/1/rating")
+                        .with(user("reader@ludarium.test"))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"rating\":4}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.discussionId").value(1))
+                .andExpect(jsonPath("$.myRating").value(4))
+                .andExpect(jsonPath("$.averageRating").value(3.5))
+                .andExpect(jsonPath("$.ratingCount").value(2));
+    }
 }

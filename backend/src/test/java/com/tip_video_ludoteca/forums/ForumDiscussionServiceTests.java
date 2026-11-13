@@ -192,6 +192,45 @@ class ForumDiscussionServiceTests {
     }
 
     @Test
+    void rateDiscussionUpdatesTheExistingRatingWithoutCreatingAnotherOne() {
+        ForumDiscussion discussion = discussion(GameStatus.PUBLISHED);
+        User user = user();
+        ForumRating existingRating = new ForumRating(discussion, user, 2);
+        when(discussions.findById(DISCUSSION_ID)).thenReturn(Optional.of(discussion));
+        when(users.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(user));
+        when(ratings.findByDiscussion_IdAndUser_Id(DISCUSSION_ID, USER_ID))
+                .thenReturn(Optional.of(existingRating));
+        when(ratings.aggregateByDiscussionIds(List.of(DISCUSSION_ID)))
+                .thenReturn(List.of(aggregate(DISCUSSION_ID, 4.0, 2L)));
+
+        ForumDiscussionService.RatingResult result = forum.rateDiscussion(
+                DISCUSSION_ID, 5, EMAIL);
+
+        verify(ratings).saveAndFlush(existingRating);
+        assertThat(existingRating.getRating()).isEqualTo((short) 5);
+        assertThat(result.myRating()).isEqualTo(5);
+        assertThat(result.averageRating()).isEqualTo(4.0);
+        assertThat(result.ratingCount()).isEqualTo(2L);
+    }
+
+    @Test
+    void anonymousReadersCanSeeDiscussionRatingAggregate() {
+        ForumDiscussion discussion = discussion(GameStatus.PUBLISHED);
+        when(discussions.findWithDetailsById(DISCUSSION_ID))
+                .thenReturn(Optional.of(discussion));
+        when(ratings.aggregateByDiscussionIds(List.of(DISCUSSION_ID)))
+                .thenReturn(List.of(aggregate(DISCUSSION_ID, 3.5, 4L)));
+
+        ForumDiscussionService.DiscussionDetail result = forum.getPublishedDetail(
+                DISCUSSION_ID, null);
+
+        assertThat(result.averageRating()).isEqualTo(3.5);
+        assertThat(result.ratingCount()).isEqualTo(4L);
+        assertThat(result.myRating()).isNull();
+        verify(users, never()).findByEmailIgnoreCase(any());
+    }
+
+    @Test
     void rateDiscussionRejectsScoresOutsideOneThroughFive() {
         when(discussions.findById(DISCUSSION_ID))
                 .thenReturn(Optional.of(discussion(GameStatus.PUBLISHED)));
