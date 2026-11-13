@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import GameSection from "../components/games/GameSection";
 import GameTagSection from "../components/games/GameTagSection";
 import GameRecommendations from "../components/games/GameRecommendations";
@@ -80,6 +80,11 @@ function Game() {
           <div>
             <h1>{game.title}</h1>
             <p>{game.description}</p>
+            {game.uploaderUsername && (
+              <p className="game-uploader">
+                Uploaded by <Link to={`/user/${encodeURIComponent(game.uploaderUsername)}`}>{game.uploaderUsername}</Link>
+              </p>
+            )}
           </div>
           <FavoriteButton
             gameId={game.id}

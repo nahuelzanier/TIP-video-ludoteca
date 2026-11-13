@@ -4,6 +4,7 @@ export interface Game {
     image: string;
     description: string;
     favorite?: boolean;
+    uploaderUsername?: string;
 }
 
 export interface GameRecommendation {

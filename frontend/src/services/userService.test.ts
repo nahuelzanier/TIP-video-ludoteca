@@ -26,14 +26,23 @@ describe("userService", () => {
     const forums = [{
       id: 8,
       title: "A discussion",
+      description: "Discussion details",
       createdAt: "2026-10-30T10:00:00Z",
+      gameId: "game-1",
+      gameTitle: "Game",
+      authorUsername: "luqui",
+      authorAvatarUrl: "/api/users/luqui/avatar",
       coverImageUrl: "/api/forum/discussions/8/cover",
+      tags: [],
+      averageRating: null,
+      ratingCount: 0,
     }];
     fetchMock.mockResolvedValueOnce(jsonResponse(forums));
 
     await expect(getUserForums("user/name")).resolves.toEqual([{
       ...forums[0],
       coverImageUrl: "http://localhost:8080/api/forum/discussions/8/cover",
+      authorAvatarUrl: "http://localhost:8080/api/users/luqui/avatar",
     }]);
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8080/api/users/user%2Fname/forums",

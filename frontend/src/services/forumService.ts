@@ -29,7 +29,7 @@ export interface ForumDiscussion {
   gameTitle: string;
   authorUsername: string;
   authorAvatarUrl: string | null;
-  coverImageUrl: string;
+  coverImageUrl: string | null;
   tags: ForumTag[];
   averageRating: number | null;
   ratingCount: number;

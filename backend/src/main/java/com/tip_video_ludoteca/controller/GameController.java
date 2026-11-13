@@ -2,6 +2,8 @@ package com.tip_video_ludoteca.controller;
 
 import com.tip_video_ludoteca.games.GameFile;
 import com.tip_video_ludoteca.games.GameFileRepository;
+import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -20,15 +24,18 @@ import java.nio.file.Paths;
 public class GameController {
 
     private final GameFileRepository gameFiles;
+    private final GameRepository games;
 
-    public GameController(GameFileRepository gameFiles) {
+    public GameController(GameFileRepository gameFiles, GameRepository games) {
         this.gameFiles = gameFiles;
+        this.games = games;
     }
 
     @GetMapping("/{gameId}/**")
     public ResponseEntity<byte[]> getGameFile(
             @PathVariable String gameId,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
         try {
             String requestPath = UriUtils.decode(
                     request.getRequestURI(),
@@ -50,6 +57,13 @@ public class GameController {
             }
 
             String databasePath = normalized.toString().replace("\\", "/");
+
+            boolean isAdmin = principal != null && principal.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+            boolean isPublished = games.findById(gameId)
+                    .map(game -> game.getStatus() == GameStatus.PUBLISHED)
+                    .orElse(false);
+            if (!isPublished && !isAdmin) return ResponseEntity.notFound().build();
 
             return gameFiles.findById_GameIdAndId_Path(gameId, databasePath)
                     .map(this::toResponse)

@@ -20,6 +20,9 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    @Column(nullable = false, length = 20)
+    private String role = "USER";
+
     @Column(length = 500)
     private String description;
 
@@ -56,6 +59,14 @@ public class User {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void promoteToAdmin() {
+        this.role = "ADMIN";
     }
 
     public Instant getCreatedAt() {

@@ -18,7 +18,8 @@ import {
     uploadAvatar,
 } from "../../services/userService";
 import type { GamePage } from "../../services/gameService";
-import type { ForumSummary, UserProfile } from "../../types/User";
+import type { UserProfile } from "../../types/User";
+import type { ForumDiscussion } from "../../services/forumService";
 import "./User.css";
 import GameGrid from "../../components/games/GameGrid";
 
@@ -62,7 +63,7 @@ function User() {
     const [gamesPageNumber, setGamesPageNumber] = useState(0);
     const [gamesLoading, setGamesLoading] = useState(true);
     const [gamesError, setGamesError] = useState("");
-    const [forums, setForums] = useState<ForumSummary[]>([]);
+    const [forums, setForums] = useState<ForumDiscussion[]>([]);
     const [forumsLoading, setForumsLoading] = useState(true);
     const [forumsError, setForumsError] = useState("");
 
@@ -310,6 +311,7 @@ function User() {
                 description={profile.description}
                 avatarUrl={profile.avatarUrl}
                 isOwnProfile={isOwnProfile}
+                isAdmin={currentUser?.role === "ADMIN"}
                 loggingOut={loggingOut}
                 error={logoutError}
                 onEdit={() => {
@@ -322,12 +324,6 @@ function User() {
                 }}
                 onUpload={() => navigate("/games/upload")}
                 onLogout={handleLogout}
-            />
-
-            <UserActivity
-                forums={forums}
-                loading={forumsLoading}
-                error={forumsError}
             />
 
             {!gamesLoading && !gamesError && (gamesPage?.totalElements ?? 0) > 0 && (
@@ -365,6 +361,12 @@ function User() {
                     )}
                 </section>
             )}
+
+            <UserActivity
+                forums={forums}
+                loading={forumsLoading}
+                error={forumsError}
+            />
 
             {isAvatarOpen && (
                 <AvatarModal

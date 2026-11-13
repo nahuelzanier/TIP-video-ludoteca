@@ -3,6 +3,7 @@ package com.tip_video_ludoteca.controller;
 import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameFile;
 import com.tip_video_ludoteca.games.GameFileRepository;
+import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.users.User;
 import org.junit.jupiter.api.Test;
@@ -29,11 +30,15 @@ class GameCoverControllerTests {
     @MockitoBean
     private GameFileRepository gameFiles;
 
+    @MockitoBean
+    private GameRepository games;
+
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     void returnsCoverWithStoredTypeAndNosniffHeader() throws Exception {
+        given(games.findById(GAME_ID)).willReturn(Optional.of(publishedGame()));
         given(gameFiles.findById_GameIdAndId_Path(GAME_ID, "__metadata__/thumbnail"))
                 .willReturn(Optional.of(cover("image/png")));
 
@@ -46,6 +51,7 @@ class GameCoverControllerTests {
 
     @Test
     void returnsNotFoundWhenTheGameHasNoCover() throws Exception {
+        given(games.findById(GAME_ID)).willReturn(Optional.of(publishedGame()));
         given(gameFiles.findById_GameIdAndId_Path(GAME_ID, "__metadata__/thumbnail"))
                 .willReturn(Optional.empty());
 
@@ -54,10 +60,14 @@ class GameCoverControllerTests {
     }
 
     private GameFile cover(String contentType) {
+        return new GameFile(publishedGame(), "__metadata__/thumbnail", contentType, COVER);
+    }
+
+    private Game publishedGame() {
         User owner = new User("owner", "owner@ludarium.test", "{noop}encoded");
         Game game = new Game(GAME_ID, owner, "Game", "", null,
                 "index.html", GameStatus.PUBLISHED);
         ReflectionTestUtils.setField(game, "id", GAME_ID);
-        return new GameFile(game, "__metadata__/thumbnail", contentType, COVER);
+        return game;
     }
 }

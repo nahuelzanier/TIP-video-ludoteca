@@ -1,7 +1,8 @@
 # Game Upload & Publishing
 
-Anyone with an account can upload a browser game and then publish it to the catalog. The whole
-flow lives in `games/GameUploadService.java` and `games/GameService.java`.
+Anyone with an account can submit a browser game for review. Only an administrator can test
+and publish it. The flow lives in `games/GameUploadService.java`,
+`controller/AdminGameController.java` and `games/GameService.java`.
 
 ## Lifecycle
 
@@ -11,7 +12,7 @@ flow lives in `games/GameUploadService.java` and `games/GameService.java`.
                           v
                      status = DRAFT        <- invisible in the catalog
                           |
-        POST /api/games/{gameId}/publish   (owner only)
+        POST /api/admin/games/{gameId}/publish   (ADMIN only)
                           |
                           v
                      status = PUBLISHED    <- appears in GET /api/games
@@ -20,8 +21,8 @@ flow lives in `games/GameUploadService.java` and `games/GameService.java`.
 A draft game is stored completely but never returned by `GET /api/games`, `GET /api/search`
 or the tag endpoints, all of which filter on `GameStatus.PUBLISHED`.
 
-`Game.status` only ever moves forward. There is no unpublish and no edit endpoint: `Game`
-exposes no setters for `title` or `description`, only `assignOwner(User)` and `publish()`.
+`Game.status` moves from `DRAFT` to `PUBLISHED` after administrator approval. There is no
+unpublish or edit endpoint.
 
 ## Step 1 — Upload
 
@@ -186,10 +187,10 @@ The `coverImageUrl` is written as an **API path**, not a file path, so the catal
 straight to an `<img src>`. The frontend resolves it to an absolute URL in
 `services/gameService.ts`.
 
-## Step 2 — Publish
+## Step 2 — Review and publish
 
 ```http
-POST /api/games/{gameId}/publish
+POST /api/admin/games/{gameId}/publish
 X-CSRF-TOKEN: 0d9f1c22-...
 ```
 
@@ -197,13 +198,9 @@ X-CSRF-TOKEN: 0d9f1c22-...
 { "id": "3f9c2a41-7b5e-4c8d-9e10-2a6b8c4d1f35", "title": "Blasteroids", "status": "PUBLISHED" }
 ```
 
-Ownership is enforced by hand in `GameService.publish`:
-
-```java
-if (!game.getOwner().getId().equals(user.getId())) {
-    throw new GameEditForbiddenException();
-}
-```
+`/api/admin/**` requires `ROLE_ADMIN`; regular authors receive `403`. The admin review page
+lists pending drafts with their submitter and an embedded test player. The administrator
+approves a game only after testing it.
 
 The operation is **idempotent**: calling it on an already published game returns `200` again
 without changing anything.
@@ -212,7 +209,7 @@ without changing anything.
 | --- | --- |
 | `200` | Published, or already published |
 | `401` | No session |
-| `403` | `No podés publicar el juego de otro usuario.` |
+| `403` | The session does not have the administrator role |
 | `404` | `El juego no existe.` |
 
 ## Step 3 — Serving
@@ -235,7 +232,8 @@ return gameFiles.findById_GameIdAndId_Path(gameId, databasePath)
         .orElseGet(() -> ResponseEntity.notFound().build());
 ```
 
-Blank, absolute and `..`-leading paths return `400`; anything not present in `game_files`
+Blank, absolute and `..`-leading paths return `400`; non-admin users can only access published
+game files. Anything not present in `game_files`
 returns `404`. Because the lookup is keyed by game id **and** path, one game's asset request
 can never reach another game's row.
 
@@ -263,13 +261,13 @@ handle — the response falls back to Spring's default body.
 
 ## The frontend flow
 
-`frontend/src/pages/uploadgame/UploadGame.tsx` runs the whole thing as two buttons:
+`frontend/src/pages/uploadgame/UploadGame.tsx` submits the game and reports that it is pending
+administrator review. It has no publish action. Administrators use `/admin/review` to test
+and approve submissions.
 
-1. **Upload game** → `uploadGame(title, description, cover, archive)` from
-   `services/gameUploadService.ts`. On success it shows
-   `"Blasteroids" was uploaded. 11 files were stored as a draft.` and remembers the new id.
-2. **Publish game** → `publishGame(id)`. On success it shows
-   `"Blasteroids" is now published and visible on the home page.`
+**Upload game** → `uploadGame(title, description, cover, archive)` from
+`services/gameUploadService.ts`. On success it tells the author that an administrator will
+test the game before publishing.
 
 Client-side validation before the request:
 

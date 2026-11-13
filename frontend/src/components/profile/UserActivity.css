@@ -1,5 +1,11 @@
 .user-activity {
   margin-top: 32px;
+  --forum-panel: #191b2a;
+  --forum-panel-hover: #1e2030;
+  --forum-border: #292b3d;
+  --forum-text: #f5f4f8;
+  --forum-muted: #a4a4b8;
+  --forum-purple: #963cff;
 }
 
 .user-activity h2 {
@@ -15,49 +21,6 @@
 }
 
 .user-activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.user-activity-item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 16px 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s ease;
-}
-
-.user-activity-item:hover {
-  border-color: var(--accent);
-}
-
-.user-activity-item a {
-  font-weight: 600;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.user-activity-item a:hover {
-  text-decoration: underline;
-}
-
-.user-activity-item a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.user-activity-item time {
-  font-size: 14px;
-  color: var(--text);
-  opacity: 0.8;
+  display: grid;
+  gap: 16px;
 }

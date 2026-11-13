@@ -80,6 +80,9 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/admin/setup/status").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/admin/setup").authenticated()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/games/*/tags/mine").authenticated()
                 .requestMatchers(HttpMethod.GET,
                     "/api/games", "/api/games/**", "/games/**",

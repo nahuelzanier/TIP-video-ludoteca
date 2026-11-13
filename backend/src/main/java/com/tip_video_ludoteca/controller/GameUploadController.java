@@ -1,6 +1,5 @@
 package com.tip_video_ludoteca.controller;
 
-import com.tip_video_ludoteca.games.GameService;
 import com.tip_video_ludoteca.games.GameUploadService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,13 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class GameUploadController {
 
     private final GameUploadService gameUploadService;
-    private final GameService gameService;
-
-    public GameUploadController(
-            GameUploadService gameUploadService,
-            GameService gameService) {
+    public GameUploadController(GameUploadService gameUploadService) {
         this.gameUploadService = gameUploadService;
-        this.gameService = gameService;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -43,11 +37,4 @@ public class GameUploadController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @PostMapping("/{gameId}/publish")
-    public GameService.PublishResult publish(
-            @PathVariable String gameId,
-            @AuthenticationPrincipal UserDetails currentUser) {
-
-        return gameService.publish(gameId, currentUser.getUsername());
-    }
 }

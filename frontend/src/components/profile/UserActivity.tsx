@@ -1,11 +1,9 @@
-import { Link } from "react-router-dom";
-import type { ForumSummary } from "../../types/User";
+import type { ForumDiscussion } from "../../services/forumService";
+import ForumDiscussionCard from "../forum/ForumDiscussionCard";
 import "./UserActivity.css";
 
-const dateFormat = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" });
-
 interface UserActivityProps {
-    forums: ForumSummary[];
+    forums: ForumDiscussion[];
     loading?: boolean;
     error?: string;
 }
@@ -22,45 +20,11 @@ function UserActivity({ forums, loading = false, error = "" }: UserActivityProps
             ) : forums.length === 0 ? (
                 <p className="user-activity-empty">No discussions started yet.</p>
             ) : (
-                <ul className="user-activity-list">
+                <div className="user-activity-list">
                     {forums.map((forum) => (
-                        <li className="user-activity-item" key={forum.id}>
-                            <Link className="user-activity-cover-link" to={`/forum/${forum.id}`}>
-                                {forum.coverImageUrl ? (
-                                    <>
-                                        <img
-                                            className="user-activity-cover"
-                                            src={forum.coverImageUrl}
-                                            alt=""
-                                            loading="lazy"
-                                            onError={(event) => {
-                                                event.currentTarget.hidden = true;
-                                                event.currentTarget.nextElementSibling?.removeAttribute("hidden");
-                                            }}
-                                        />
-                                        <span
-                                            className="user-activity-cover-fallback"
-                                            hidden
-                                            aria-hidden="true"
-                                        >
-                                            No cover image
-                                        </span>
-                                    </>
-                                ) : (
-                                    <span className="user-activity-cover-fallback" aria-hidden="true">
-                                        No cover image
-                                    </span>
-                                )}
-                            </Link>
-                            <div className="user-activity-item-body">
-                                <Link to={`/forum/${forum.id}`}>{forum.title}</Link>
-                                <time dateTime={forum.createdAt}>
-                                    {dateFormat.format(new Date(forum.createdAt))}
-                                </time>
-                            </div>
-                        </li>
+                        <ForumDiscussionCard key={forum.id} discussion={forum} />
                     ))}
-                </ul>
+                </div>
             )}
         </section>
     );

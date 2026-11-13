@@ -28,25 +28,35 @@ Authentication authentication = authenticationManager.authenticate(
 sessionAuthenticationStrategy.onAuthentication(authentication, servletRequest, servletResponse);
 ```
 
-### The principal is the email
+### Roles and the principal
 
-`DatabaseUserDetailsService` loads users by **email**, not by username, and gives every
-account the same single authority:
+`DatabaseUserDetailsService` loads users by **email**, not by username. New registrations
+receive the `USER` role; the configured administrator account receives `ADMIN`:
 
 ```java
 return org.springframework.security.core.userdetails.User
         .withUsername(user.getEmail())
         .password(user.getPasswordHash())
-        .roles("USER")
+        .roles(user.getRole())
         .build();
 ```
 
 This is why every controller reads the caller with `@AuthenticationPrincipal UserDetails` and
 then does `currentUser.getUsername()`, which is the email address.
 
-There are **no roles beyond `ROLE_USER`** and no `@PreAuthorize` anywhere in the codebase.
-Ownership rules ("only the owner can publish this game") are enforced by hand inside the
-service layer, not by Spring Security.
+Spring Security protects `/api/admin/**` with `ROLE_ADMIN`. Game publication is available
+only through that admin API; authors can upload games but cannot publish their drafts.
+Draft game files are available only to administrators for testing. Public game files and
+covers are served only after publication.
+
+Create the account through the normal registration page and log in. In local development,
+open `/admin/setup` and enter `ludarium-local-admin-setup`. For other environments, configure
+`APP_ADMIN_SETUP_TOKEN` before starting the backend and enter that secret on the same page.
+This setup endpoint works only while no administrator exists. It promotes the signed-in account;
+it does not create a separate login or password. After the first administrator is set up,
+administrators can grant the role to other registered accounts from `/admin/review`. Those
+users should log out and back in to refresh their session. A successful admin login includes
+`role: "ADMIN"` in `UserResponse`.
 
 ## Passwords
 
@@ -128,7 +138,8 @@ Endpoints that therefore **require** a session:
 
 - `GET /api/auth/me`
 - `POST /api/games` (upload)
-- `POST /api/games/{gameId}/publish`
+- `/api/admin/**` routes (ADMIN role), including draft review, publication and promoting an
+  existing registered account to admin
 - `PATCH /api/users/{username}/description`
 - `POST /api/games/{gameId}/comments`
 - `POST /api/comments/{commentId}/replies`
@@ -255,13 +266,13 @@ Returns `204 No Content` and deletes the cookie.
 ## The `UserResponse` shape
 
 ```json
-{ "id": 1, "username": "lucas2", "email": "lucas2@gmail.com" }
+{ "id": 1, "username": "lucas2", "email": "lucas2@gmail.com", "role": "USER" }
 ```
 
 Typed in the frontend as:
 
 ```ts
-export interface AuthUser { id: number; username: string; email: string; }
+export interface AuthUser { id: number; username: string; email: string; role?: "USER" | "ADMIN"; }
 ```
 
 The public profile endpoint returns a deliberately narrower payload without the email — see
@@ -296,7 +307,7 @@ The same "fetch the token, then POST" sequence is reimplemented in five places:
 - `services/authService.ts` → `postAuth`, `logout`
 - `services/commentService.ts` → `postComment`
 - `services/userService.ts` → `updateDescription`
-- `services/gameUploadService.ts` → `uploadGame`, `publishGame`
+- `services/gameUploadService.ts` → `uploadGame`
 
 Consolidating this into one wrapper in `services/api.ts` would be a safe refactor. It is
 listed in [Known Issues](Known-Issues.md).

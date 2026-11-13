@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { publishGame, uploadGame } from "./gameUploadService";
+import { uploadGame } from "./gameUploadService";
 
 let fetchMock: ReturnType<typeof vi.fn>;
 
@@ -37,20 +37,6 @@ describe("gameUploadService", () => {
     expect(form.get("archive")).toBe(archive);
   });
 
-  it("publishes an uploaded game using its encoded ID and CSRF token", async () => {
-    fetchMock
-      .mockResolvedValueOnce(jsonResponse({ headerName: "X-XSRF-TOKEN", token: "csrf" }))
-      .mockResolvedValueOnce(jsonResponse({ id: "g/1", title: "Tiny Quest", status: "PUBLISHED" }));
-
-    await expect(publishGame("g/1")).resolves.toMatchObject({ status: "PUBLISHED" });
-    expect(fetchMock.mock.calls[1][0]).toBe("http://localhost:8080/api/games/g%2F1/publish");
-    expect(fetchMock.mock.calls[1][1]).toEqual(expect.objectContaining({
-      method: "POST",
-      credentials: "include",
-      headers: { "X-XSRF-TOKEN": "csrf" },
-    }));
-  });
-
   it("does not send an upload when requesting the CSRF token fails", async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 403 }));
 
@@ -76,18 +62,4 @@ describe("gameUploadService", () => {
     )).rejects.toThrow("ZIP must contain index.html.");
   });
 
-  it("surfaces plain-text publish errors from the API", async () => {
-    fetchMock
-      .mockResolvedValueOnce(jsonResponse({ headerName: "X-XSRF-TOKEN", token: "csrf" }))
-      .mockResolvedValueOnce(new Response("Game is not owned by you.", { status: 403 }));
-
-    await expect(publishGame("g-1")).rejects.toThrow("Game is not owned by you.");
-  });
-
-  it("does not publish when requesting the CSRF token fails", async () => {
-    fetchMock.mockResolvedValueOnce(new Response(null, { status: 403 }));
-
-    await expect(publishGame("g-1")).rejects.toThrow("Could not prepare the publish request.");
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
 });

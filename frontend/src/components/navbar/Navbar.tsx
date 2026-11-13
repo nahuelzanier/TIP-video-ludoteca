@@ -7,6 +7,7 @@ import {
   type AuthUser,
 } from "../../services/authService";
 import { getRandomGame } from "../../services/gameService";
+import { isFirstAdminSetupAvailable } from "../../services/adminGameService";
 import { getUserProfile } from "../../services/userService";
 import "./Navbar.css";
 
@@ -20,6 +21,7 @@ function Navbar() {
   const [logoutError, setLogoutError] = useState("");
   const [pickingRandom, setPickingRandom] = useState(false);
   const [randomError, setRandomError] = useState("");
+  const [adminSetupAvailable, setAdminSetupAvailable] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,6 +38,13 @@ function Navbar() {
         if (!isCurrentRequest) return;
         setCurrentUser(user);
         setAvatarUrl(null);
+
+        if (user && user.role !== "ADMIN") {
+          const available = await isFirstAdminSetupAvailable().catch(() => false);
+          if (isCurrentRequest) setAdminSetupAvailable(available);
+        } else {
+          setAdminSetupAvailable(false);
+        }
 
         if (user) {
           try {
@@ -151,6 +160,8 @@ function Navbar() {
               {pickingRandom ? "Finding a game..." : "Random game"}
             </button>
             <NavLink className="site-header__upload" to="/games/upload">Upload a game</NavLink>
+            {currentUser?.role === "ADMIN" && <NavLink to="/admin/review">Review games</NavLink>}
+            {adminSetupAvailable && <NavLink to="/admin/setup">Set up first admin</NavLink>}
           </nav>
 
           <form className="site-header__search" role="search" onSubmit={handleSearch}>
@@ -247,6 +258,8 @@ function Navbar() {
               <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to={`/user/${encodeURIComponent(currentUser.username)}`} onClick={closeNavbar}>My profile</NavLink>
               <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/settings" onClick={closeNavbar}>Settings</NavLink>
               <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/favorites" onClick={closeNavbar}>My favorites</NavLink>
+              {currentUser.role === "ADMIN" && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/review" onClick={closeNavbar}>Review games</NavLink>}
+              {adminSetupAvailable && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/setup" onClick={closeNavbar}>Set up first admin</NavLink>}
             </>
           )}
         </nav>

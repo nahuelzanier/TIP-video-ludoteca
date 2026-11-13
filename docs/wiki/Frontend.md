@@ -225,7 +225,8 @@ Fully URL-driven with `useSearchParams` — `q`, `gamesPage`, `usersPage`.
 ### `UploadGame` (`/games/upload`)
 
 See [Game Upload](Game-Upload.md#the-frontend-flow). Guards on the session, validates the
-cover client-side, uploads as a draft, then offers a second button to publish.
+cover client-side, submits a draft and explains that an administrator must test it before
+publication. `/admin/review` is available to administrators for testing and approval.
 
 ### Placeholder pages
 
