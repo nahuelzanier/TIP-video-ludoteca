@@ -9,9 +9,11 @@ import {
   type ForumDiscussionDetail,
   type ForumReply,
 } from "../../services/forumService";
+import { useTranslation } from "../../services/i18n";
 import "./ForumDiscussionPage.css";
 
 function ForumDiscussionPage() {
+  const { t } = useTranslation();
   const { discussionId: rawId } = useParams();
   const location = useLocation();
   const discussionId = Number(rawId);
@@ -139,7 +141,7 @@ function ForumDiscussionPage() {
   if (loading) {
     return (
       <main className="forum-detail-page">
-        <p role="status">Loading discussion...</p>
+        <p role="status">{t("Loading discussion...")}</p>
       </main>
     );
   }
@@ -204,7 +206,7 @@ function ForumDiscussionPage() {
           </ul>
 
           <section className="forum-rating" aria-label="Discussion rating">
-            <h2>Rating</h2>
+            <h2>{t("Rating")}</h2>
             <p>
               {discussion.averageRating === null
                 ? "No ratings yet"
@@ -250,7 +252,7 @@ function ForumDiscussionPage() {
               </p>
             )}
 
-            {ratingSaved && <p role="status">Rating saved.</p>}
+            {ratingSaved && <p role="status">{t("Rating saved.")}</p>}
 
             {!user && (
               <p>
@@ -272,7 +274,7 @@ function ForumDiscussionPage() {
 
       <section className="forum-replies" aria-labelledby="forum-replies-title">
         <div className="forum-replies__header">
-          <h2 id="forum-replies-title">Replies ({replies.length})</h2>
+          <h2 id="forum-replies-title">{t("Replies")} ({replies.length})</h2>
           {user ? (
             <button type="button" onClick={() => startReply()}>
               Add a reply

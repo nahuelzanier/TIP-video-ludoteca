@@ -6,6 +6,7 @@ import { getGamesPage } from "../../services/gameService";
 import { searchEverything } from "../../services/searchService";
 import type { GameFilters as GameFiltersState } from "../../types/GameFilters";
 import type { PageResult, SearchResponse, SearchUser } from "../../types/Search";
+import { useTranslation } from "../../services/i18n";
 import "./Search.css";
 
 type SectionKey = "gamesPage" | "usersPage";
@@ -51,6 +52,7 @@ function buildKey(
 }
 
 function Search() {
+  const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const query = searchParams.get("q") ?? "";
@@ -168,7 +170,7 @@ function Search() {
     if (!canLoadResults) {
         return (
             <main className="search-page">
-                <h1>Search</h1>
+                <h1>{t("Search")}</h1>
                 <p className="search-hint">
                     Search for games or creators, or choose a category from the home page.
                 </p>
@@ -188,7 +190,7 @@ function Search() {
         return (
             <main className="search-page">
                 <h1>{term ? `Results for “${term}”` : "Games by category"}</h1>
-                <p className="search-status">Loading games...</p>
+                <p className="search-status">{t("Loading games...")}</p>
             </main>
         );
     }
@@ -210,13 +212,13 @@ function Search() {
             )}
 
             <section className="search-section">
-                <h2>Games</h2>
+                <h2>{t("Games")}</h2>
                 <GameFilters
                     filters={{ tagIds: selectedTagIds, minRating }}
                     onChange={updateFilters}
                 />
 
-                {error && <p className="search-empty">Could not search games.</p>}
+                {error && <p className="search-empty">{t("Could not search games.")}</p>}
 
                 {isEmptyState && results && results.games.items.length === 0 && (
                     <p className="search-empty">
@@ -239,15 +241,15 @@ function Search() {
             {isSearchable && (
               <>
                 <section className="search-section">
-                    <h2>Forums</h2>
+                    <h2>{t("Forums")}</h2>
                     <p className="search-empty">
                         Forum search will be available soon.
                     </p>
                 </section>
                 <section className="search-section">
-                <h2>Users</h2>
+                <h2>{t("Users")}</h2>
 
-                {error && <p className="search-empty">Could not search users.</p>}
+                {error && <p className="search-empty">{t("Could not search users.")}</p>}
 
                 {isEmptyState && results && results.users.items.length === 0 && (
                     <p className="search-empty">

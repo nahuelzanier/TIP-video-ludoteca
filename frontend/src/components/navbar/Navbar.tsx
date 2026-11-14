@@ -9,9 +9,11 @@ import {
 import { getRandomGame } from "../../services/gameService";
 import { isFirstAdminSetupAvailable } from "../../services/adminGameService";
 import { getUserProfile } from "../../services/userService";
+import { useTranslation } from "../../services/i18n";
 import "./Navbar.css";
 
 function Navbar() {
+  const { t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [accountLoading, setAccountLoading] = useState(true);
@@ -143,13 +145,13 @@ function Navbar() {
             </svg>
             <span className="site-header__brand-copy">
               <strong>Ludarium</strong>
-              <small>Your space to play</small>
+            <small>{t("Your space to play")}</small>
             </span>
           </NavLink>
 
-          <nav className="site-header__nav" aria-label="Main navigation">
-            <NavLink to="/" end>Explore</NavLink>
-            <NavLink to="/forum">Community</NavLink>
+          <nav className="site-header__nav" aria-label={t("Main navigation")}>
+            <NavLink to="/" end>{t("Explore")}</NavLink>
+            <NavLink to="/forum">{t("Community")}</NavLink>
             <button
               className="site-header__random"
               type="button"
@@ -157,21 +159,21 @@ function Navbar() {
               disabled={pickingRandom}
             >
               <Dices size={15} aria-hidden="true" />
-              {pickingRandom ? "Finding a game..." : "Random game"}
+              {pickingRandom ? t("Finding a game...") : t("Random game")}
             </button>
-            <NavLink className="site-header__upload" to="/games/upload">Upload a game</NavLink>
-            {currentUser?.role === "ADMIN" && <NavLink to="/admin/review">Review games</NavLink>}
-            {adminSetupAvailable && <NavLink to="/admin/setup">Set up first admin</NavLink>}
+            <NavLink className="site-header__upload" to="/games/upload">{t("Upload a game")}</NavLink>
+            {currentUser?.role === "ADMIN" && <NavLink to="/admin/review">{t("Review games")}</NavLink>}
+            {adminSetupAvailable && <NavLink to="/admin/setup">{t("Set up first admin")}</NavLink>}
           </nav>
 
           <form className="site-header__search" role="search" onSubmit={handleSearch}>
-            <label className="visually-hidden" htmlFor="navbar-search">Search games</label>
+            <label className="visually-hidden" htmlFor="navbar-search">{t("Search games")}</label>
             <input
               id="navbar-search"
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search games, tags, or creators..."
+              placeholder={t("Search games, tags, or creators...")}
             />
             <button type="submit" aria-label="Search">
               <Search size={16} aria-hidden="true" />
@@ -179,13 +181,13 @@ function Navbar() {
           </form>
 
           {accountLoading ? (
-            <span className="site-header__account-loading" role="status">Loading account...</span>
+              <span className="site-header__account-loading" role="status">{t("Loading account...")}</span>
           ) : currentUser ? (
             <div className="site-header__account-group">
               <NavLink
                 className="site-header__account"
                 to={`/user/${encodeURIComponent(currentUser.username)}`}
-                aria-label={`View ${currentUser.username}'s profile`}
+                aria-label={`${t("View profile")}: ${currentUser.username}`}
                 title={currentUser.username}
               >
                 {avatarUrl ? (
@@ -203,23 +205,23 @@ function Navbar() {
               </NavLink>
               {accountError && (
                 <span className="site-header__account-error" role="status">
-                  Profile picture unavailable
+                  {t("Profile picture unavailable")}
                 </span>
               )}
             </div>
           ) : accountError && !currentUser ? (
-            <span className="site-header__account-error" role="alert">Account unavailable</span>
+            <span className="site-header__account-error" role="alert">{t("Account unavailable")}</span>
           ) : (
             <div className="site-header__auth">
-              <NavLink to="/login">Log in</NavLink>
-              <NavLink className="site-header__register" to="/register">Sign up</NavLink>
+              <NavLink to="/login">{t("Log in")}</NavLink>
+              <NavLink className="site-header__register" to="/register">{t("Sign up")}</NavLink>
             </div>
           )}
 
           <button
             className="navbar-hamburger"
             type="button"
-            aria-label="Open menu"
+            aria-label={t("Open menu")}
             aria-expanded={isOpen}
             onClick={() => setIsOpen(true)}
           >
@@ -251,27 +253,27 @@ function Navbar() {
           </button>
         </header>
 
-        <nav className="navbar-nav" aria-label="Main menu">
-          <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/" end onClick={closeNavbar}>Explore</NavLink>
+        <nav className="navbar-nav" aria-label={t("Main menu")}>
+          <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/" end onClick={closeNavbar}>{t("Explore")}</NavLink>
           {currentUser && (
             <>
-              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to={`/user/${encodeURIComponent(currentUser.username)}`} onClick={closeNavbar}>My profile</NavLink>
-              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/settings" onClick={closeNavbar}>Settings</NavLink>
-              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/favorites" onClick={closeNavbar}>My favorites</NavLink>
-              {currentUser.role === "ADMIN" && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/review" onClick={closeNavbar}>Review games</NavLink>}
-              {adminSetupAvailable && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/setup" onClick={closeNavbar}>Set up first admin</NavLink>}
+              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to={`/user/${encodeURIComponent(currentUser.username)}`} onClick={closeNavbar}>{t("My profile")}</NavLink>
+              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/settings" onClick={closeNavbar}>{t("Settings")}</NavLink>
+              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/favorites" onClick={closeNavbar}>{t("My favorites")}</NavLink>
+              {currentUser.role === "ADMIN" && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/review" onClick={closeNavbar}>{t("Review games")}</NavLink>}
+              {adminSetupAvailable && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/setup" onClick={closeNavbar}>{t("Set up first admin")}</NavLink>}
             </>
           )}
         </nav>
 
         <div className="navbar-divider" />
 
-        <nav className="navbar-nav" aria-label="Actions">
+        <nav className="navbar-nav" aria-label={t("Actions")}>
           <button className="navbar-button" type="button" onClick={handleRandomGame} disabled={pickingRandom}>
-            {pickingRandom ? "Finding a game..." : "Random game"}
+            {pickingRandom ? t("Finding a game...") : t("Random game")}
           </button>
-          <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/forum" onClick={closeNavbar}>Community</NavLink>
-          <NavLink className="navbar-link" to="/games/upload" onClick={closeNavbar}>Upload a game</NavLink>
+          <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/forum" onClick={closeNavbar}>{t("Community")}</NavLink>
+          <NavLink className="navbar-link" to="/games/upload" onClick={closeNavbar}>{t("Upload a game")}</NavLink>
         </nav>
 
         {randomError && <p className="navbar-error" role="alert">{randomError}</p>}
@@ -280,14 +282,14 @@ function Navbar() {
 
         {!currentUser && !accountLoading && !accountError && (
           <div className="navbar-nav navbar-nav--auth">
-            <NavLink className="navbar-link" to="/login" onClick={closeNavbar}>Log in</NavLink>
-            <NavLink className="navbar-link" to="/register" onClick={closeNavbar}>Sign up</NavLink>
+          <NavLink className="navbar-link" to="/login" onClick={closeNavbar}>{t("Log in")}</NavLink>
+            <NavLink className="navbar-link" to="/register" onClick={closeNavbar}>{t("Sign up")}</NavLink>
           </div>
         )}
 
         {currentUser && (
           <button className="navbar-button navbar-button--logout" type="button" onClick={handleLogout} disabled={loggingOut}>
-            {loggingOut ? "Logging out..." : "Log out"}
+            {loggingOut ? t("Logging out...") : t("Log out")}
           </button>
         )}
 

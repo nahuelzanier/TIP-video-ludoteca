@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ForumDiscussion } from "../../services/forumService";
+import { useTranslation } from "../../services/i18n";
 import "./ForumDiscussionCard.css";
 
 interface ForumDiscussionCardProps {
@@ -7,6 +8,7 @@ interface ForumDiscussionCardProps {
 }
 
 function ForumDiscussionCard({ discussion }: ForumDiscussionCardProps) {
+  const { t } = useTranslation();
   return (
     <Link className="forum-card" to={`/forum/${discussion.id}`}>
       {discussion.coverImageUrl ? (
@@ -46,7 +48,7 @@ function ForumDiscussionCard({ discussion }: ForumDiscussionCardProps) {
         </div>
         <h2>{discussion.title}</h2>
         <p className="forum-card__description">{discussion.description}</p>
-        <p className="forum-card__game">Game: <strong>{discussion.gameTitle}</strong></p>
+        <p className="forum-card__game">{t("Game:")} <strong>{discussion.gameTitle}</strong></p>
         <ul className="forum-tags" aria-label="Discussion tags">
           {discussion.tags.map((tag) => <li key={tag.id}>{tag.name}</li>)}
         </ul>

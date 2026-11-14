@@ -9,21 +9,23 @@ import {
 } from "../services/forumService";
 import { getGamesPage } from "../services/gameService";
 import { getAvailableTags, type TagOption } from "../services/tagService";
+import { useTranslation } from "../services/i18n";
 import "./Home.css";
 
-function relativeTime(dateValue: string): string {
+function relativeTime(dateValue: string, t: (value: string) => string): string {
   const timestamp = new Date(dateValue).getTime();
 
   if (!Number.isFinite(timestamp)) return "recently";
 
   const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
-  if (elapsedSeconds < 60) return "just now";
-  if (elapsedSeconds < 3600) return `${Math.floor(elapsedSeconds / 60)} min ago`;
-  if (elapsedSeconds < 86400) return `${Math.floor(elapsedSeconds / 3600)} hr ago`;
-  return `${Math.floor(elapsedSeconds / 86400)} days ago`;
+  if (elapsedSeconds < 60) return t("just now");
+  if (elapsedSeconds < 3600) return `${Math.floor(elapsedSeconds / 60)} ${t("min ago")}`;
+  if (elapsedSeconds < 86400) return `${Math.floor(elapsedSeconds / 3600)} ${t("hr ago")}`;
+  return `${Math.floor(elapsedSeconds / 86400)} ${t("days ago")}`;
 }
 
 function Home() {
+  const { t } = useTranslation();
   const [games, setGames] = useState<Game[]>([]);
   const [tags, setTags] = useState<TagOption[]>([]);
   const [discussions, setDiscussions] = useState<ForumDiscussion[]>([]);
@@ -113,20 +115,19 @@ function Home() {
         <section className="home__hero" aria-labelledby="home-title">
           <div className="home__hero-copy">
             <h1 id="home-title">
-              Your place
+              {t("Your place")}
               <br />
-              to play
+              {t("to play")}
             </h1>
             <p className="home__intro">
-              Discover incredible indie games, support their creators, and
-              become part of the community.
+              {t("Discover incredible indie games, support their creators, and become part of the community.")}
             </p>
             <div className="home__hero-actions">
               <button className="home__button home__button--primary" onClick={handleExplore}>
-                Explore games
+                {t("Explore games")}
               </button>
               <button className="home__button home__button--outline" onClick={handleUpload}>
-                Upload your game
+                {t("Upload a game")}
               </button>
             </div>
           </div>
@@ -137,13 +138,13 @@ function Home() {
 
         <section className="home__featured" aria-labelledby="featured-title">
           <div className="home__section-heading">
-            <h2 id="featured-title">Featured games</h2>
+            <h2 id="featured-title">{t("Featured games")}</h2>
           </div>
 
-          {gamesLoading && <p className="home__message">Loading games...</p>}
+          {gamesLoading && <p className="home__message">{t("Loading games...")}</p>}
           {gameError && <p className="home__message home__message--error" role="alert">{gameError}</p>}
           {!gamesLoading && !gameError && games.length === 0 && (
-            <p className="home__message">No games have been published yet. Be the first to share one!</p>
+            <p className="home__message">{t("No games have been published yet. Be the first to share one!")}</p>
           )}
           {!gameError && games.length > 0 && (
             <div className="home__game-grid">
@@ -170,13 +171,13 @@ function Home() {
         <div className="home__community-grid">
           <section className="home__categories" aria-labelledby="categories-title">
             <div className="home__section-heading">
-              <h2 id="categories-title">Browse by category</h2>
+              <h2 id="categories-title">{t("Browse by category")}</h2>
               <Sparkles size={16} aria-hidden="true" />
             </div>
-            {tagsLoading && <p className="home__message">Loading categories...</p>}
+            {tagsLoading && <p className="home__message">{t("Loading categories...")}</p>}
             {tagError && <p className="home__message home__message--error" role="alert">{tagError}</p>}
             {!tagsLoading && !tagError && tags.length === 0 && (
-              <p className="home__message">No categories are available yet.</p>
+              <p className="home__message">{t("No categories are available yet.")}</p>
             )}
             {!tagError && tags.length > 0 && (
               <div className="home__category-grid">
@@ -197,15 +198,15 @@ function Home() {
 
           <section className="home__activity" aria-labelledby="activity-title">
             <div className="home__section-heading">
-              <h2 id="activity-title">Recent activity</h2>
+              <h2 id="activity-title">{t("Recent activity")}</h2>
               <Link className="home__text-link" to="/forum">
-                Community <ArrowRight size={15} aria-hidden="true" />
+                {t("Community")} <ArrowRight size={15} aria-hidden="true" />
               </Link>
             </div>
-            {discussionsLoading && <p className="home__message">Loading activity...</p>}
+            {discussionsLoading && <p className="home__message">{t("Loading activity...")}</p>}
             {discussionError && <p className="home__message home__message--error" role="alert">{discussionError}</p>}
             {!discussionsLoading && !discussionError && discussions.length === 0 && (
-              <p className="home__message">No discussions yet. Start one in the community!</p>
+              <p className="home__message">{t("No discussions yet. Start one in the community!")}</p>
             )}
             {!discussionError && discussions.length > 0 && (
               <div className="home__activity-list">
@@ -237,12 +238,12 @@ function Home() {
                     <span className="home__activity-copy">
                       <span className="home__activity-title">{discussion.title}</span>
                       <span className="home__activity-meta">
-                        {discussion.authorUsername} · {relativeTime(discussion.createdAt)}
+                        {discussion.authorUsername} · {relativeTime(discussion.createdAt, t)}
                       </span>
                       <span className="home__activity-rating" aria-label="Discussion rating">
                         <Star size={13} aria-hidden="true" />
                         {discussion.averageRating === null
-                          ? "No ratings"
+                          ? t("No ratings")
                           : `${discussion.averageRating.toFixed(1)} / 5 (${discussion.ratingCount})`}
                       </span>
                     </span>

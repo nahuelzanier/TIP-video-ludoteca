@@ -1,0 +1,182 @@
+:root[data-theme="light"] .site-header {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+:root[data-theme="light"] .site-header__brand-copy strong,
+:root[data-theme="light"] .site-header__nav a,
+:root[data-theme="light"] .site-header__random,
+:root[data-theme="light"] .site-header__auth > a {
+  color: var(--text-h);
+}
+
+:root[data-theme="light"] .site-header__brand-copy small,
+:root[data-theme="light"] .site-header__nav a:hover,
+:root[data-theme="light"] .site-header__random:hover:not(:disabled),
+:root[data-theme="light"] .site-header__auth > a:hover {
+  color: var(--accent);
+}
+
+:root[data-theme="light"] .site-header__search {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+
+:root[data-theme="light"] .site-header__search input {
+  color: var(--text);
+}
+
+:root[data-theme="light"] .site-header__search input::placeholder {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] .site-header__search button {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] .navbar-drawer {
+  color: var(--text);
+  background: var(--surface);
+}
+
+:root[data-theme="light"] .navbar-header,
+:root[data-theme="light"] .navbar-divider {
+  border-color: var(--border);
+}
+
+:root[data-theme="light"] .navbar-brand,
+:root[data-theme="light"] .navbar-close,
+:root[data-theme="light"] .navbar-link,
+:root[data-theme="light"] .navbar-button {
+  color: var(--text-h);
+}
+
+:root[data-theme="light"] .navbar-link:hover,
+:root[data-theme="light"] .navbar-button:hover {
+  background: var(--surface-muted);
+}
+
+:root[data-theme="light"] .home {
+  --home-bg: #f6f6f8;
+  --home-surface: #fff;
+  --home-surface-hover: #f3f0f7;
+  --home-border: #e5e4e7;
+  --home-text: #1f1b26;
+  --home-muted: #746e7e;
+  --home-pink: #b4235e;
+  --home-pink-light: #a91f57;
+}
+
+:root[data-theme="light"] .auth-page {
+  --auth-bg: #f6f6f8;
+  --auth-surface: #fff;
+  --auth-surface-muted: #f3f0f7;
+  --auth-border: #e5e4e7;
+  --auth-text: #4b4554;
+  --auth-text-h: #1f1b26;
+  --auth-muted: #746e7e;
+  --auth-pink: #b4235e;
+  --auth-pink-hover: #94194c;
+  --auth-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .game-page,
+:root[data-theme="light"] .user-page,
+:root[data-theme="light"] .admin-review,
+:root[data-theme="light"] .admin-setup {
+  --text: #4b4554;
+  --text-h: #1f1b26;
+  --text-muted: #746e7e;
+  --surface: #fff;
+  --surface-muted: #f3f0f7;
+  --border: #e5e4e7;
+  --border-strong: #d5d1dc;
+  --accent: #6f1ff0;
+  --accent-hover: #5a13d2;
+  --accent-highlight: #a15df0;
+  --accent-border: #b28aff;
+  --accent-bg: rgba(111, 31, 240, 0.08);
+  --accent-bg-strong: rgba(111, 31, 240, 0.15);
+  --error: #b42318;
+  --success: #16713b;
+  --content-width: 1200px;
+  color: var(--text);
+  background: #f6f6f8;
+}
+
+:root[data-theme="light"] .forum-page {
+  --forum-bg: #f6f6f8;
+  --forum-panel: #fff;
+  --forum-panel-hover: #f8f5fc;
+  --forum-border: #e5e4e7;
+  --forum-text: #1f1b26;
+  --forum-muted: #746e7e;
+  --forum-pink: #b4235e;
+  --forum-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .forum-detail-page {
+  --forum-detail-bg: #f6f6f8;
+  --forum-detail-panel: #fff;
+  --forum-detail-border: #e5e4e7;
+  --forum-detail-text: #1f1b26;
+  --forum-detail-muted: #746e7e;
+  --forum-detail-pink: #b4235e;
+  --forum-detail-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .forum-new-page {
+  --form-bg: #f6f6f8;
+  --form-panel: #fff;
+  --form-panel-muted: #f3f0f7;
+  --form-border: #e5e4e7;
+  --form-border-strong: #d5d1dc;
+  --form-text: #4b4554;
+  --form-text-strong: #1f1b26;
+  --form-muted: #746e7e;
+  --form-pink: #b4235e;
+  --form-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .search-page {
+  --search-bg: #f6f6f8;
+  --search-surface: #fff;
+  --search-surface-muted: #f3f0f7;
+  --search-border: #e5e4e7;
+  --search-border-strong: #d5d1dc;
+  --search-text: #4b4554;
+  --search-text-h: #1f1b26;
+  --search-muted: #746e7e;
+  --search-pink: #b4235e;
+  --search-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .upload-game-page {
+  --upload-bg: #f6f6f8;
+  --upload-panel: #fff;
+  --upload-field: #f8f7fa;
+  --upload-border: #e5e4e7;
+  --upload-text: #1f1b26;
+  --upload-muted: #746e7e;
+  --upload-pink: #b4235e;
+  --upload-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .forum-card,
+:root[data-theme="light"] .user-activity {
+  --forum-panel: #fff;
+  --forum-panel-hover: #f8f5fc;
+  --forum-border: #e5e4e7;
+  --forum-text: #1f1b26;
+  --forum-muted: #746e7e;
+  --forum-purple: #6f1ff0;
+}
+
+:root[data-theme="light"] .forum-card__game strong {
+  color: #3b3544;
+}
+
+:root[data-theme="light"] .admin-review__test {
+  color: #5a13d2;
+}

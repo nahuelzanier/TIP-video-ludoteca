@@ -3,9 +3,11 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { getCurrentUser, type AuthUser } from "../../services/authService";
 import { getDraftGames, promoteUserToAdmin, publishDraft, type ReviewGame } from "../../services/adminGameService";
 import { API_BASE_URL, resolveAssetUrl } from "../../services/api";
+import { useTranslation } from "../../services/i18n";
 import "./AdminReview.css";
 
 function AdminReview() {
+  const { t } = useTranslation();
   const location = useLocation();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [checking, setChecking] = useState(true);
@@ -75,44 +77,44 @@ function AdminReview() {
     }
   }
 
-  if (checking) return <main className="admin-review"><p>Checking session…</p></main>;
+  if (checking) return <main className="admin-review"><p>{t("Checking session…")}</p></main>;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (user.role !== "ADMIN") return <main className="admin-review"><p role="alert">This page is only available to administrators.</p><p><Link to="/admin/setup">Set up the first administrator</Link></p></main>;
 
   return (
     <main className="admin-review">
       <header className="admin-review__header">
-        <p className="admin-review__eyebrow">Admin tools</p>
-        <h1>Game review</h1>
-        <p>Review each submitted game. Open it when you are ready to test; publishing makes it visible to everyone.</p>
+        <p className="admin-review__eyebrow">{t("Admin tools")}</p>
+        <h1>{t("Game review")}</h1>
+        <p>{t("Review each submitted game. Open it when you are ready to test; publishing makes it visible to everyone.")}</p>
       </header>
       {error && <p className="admin-review__message admin-review__message--error" role="alert">{error}</p>}
       {message && <p className="admin-review__message" role="status">{message}</p>}
       <section className="admin-review__manage">
-        <h2>Add an administrator</h2>
-        <p>First, the person must register a normal account. Enter the email they used to sign up.</p>
+        <h2>{t("Add an administrator")}</h2>
+        <p>{t("First, the person must register a normal account. Enter the email they used to sign up.")}</p>
         <form onSubmit={(event) => void handlePromoteAdmin(event)}>
-          <label htmlFor="new-admin-email">Registered account email</label>
+          <label htmlFor="new-admin-email">{t("Registered account email")}</label>
           <input id="new-admin-email" type="email" value={newAdminEmail} onChange={(event) => setNewAdminEmail(event.target.value)} required maxLength={254} />
           <button type="submit" disabled={promoting}>{promoting ? "Adding…" : "Grant admin access"}</button>
         </form>
       </section>
-      {loading ? <p>Loading drafts…</p> : games.length === 0 ? (
-        <section className="admin-review__empty"><h2>No drafts waiting</h2><p>New game submissions will appear here for testing.</p></section>
+      {loading ? <p>{t("Loading drafts…")}</p> : games.length === 0 ? (
+        <section className="admin-review__empty"><h2>{t("No drafts waiting")}</h2><p>{t("New game submissions will appear here for testing.")}</p></section>
       ) : (
         <>
-        <h2 className="admin-review__section-title">Pending games <span>{games.length}</span></h2>
+        <h2 className="admin-review__section-title">{t("Pending games")} <span>{games.length}</span></h2>
         <div className="admin-review__list">
           {games.map((game) => (
             <article className="admin-review__card" key={game.id}>
               <img className="admin-review__cover" src={resolveAssetUrl(game.image) ?? undefined} alt={`Cover for ${game.title}`} />
               <div className="admin-review__card-content">
-                <p className="admin-review__eyebrow">Pending review</p>
+                <p className="admin-review__eyebrow">{t("Pending review")}</p>
                 <h3>{game.title}</h3>
                 <p className="admin-review__description">{game.description || "No description provided."}</p>
-                <p className="admin-review__meta">By {game.ownerUsername} · {new Date(game.createdAt).toLocaleDateString("es-AR")}</p>
+                <p className="admin-review__meta">{t("By")} {game.ownerUsername} · {new Date(game.createdAt).toLocaleDateString()}</p>
                 <div className="admin-review__actions">
-                  <a className="admin-review__test" href={`${API_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`} target="_blank" rel="noreferrer">Test game</a>
+                  <a className="admin-review__test" href={`${API_BASE_URL}/games/${encodeURIComponent(game.id)}/index.html`} target="_blank" rel="noreferrer">{t("Test game")}</a>
                   <button type="button" onClick={() => void handlePublish(game)} disabled={busyId !== ""}>
                     {busyId === game.id ? "Publishing…" : "Approve and publish"}
                   </button>
