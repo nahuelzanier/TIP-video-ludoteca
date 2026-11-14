@@ -3,6 +3,7 @@ package com.tip_video_ludoteca.controller;
 import com.tip_video_ludoteca.config.SecurityConfig;
 import com.tip_video_ludoteca.favorites.FavoriteService;
 import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.games.GameCustomizationService;
 import com.tip_video_ludoteca.games.GameRecommendationSummary;
 import com.tip_video_ludoteca.games.GameRepository;
 import com.tip_video_ludoteca.games.GameStatus;
@@ -54,6 +55,9 @@ class GameApiControllerTests {
 
     @MockitoBean
     private FavoriteService favoriteService;
+
+    @MockitoBean
+    private GameCustomizationService gameCustomizationService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -196,6 +200,9 @@ class GameApiControllerTests {
     @Test
     void returnsPublishedGameByIdButHidesDraftAndUnknownGames() throws Exception {
         given(gameRepository.findById(GAME_ID)).willReturn(Optional.of(publishedGame()));
+        given(gameCustomizationService.get(GAME_ID)).willReturn(
+                new GameCustomizationService.Customization(
+                        "#102030", "#d080ff", "#eeeeee", "GEORGIA", "GRADIENT"));
         given(gameRepository.findById("draft"))
                 .willReturn(Optional.of(game(GameStatus.DRAFT)));
         given(gameRepository.findById("missing")).willReturn(Optional.empty());
@@ -203,7 +210,9 @@ class GameApiControllerTests {
         mockMvc.perform(get("/api/games/{gameId}", GAME_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Aventura"))
-                .andExpect(jsonPath("$.uploaderUsername").value("autor"));
+                .andExpect(jsonPath("$.uploaderUsername").value("autor"))
+                .andExpect(jsonPath("$.customization.backgroundColor").value("#102030"))
+                .andExpect(jsonPath("$.customization.fontFamily").value("GEORGIA"));
         mockMvc.perform(get("/api/games/{gameId}", "draft"))
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/api/games/{gameId}", "missing"))

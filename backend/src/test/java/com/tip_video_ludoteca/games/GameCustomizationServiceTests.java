@@ -44,7 +44,9 @@ class GameCustomizationServiceTests {
 
     @Test
     void savesChangesForTheGameOwner() {
-        Game game = game("creator", GameStatus.PUBLISHED);
+        // The current username may differ from the name stored on older game data;
+        // the stable user ID still grants ownership.
+        Game game = game(user("previous_name", "creator@test.com", 7L), GameStatus.PUBLISHED);
         when(games.findById(GAME_ID)).thenReturn(Optional.of(game));
         when(users.findByEmailIgnoreCase("creator@test.com")).thenReturn(Optional.of(user("creator", "creator@test.com", 7L)));
         when(customizations.findByGameId(GAME_ID)).thenReturn(Optional.empty());
@@ -78,6 +80,10 @@ class GameCustomizationServiceTests {
 
     private Game game(String username, GameStatus status) {
         User owner = user(username, username + "@test.com", 7L);
+        return game(owner, status);
+    }
+
+    private Game game(User owner, GameStatus status) {
         return new Game(GAME_ID, owner, "Aventura", "", null, "index.html", status);
     }
 
