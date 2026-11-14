@@ -4,9 +4,11 @@ import GameGrid from "../../components/games/GameGrid";
 import { getCurrentUser, type AuthUser } from "../../services/authService";
 import { getFavoriteGamesPage } from "../../services/favoriteService";
 import type { Game } from "../../types/Game";
+import { useTranslation } from "../../services/i18n";
 import "./Favorites.css";
 
 function Favorites() {
+  const { t } = useTranslation();
   const location = useLocation();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [games, setGames] = useState<Game[]>([]);
@@ -82,14 +84,14 @@ function Favorites() {
   return (
     <main className="favorites-page">
       <header className="favorites-header">
-        <h1>My favorites</h1>
+        <h1>{t("My favorites")}</h1>
       </header>
 
-      {loading && <p className="favorites-status">Loading favorites...</p>}
+      {loading && <p className="favorites-status">{t("Loading favorites...")}</p>}
       {!loading && error && <p className="favorites-status" role="alert">{error}</p>}
 
       {!loading && !error && games.length === 0 && (
-        <p className="favorites-empty">You don't have any favorites yet.</p>
+        <p className="favorites-empty">{t("You don't have any favorites yet.")}</p>
       )}
 
       {!loading && !error && games.length > 0 && (

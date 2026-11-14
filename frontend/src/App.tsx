@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
+import { getCurrentUser } from "./services/authService";
+import { applyUserSettings, getUserSettings } from "./services/settingsService";
 
 import Home from "./pages/Home";
 import Game from "./pages/Game";
@@ -17,6 +20,30 @@ import AdminReview from "./pages/admin/AdminReview";
 import AdminSetup from "./pages/admin/AdminSetup";
 
 function MainLayout() {
+  useEffect(() => {
+    let isCurrentRequest = true;
+    const loadPreferences = () => {
+      getCurrentUser()
+        .then(async (user) => {
+          if (!user) {
+            document.documentElement.dataset.theme = "light";
+            document.documentElement.lang = "en";
+            return;
+          }
+          const settings = await getUserSettings();
+          if (isCurrentRequest) applyUserSettings(settings);
+        })
+        .catch(() => undefined);
+    };
+    loadPreferences();
+    window.addEventListener("ludarium:auth-changed", loadPreferences);
+
+    return () => {
+      isCurrentRequest = false;
+      window.removeEventListener("ludarium:auth-changed", loadPreferences);
+    };
+  }, []);
+
   return (
     <>
       <Navbar />

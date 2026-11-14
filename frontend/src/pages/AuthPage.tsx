@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { login, register } from "../services/authService";
+import { useTranslation } from "../services/i18n";
 import "./AuthPage.css";
 
 interface AuthPageProps {
@@ -8,6 +9,7 @@ interface AuthPageProps {
 }
 
 function AuthPage({ mode }: AuthPageProps) {
+  const { t } = useTranslation();
   const isRegister = mode === "register";
 
   const [username, setUsername] = useState("");
@@ -58,21 +60,21 @@ function AuthPage({ mode }: AuthPageProps) {
     <main className="auth-page">
       <section className="auth-card">
         <Link className="auth-back" to="/">
-          ← Back to Ludarium
+          ← {t("Back to Ludarium")}
         </Link>
 
-        <h1>{isRegister ? "Create account" : "Log in"}</h1>
+        <h1>{t(isRegister ? "Create account" : "Log in")}</h1>
 
         <p className="auth-description">
           {isRegister
-            ? "Create an account to join the community."
-            : "Log in to your Ludarium account."}
+            ? t("Create an account to join the community.")
+            : t("Log in to your Ludarium account.")}
         </p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {isRegister && (
             <label>
-              Username
+              {t("Username")}
               <input
                 type="text"
                 value={username}
@@ -81,14 +83,14 @@ function AuthPage({ mode }: AuthPageProps) {
                 minLength={3}
                 maxLength={30}
                 pattern="[A-Za-z0-9_]+"
-                title="Use letters, numbers, or underscores."
+                title={t("Use letters, numbers, or underscores.")}
                 required
               />
             </label>
           )}
 
           <label>
-            Email address
+            {t("Email address")}
             <input
               type="email"
               value={email}
@@ -99,7 +101,7 @@ function AuthPage({ mode }: AuthPageProps) {
           </label>
 
           <label>
-            Password
+            {t("Password")}
             <input
               type="password"
               value={password}
@@ -113,7 +115,7 @@ function AuthPage({ mode }: AuthPageProps) {
 
           {isRegister && (
             <label>
-              Confirm password
+              {t("Confirm password")}
               <input
                 type="password"
                 value={confirmPassword}
@@ -126,22 +128,22 @@ function AuthPage({ mode }: AuthPageProps) {
             </label>
           )}
 
-          {error && <p className="auth-feedback auth-error">{error}</p>}
-          {message && <p className="auth-feedback auth-success">{message}</p>}
+          {error && <p className="auth-feedback auth-error">{t(error)}</p>}
+          {message && <p className="auth-feedback auth-success">{t(message)}</p>}
 
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading
-              ? "Please wait..."
+              ? t("Please wait...")
               : isRegister
-                ? "Create account"
-                : "Log in"}
+                ? t("Create account")
+                : t("Log in")}
           </button>
         </form>
 
         <p className="auth-switch">
-          {isRegister ? "Already have an account?" : "Don't have an account yet?"}{" "}
+          {t(isRegister ? "Already have an account?" : "Don't have an account yet?")}{" "}
           <Link to={isRegister ? "/login" : "/register"}>
-            {isRegister ? "Log in" : "Sign up"}
+            {t(isRegister ? "Log in" : "Sign up")}
           </Link>
         </p>
       </section>

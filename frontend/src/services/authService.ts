@@ -41,7 +41,11 @@ async function postAuth(
     throw new Error(await readError(response));
   }
 
-  return response.json();
+  const user: AuthUser = await response.json();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("ludarium:auth-changed"));
+  }
+  return user;
 }
 
 export function register(
@@ -95,5 +99,8 @@ export async function logout(): Promise<void> {
 
   if (!response.ok) {
     throw new Error("Could not log out. Please try again.");
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("ludarium:auth-changed"));
   }
 }

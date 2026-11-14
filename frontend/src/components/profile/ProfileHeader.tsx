@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Pencil, Camera, LogOut } from "lucide-react";
+import { Pencil, Camera, LogOut, Settings } from "lucide-react";
+import { useTranslation } from "../../services/i18n";
 import "./ProfileHeader.css";
 
 const EMPTY_DESCRIPTION = "This user hasn't added a description yet.";
@@ -32,6 +33,7 @@ function ProfileHeader({
     onUpload,
     onLogout,
 }: ProfileHeaderProps) {
+    const { t } = useTranslation();
     const hasDescription = Boolean(description && description.trim());
     const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
@@ -57,8 +59,8 @@ function ProfileHeader({
                         className="profile-avatar-edit"
                         type="button"
                         onClick={onChangePhoto}
-                        aria-label="Change profile picture"
-                        title="Change profile picture"
+                            aria-label={t("Change profile picture")}
+                            title={t("Change profile picture")}
                     >
                         <Camera size={18} aria-hidden="true" />
                     </button>
@@ -69,14 +71,14 @@ function ProfileHeader({
                 <h1 className="profile-header-name">{username}</h1>
 
                 <div className="profile-description-header">
-                    <h2 className="profile-description-title">About</h2>
+                    <h2 className="profile-description-title">{t("About")}</h2>
                     {isOwnProfile && (
                         <button
                             className="profile-description-edit"
                             type="button"
                             onClick={onEdit}
-                            aria-label="Edit description"
-                            title="Edit description"
+                            aria-label={t("Edit description")}
+                            title={t("Edit description")}
                         >
                             <Pencil size={16} aria-hidden="true" />
                         </button>
@@ -88,19 +90,24 @@ function ProfileHeader({
                         hasDescription ? "" : " profile-description--empty"
                     }`}
                 >
-                    {hasDescription ? description : EMPTY_DESCRIPTION}
+                    {hasDescription ? description : t(EMPTY_DESCRIPTION)}
                 </p>
             </div>
 
             {isOwnProfile && (
                 <div className="profile-actions">
                     <button className="profile-upload" type="button" onClick={onUpload}>
-                        Upload a game
+                        {t("Upload a game")}
                     </button>
+
+                    <Link className="profile-settings" to="/settings">
+                        <Settings size={16} aria-hidden="true" />
+                        Settings
+                    </Link>
 
                     {isAdmin && (
                         <Link className="profile-admin-review" to="/admin/review">
-                            Review games
+                            {t("Review games")}
                         </Link>
                     )}
 
@@ -109,8 +116,8 @@ function ProfileHeader({
                         type="button"
                         onClick={onLogout}
                         disabled={loggingOut}
-                        aria-label="Log out"
-                        title="Log out"
+                        aria-label={t("Log out")}
+                        title={t("Log out")}
                     >
                         <LogOut size={18} aria-hidden="true" />
                     </button>

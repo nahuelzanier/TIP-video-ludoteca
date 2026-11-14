@@ -69,6 +69,14 @@ public class User {
         this.role = "ADMIN";
     }
 
+    public void updateUsername(String username) {
+        this.username = username;
+    }
+
+    public void updatePasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }

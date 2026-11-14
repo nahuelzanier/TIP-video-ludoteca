@@ -3,9 +3,11 @@ import type { ForumDiscussion, ForumTag } from "../../services/forumService";
 import { getForumDiscussions, getForumTags } from "../../services/forumService";
 import ForumDiscussionCard from "../../components/forum/ForumDiscussionCard";
 import { Link } from "react-router-dom";
+import { useTranslation } from "../../services/i18n";
 import "./Forum.css";
 
 function Forum() {
+  const { t } = useTranslation();
   const [discussions, setDiscussions] = useState<ForumDiscussion[]>([]);
   const [tags, setTags] = useState<ForumTag[]>([]);
   const [query, setQuery] = useState("");
@@ -101,8 +103,8 @@ function Forum() {
     <main className="forum-page">
       <header className="forum-header">
         <div>
-          <h1>Forum</h1>
-          <p>Discuss the games you play.</p>
+          <h1>{t("Forum")}</h1>
+          <p>{t("Discuss the games you play.")}</p>
         </div>
 
         <Link className="forum-create-link" to="/forum/new">
@@ -113,7 +115,7 @@ function Forum() {
       <section className="forum-search-filters" aria-labelledby="forum-search-filters-title">
         <div className="forum-search-filters__header">
           <div>
-            <h2 id="forum-search-filters-title">Find a discussion</h2>
+            <h2 id="forum-search-filters-title">{t("Find a discussion")}</h2>
             {hasActiveFilters && (
               <p className="forum-search-filters__summary" aria-live="polite">
                 {activeFilterCount} active {activeFilterCount === 1 ? "filter" : "filters"}
@@ -152,15 +154,15 @@ function Forum() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Title, description, or game"
+            placeholder={t("Title, description, or game")}
           />
 
           <fieldset className="forum-filter-tags">
-            <legend>Filter by forum tags</legend>
+            <legend>{t("Filter by forum tags")}</legend>
             <p className="forum-filter-hint">
               Selecting multiple tags shows discussions that include all of them.
             </p>
-            {tags.length === 0 && !tagsError && <span>Loading tags...</span>}
+            {tags.length === 0 && !tagsError && <span>{t("Loading tags...")}</span>}
             {tagsError && <span className="forum-filter-error" role="alert">{tagsError}</span>}
             {tags.map((tag) => (
               <label className="forum-filter-tag" key={tag.id}>
@@ -176,7 +178,7 @@ function Forum() {
         </div>
       </section>
 
-      {loading && <p role="status">Loading discussions...</p>}
+      {loading && <p role="status">{t("Loading discussions...")}</p>}
 
       {!loading && error && (
         <p className="forum-error" role="alert">

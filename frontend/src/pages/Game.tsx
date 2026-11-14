@@ -7,10 +7,12 @@ import CommentSection from "../components/comments/CommentSection";
 import FavoriteButton from "../components/games/FavoriteButton";
 import type { Game as GameType } from "../types/Game";
 import { getGameById } from "../services/gameService";
+import { useTranslation } from "../services/i18n";
 import { GAME_CONTENT_BASE_URL } from "../services/api";
 import "./Game.css";
 
 function Game() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
 
   const [game, setGame] = useState<GameType | null>(null);
@@ -58,7 +60,7 @@ function Game() {
   if (loading) {
     return (
       <main className="game-page">
-        <h1>Loading game...</h1>
+        <h1>{t("Loading game...")}</h1>
       </main>
     );
   }
