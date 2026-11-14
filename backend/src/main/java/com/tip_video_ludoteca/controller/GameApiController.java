@@ -5,6 +5,7 @@ import com.tip_video_ludoteca.games.Game;
 import com.tip_video_ludoteca.games.GameNotFoundException;
 import com.tip_video_ludoteca.games.GameRecommendationSummary;
 import com.tip_video_ludoteca.games.GameRepository;
+import com.tip_video_ludoteca.games.GameCustomizationService;
 import com.tip_video_ludoteca.games.GameSpecifications;
 import com.tip_video_ludoteca.games.GameStatus;
 import com.tip_video_ludoteca.games.NoGamesAvailableException;
@@ -33,14 +34,17 @@ public class GameApiController {
     private final GameRepository games;
     private final GameTagAssignmentRepository tagAssignments;
     private final FavoriteService favorites;
+    private final GameCustomizationService customizations;
 
     public GameApiController(
             GameRepository games,
             GameTagAssignmentRepository tagAssignments,
-            FavoriteService favorites) {
+            FavoriteService favorites,
+            GameCustomizationService customizations) {
         this.games = games;
         this.tagAssignments = tagAssignments;
         this.favorites = favorites;
+        this.customizations = customizations;
     }
 
     @GetMapping
@@ -136,7 +140,8 @@ public class GameApiController {
                 game.getCoverImageUrl(),
                 game.getDescription(),
                 favorite,
-                game.getOwner().getUsername()
+                game.getOwner().getUsername(),
+                customizations.get(gameId)
         ));
     }
 
@@ -170,7 +175,8 @@ public class GameApiController {
             String image,
             String description,
             boolean favorito,
-            String uploaderUsername
+            String uploaderUsername,
+            GameCustomizationService.Customization customization
     ) { }
 
     public record GamePage(
