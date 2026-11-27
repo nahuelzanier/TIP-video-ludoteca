@@ -1,0 +1,114 @@
+.news-card {
+  --news-bg: #0f1018;
+  --news-panel: #191b2a;
+  --news-border: #292b3d;
+  --news-text: #f5f4f8;
+  --news-muted: #a4a4b8;
+  --news-pink: #e52e79;
+  --news-purple: #963cff;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--news-panel);
+  border: 1px solid var(--news-border);
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.news-card:hover {
+  border-color: var(--news-purple);
+  transform: translateY(-2px);
+}
+
+.news-card__image-link {
+  display: block;
+  aspect-ratio: 16 / 8;
+  overflow: hidden;
+  background: #11131d;
+}
+
+.news-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+
+.news-card__date {
+  color: var(--news-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.news-card__title {
+  margin: 0;
+  color: var(--news-text);
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.news-card__title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.news-card__title-link:hover {
+  color: var(--news-pink);
+}
+
+.news-card__summary {
+  flex: 1;
+  margin: 0;
+  color: var(--news-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.news-card__author {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--news-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.news-card__author:hover {
+  color: var(--news-pink);
+}
+
+.news-card__avatar {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.news-card__avatar--fallback {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(145deg, var(--news-pink), var(--news-purple));
+  font-size: 0.8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-card {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Dices, Search } from "lucide-react";
+import { Dices, Heart, Newspaper, Search } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   getCurrentUser,
@@ -151,7 +151,17 @@ function Navbar() {
 
           <nav className="site-header__nav" aria-label={t("Main navigation")}>
             <NavLink to="/" end>{t("Explore")}</NavLink>
+            <NavLink className="site-header__nav-with-icon" to="/noticias">
+              <Newspaper size={15} aria-hidden="true" />
+              {t("News")}
+            </NavLink>
             <NavLink to="/forum">{t("Community")}</NavLink>
+            {currentUser && (
+              <NavLink className="site-header__nav-with-icon" to="/favorites">
+                <Heart size={15} aria-hidden="true" />
+                {t("My favorites")}
+              </NavLink>
+            )}
             <button
               className="site-header__random"
               type="button"
@@ -255,11 +265,18 @@ function Navbar() {
 
         <nav className="navbar-nav" aria-label={t("Main menu")}>
           <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/" end onClick={closeNavbar}>{t("Explore")}</NavLink>
+          <NavLink className={({ isActive }) => `navbar-link navbar-link--with-icon ${isActive ? "navbar-link--active" : ""}`} to="/noticias" onClick={closeNavbar}>
+            <Newspaper size={17} aria-hidden="true" />
+            {t("News")}
+          </NavLink>
           {currentUser && (
             <>
               <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to={`/user/${encodeURIComponent(currentUser.username)}`} onClick={closeNavbar}>{t("My profile")}</NavLink>
               <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/settings" onClick={closeNavbar}>{t("Settings")}</NavLink>
-              <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/favorites" onClick={closeNavbar}>{t("My favorites")}</NavLink>
+              <NavLink className={({ isActive }) => `navbar-link navbar-link--with-icon ${isActive ? "navbar-link--active" : ""}`} to="/favorites" onClick={closeNavbar}>
+                <Heart size={17} aria-hidden="true" />
+                {t("My favorites")}
+              </NavLink>
               {currentUser.role === "ADMIN" && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/review" onClick={closeNavbar}>{t("Review games")}</NavLink>}
               {adminSetupAvailable && <NavLink className={({ isActive }) => `navbar-link ${isActive ? "navbar-link--active" : ""}`} to="/admin/setup" onClick={closeNavbar}>{t("Set up first admin")}</NavLink>}
             </>

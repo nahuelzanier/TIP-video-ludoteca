@@ -9,6 +9,7 @@ interface UserBadgeProps {
   profileImageUrl: string | null;
   createdAt: string;
   isGameAuthor: boolean;
+  isTargetAuthor?: boolean;
   rating?: number | null;
   avatarSize?: "small" | "regular";
   edited?: boolean;
@@ -19,6 +20,7 @@ function UserBadge({
   profileImageUrl,
   createdAt,
   isGameAuthor,
+  isTargetAuthor = false,
   rating = null,
   avatarSize = "regular",
   edited = false,
@@ -53,7 +55,9 @@ function UserBadge({
             {username}
           </Link>
 
-          {isGameAuthor && <span className="user-badge__author">(creator)</span>}
+          {(isGameAuthor || isTargetAuthor) && (
+            <span className="user-badge__author">(creator)</span>
+          )}
 
           {rating !== null && <StarRating value={rating} />}
         </div>

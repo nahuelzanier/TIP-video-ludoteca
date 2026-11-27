@@ -86,6 +86,7 @@ function CommentItem({
         profileImageUrl={comment.profileImageUrl}
         createdAt={comment.createdAt}
         isGameAuthor={comment.isGameAuthor}
+        isTargetAuthor={comment.isTargetAuthor}
         rating={comment.rating}
         avatarSize={variant === "reply" ? "small" : "regular"}
         edited={comment.edited}

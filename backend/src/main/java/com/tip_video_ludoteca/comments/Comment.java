@@ -1,6 +1,7 @@
 package com.tip_video_ludoteca.comments;
 
 import com.tip_video_ludoteca.games.Game;
+import com.tip_video_ludoteca.news.Noticia;
 import com.tip_video_ludoteca.users.User;
 import jakarta.persistence.*;
 
@@ -14,9 +15,17 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "game_id", nullable = false)
+    @Column(name = "target_type", nullable = false, length = 10)
+    @Enumerated(EnumType.STRING)
+    private CommentTargetType targetType = CommentTargetType.GAME;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id")
     private Game game;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "noticia_id")
+    private Noticia noticia;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "author_id", nullable = false)
@@ -47,7 +56,29 @@ public class Comment {
             Comment parentComment,
             String content,
             Integer rating) {
+        this(CommentTargetType.GAME, game, null, author, parentComment, content, rating);
+    }
+
+    public Comment(
+            Noticia noticia,
+            User author,
+            Comment parentComment,
+            String content,
+            Integer rating) {
+        this(CommentTargetType.NEWS, null, noticia, author, parentComment, content, rating);
+    }
+
+    private Comment(
+            CommentTargetType targetType,
+            Game game,
+            Noticia noticia,
+            User author,
+            Comment parentComment,
+            String content,
+            Integer rating) {
+        this.targetType = targetType;
         this.game = game;
+        this.noticia = noticia;
         this.author = author;
         this.parentComment = parentComment;
         this.content = content;
@@ -58,8 +89,16 @@ public class Comment {
         return id;
     }
 
+    public CommentTargetType getTargetType() {
+        return targetType;
+    }
+
     public Game getGame() {
         return game;
+    }
+
+    public Noticia getNoticia() {
+        return noticia;
     }
 
     public User getAuthor() {
@@ -97,5 +136,16 @@ public class Comment {
 
     public Comment rootComment() {
         return parentComment == null ? this : parentComment;
+    }
+
+    /**
+     * Id of the author of the commented entity, used to badge "creator" replies.
+     */
+    public Long getTargetAuthorId() {
+        if (targetType == CommentTargetType.NEWS) {
+            return noticia.getAuthor().getId();
+        }
+
+        return game.getOwner() == null ? null : game.getOwner().getId();
     }
 }

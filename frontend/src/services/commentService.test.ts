@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createComment, getGameComments, updateComment } from "./commentService";
+import {
+  createComment,
+  createNewsComment,
+  getGameComments,
+  getNewsComments,
+  updateComment,
+} from "./commentService";
 
 let fetchMock: ReturnType<typeof vi.fn>;
 const comment = {
@@ -38,6 +44,19 @@ describe("commentService", () => {
       headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": "csrf" },
       body: JSON.stringify({ content: "Nice game", rating: 5 }),
     }));
+  });
+
+  it("loads and posts comments on news without touching game endpoints", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse([comment]));
+    await expect(getNewsComments(12)).resolves.toEqual([comment]);
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost:8080/api/news/12/comments");
+
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ headerName: "X-XSRF-TOKEN", token: "csrf" }))
+      .mockResolvedValueOnce(jsonResponse(comment, 201));
+    await expect(createNewsComment(12, { content: "Nice news" })).resolves.toEqual(comment);
+    expect(fetchMock.mock.calls[2][0]).toBe("http://localhost:8080/api/news/12/comments");
+    expect(fetchMock.mock.calls[2][1].body).toBe(JSON.stringify({ content: "Nice news" }));
   });
 
   it("explains authorization and ownership failures when editing a comment", async () => {

@@ -7,6 +7,7 @@ export interface Comment {
   username: string;
   profileImageUrl: string | null;
   isGameAuthor: boolean;
+  isTargetAuthor?: boolean;
   replies: Comment[];
 }
 

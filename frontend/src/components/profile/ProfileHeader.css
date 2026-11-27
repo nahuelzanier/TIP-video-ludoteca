@@ -74,6 +74,20 @@
   word-break: break-word;
 }
 
+.profile-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: -4px 0 14px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.profile-stats strong {
+  color: var(--text-h);
+  font-weight: 700;
+}
+
 .profile-description-header {
   display: flex;
   align-items: center;

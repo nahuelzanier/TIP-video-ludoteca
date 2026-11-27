@@ -1,14 +1,21 @@
 import { Link } from "react-router-dom";
 import { useComments } from "../../hooks/useComments";
+import { useTranslation } from "../../services/i18n";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import "./CommentSection.css";
 
 interface CommentSectionProps {
-  gameId: string;
+  gameId?: string;
+  newsId?: number;
 }
 
-function CommentSection({ gameId }: CommentSectionProps) {
+function CommentSection({ gameId, newsId }: CommentSectionProps) {
+  const { t } = useTranslation();
+  const isNews = newsId !== undefined;
+  const targetType = isNews ? "news" : "game";
+  const targetId = isNews ? String(newsId) : (gameId ?? "");
+
   const {
     comments,
     currentUser,
@@ -19,34 +26,41 @@ function CommentSection({ gameId }: CommentSectionProps) {
     submitComment,
     submitReply,
     submitEdit,
-  } = useComments(gameId);
+  } = useComments({ type: targetType, id: targetId });
 
   const isAuthenticated = currentUser !== null;
 
   return (
     <section className="comment-section" aria-labelledby="comment-section-title">
       <h2 id="comment-section-title" className="comment-section__title">
-        Comments
+        {t("Comments")}
       </h2>
 
       {isAuthenticated ? (
         <CommentForm
-          placeholder="Share your thoughts about this game..."
-          submitLabel="Post comment"
+          placeholder={
+            isNews
+              ? t("Share your thoughts about this news...")
+              : t("Share your thoughts about this game...")
+          }
+          submitLabel={t("Post comment")}
           submitting={submitting}
           error={submitError}
-          allowRating
+          allowRating={!isNews}
           onSubmit={(content, rating) => submitComment(content, rating)}
         />
       ) : (
         <p className="comment-section__login-notice">
-          <Link to="/login">Log in</Link> to comment on and rate this game.
+          <Link to="/login">{t("Log in")}</Link>{" "}
+          {isNews
+            ? t("to comment on this news.")
+            : t("to comment on and rate this game.")}
         </p>
       )}
 
       {loading && (
         <p className="comment-section__status" role="status">
-          Loading comments...
+          {t("Loading comments...")}
         </p>
       )}
 
@@ -58,7 +72,7 @@ function CommentSection({ gameId }: CommentSectionProps) {
 
       {!loading && !error && comments.length === 0 && (
         <p className="comment-section__empty">
-          There are no comments yet. Be the first!
+          {t("There are no comments yet. Be the first!")}
         </p>
       )}
 
