@@ -1,81 +1,54 @@
-Ludarium es una pagina web donde distintos desarrolladores de videojuegos pueden compartir, jugar, y hablar sobre el mundo de los videojuegos.
-Todos pueden jugar juegos que hayan subido otras personas, opinar sobre los mismos, buscarlos y tambien subirlos dentro de nuestro ecosistema
+# Ludarium
 
-integrantes: Nahuel Zanier, Lucas Sanguinetti
+Ludarium es una plataforma para compartir y jugar videojuegos HTML. Los autores suben juegos como borradores; administradores los prueban y publican.
 
 ## Stack
 
-- **Frontend:** React 19 + TypeScript + Vite (sin librerias de estado ni de componentes, `fetch` nativo)
-- **Backend:** Java 21 + Spring Boot 4.1.1 (Spring Security con sesiones y CSRF, Spring Data JPA)
-- **Base de datos:** PostgreSQL, esquema manejado con Flyway. Los archivos de cada juego se guardan como `bytea` en la tabla `game_files`.
+- Frontend: React 19, TypeScript, Vite, React Router y Vitest.
+- Backend: Java 21, Spring Boot, Spring Security con sesiones y CSRF.
+- Base de datos: PostgreSQL con migraciones Flyway.
 
-## Arranque rápido
+## Funcionalidades
 
-Requiere **PostgreSQL**, **Java 21** y **Node.js**. El backend no arranca sin `DB_PASSWORD`.
+- Catálogo, búsqueda, recomendaciones y reproducción de juegos.
+- Revisión administrativa de borradores antes de publicar.
+- Personalización de juegos, comentarios, valoraciones y favoritos.
+- Perfiles, settings persistentes, foros, discusiones, noticias y seguimiento de creadores.
 
-```bash
+## Desarrollo local
+
+Requisitos: PostgreSQL 14+, Java 21 y Node.js 24. Configura DB_PASSWORD (o DEV_DB_PASSWORD en perfil dev).
+
+```powershell
 createdb -U postgres ludarium_dev
-
 cd backend
-export DEV_DB_PASSWORD="tu-password-de-postgres"
+$env:DEV_DB_PASSWORD = "tu-password-de-postgres"
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-```bash
+En otra terminal:
+
+```powershell
 cd frontend
-npm install
-printf 'VITE_API_URL=http://localhost:8080\nVITE_GAME_CONTENT_URL=http://127.0.0.1:8080\n' > .env.local
+npm ci
+Set-Content .env.local "VITE_API_URL=http://localhost:8080`nVITE_GAME_CONTENT_URL=http://127.0.0.1:8080"
 npm run dev
 ```
 
-Abrir `http://localhost:5173`. El perfil `dev` usa la base local `ludarium_dev` y crea el usuario de prueba `lucas2` / `lucas222` si todavía no existe. No reasigna propietarios ni cambia el estado de juegos existentes. No uses ese perfil con una base compartida o de producción.
+Abrir http://localhost:5173. La guía completa está en [Getting Started](docs/wiki/Getting-Started.md).
 
-Los detalles, incluida la migracion `pg_trgm` y el troubleshooting, estan en [Getting Started](docs/wiki/Getting-Started.md).
+## Administración
 
-### Cuenta administradora y revisión de juegos
+Registra una cuenta normalmente. En desarrollo local, inicia sesión y abre `/admin/setup` con la clave `ludarium-local-admin-setup` para establecer el primer administrador. Después se pueden promover otras cuentas desde `/admin/review`, donde también se prueban y publican los borradores. Consulta [Authentication](docs/wiki/Authentication.md) y [Game Upload](docs/wiki/Game-Upload.md).
 
-Los juegos nuevos quedan como borradores y solo un administrador puede probarlos y publicarlos desde `/admin/review`. Las cuentas admin usan el registro y el inicio de sesión normales. En desarrollo local, registra una cuenta, inicia sesión y abre `/admin/setup`. La clave local predeterminada es `ludarium-local-admin-setup`.
+## Tests y CI
 
-En otros entornos, configura `APP_ADMIN_SETUP_TOKEN` con una clave secreta antes de iniciar el backend y usa esa clave en `/admin/setup`. Esta configuración solo sirve mientras no exista ningún administrador.
-
-Una vez que exista el primer administrador, abre `/admin/review` para agregar otros por email. Cada persona primero se registra normalmente; un administrador actual le otorga el permiso desde esa página. La nueva persona debe volver a iniciar sesión para que su sesión reciba el rol. Más detalles en [Authentication](docs/wiki/Authentication.md).
-
-## Tests
-
-```bash
-cd backend && ./mvnw test      # 8 clases, 56 tests
-cd frontend && npm run lint && npm run build
-```
-
-El frontend todavia no tiene tests. Ver [Testing](docs/wiki/Testing.md).
+El backend usa Testcontainers (requiere Docker local): `cd backend; ./mvnw verify`. El frontend: `cd frontend; npm ci; npm run lint -- --max-warnings=0; npm run test:coverage; npm run build`. GitHub Actions corre ambos jobs; ver [Testing](docs/wiki/Testing.md).
 
 ## Documentación
 
-La documentación del proyecto está organizada como un wiki estilo GitHub en la carpeta `docs/wiki`.
-
-- [Home](docs/wiki/Home.md)
-- [Getting Started](docs/wiki/Getting-Started.md)
-- [Architecture](docs/wiki/Architecture.md)
-- [Database](docs/wiki/Database.md)
-- [API](docs/wiki/API.md)
-- [Authentication](docs/wiki/Authentication.md)
-- [Game Upload](docs/wiki/Game-Upload.md)
-- [Game Assets](docs/wiki/Game-Assets.md)
-- [Game Isolation](docs/wiki/Game-Isolation.md)
-- [Frontend](docs/wiki/Frontend.md)
-- [Testing](docs/wiki/Testing.md)
-- [Tags](docs/wiki/Tags.md) — en la rama `feature/tags`, todavia no mergeada
-- [Known Issues](docs/wiki/Known-Issues.md) — bugs y deuda tecnica
-
-## Estado del proyecto
-
-`main` esta atrasada con respecto a las ramas de trabajo y todavia contiene el catalogo JSON viejo (`games.json`) junto con ~142 MB de binarios de Godot en `backend/gamesData/`, que el codigo actual ya no usa. El codigo vigente esta en `featureComentarios`. Ver [Known Issues](docs/wiki/Known-Issues.md#branch-divergence).
-
-No hay configuracion de despliegue en el repositorio: no hay Dockerfile, ni compose, ni perfil de Spring para produccion.
-
-## WIKI
-- https://github.com/nahuelzanier/TIP-video-ludoteca/wiki
+La [wiki del repositorio](docs/wiki/Home.md) cubre arquitectura, API, base de datos, autenticación, frontend, settings, personalización, noticias, pruebas y limitaciones.
 
 ## Licencia
 
-Este proyecto está licenciado bajo la licencia MIT. Ver [LICENSE](LICENSE).
+MIT. Ver [LICENSE](LICENSE).

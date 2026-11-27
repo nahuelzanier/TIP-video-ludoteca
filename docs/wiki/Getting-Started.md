@@ -51,7 +51,8 @@ Verify:
 psql -U postgres -l | grep ludarium
 ```
 
-You do not need to create any tables — Flyway applies V1 through V5 on the first boot.
+You do not need to create any tables — Flyway applies the migrations through the latest version
+on first boot.
 
 ## 2. Start the backend
 
@@ -335,12 +336,6 @@ Check, in order:
 - Check that the frontend uses the game-content host (`127.0.0.1`) and that the iframe has
   `sandbox="allow-scripts allow-same-origin"`.
 - See [Game Isolation](Game-Isolation.md) for the browser CORS check and production setup.
-
-### A deep link to an older game shows "Juego no encontrado"
-
-`Game.tsx` on this branch scans only the first 24 games of the catalog, so anything older is
-unreachable. Fixed on `feature/tags`. See
-[Known Issues](Known-Issues.md#deep-links-to-most-games-are-broken).
 
 ### `401` on every write
 

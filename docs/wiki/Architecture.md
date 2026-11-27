@@ -69,11 +69,18 @@ com/tip_video_ludoteca/
 
   controller/
     GameApiController       GET /api/games  (paginated catalog)
-    GameUploadController    POST /api/games, POST /api/games/{id}/publish
+    GameUploadController    POST /api/games (draft upload)
     GameCoverController     GET /api/games/{id}/cover
     GameController          GET /games/{id}/**  (raw bytes)
-    CommentApiController    comments and replies
-    ProfileApiController    public profile and description
+    CommentApiController    game/news comments and replies
+    ProfileApiController    profiles, avatars, games and forums
+    ForumApiController      discussions, replies and ratings
+    NoticiaApiController    news posts and images
+    FollowApiController     creator follow API
+    UserSettingsController  persistent preferences
+    AccountSettingsController username/password changes
+    GameCustomizationController per-game appearance API
+    AdminGameController     draft review and publication
     AuthController -> auth/
 
   games/
@@ -86,6 +93,12 @@ com/tip_video_ludoteca/
     GameUploadService       ZIP extraction, validation, persistence
     GameStatus              DRAFT, PUBLISHED
     GameNotFoundException, GameEditForbiddenException
+
+  forums/                   discussions, replies, tags and ratings
+  news/                     news posts and stored images
+  followers/                creator follows and counts
+  favorites/                saved games
+  tags/                     game tag catalog and assignments
 
   search/
     SearchController        GET /api/search  (games + users in one call)
@@ -105,7 +118,8 @@ com/tip_video_ludoteca/
     ImageValidation         content sniffing for PNG/JPEG uploads
 ```
 
-On `feature/tags` there is also a `tags/` package. See [Tags](Tags.md).
+Feature code is grouped by domain (forums, news, follows, favorites, tags, users and games).
+See the linked feature pages for details.
 
 ## Layering convention
 
@@ -207,8 +221,9 @@ UploadGame.tsx
        INSERT games (status = DRAFT)
        INSERT one game_files row per entry + one for the cover
   -> 201 { id, title, filesStored }
-  <- the user presses "Publish game"
-  -> GameService.publish(gameId, userEmail)   ownership check, status = PUBLISHED
+  <- an administrator tests the draft in /admin/review
+  -> POST /api/admin/games/{gameId}/publish  (ADMIN role)
+  -> GameService.publishAsAdmin(gameId)      status = PUBLISHED
 ```
 
 The whole upload is one transaction. See [Game Upload](Game-Upload.md).
@@ -291,8 +306,8 @@ Handled separately, and not with the same shape — see
 
 ### The gap
 
-`ResponseStatusException` — thrown by `GameUploadService` and, on `feature/tags`,
-`GameTagService` — is **not** in the table. Spring renders it as a `ProblemDetail`:
+`ResponseStatusException` — thrown by `GameUploadService` and tag validation — is **not** in
+the table. Spring renders it as a `ProblemDetail`:
 
 ```json
 { "type": "...", "status": 400, "error": "Bad Request", "detail": "Choose a ZIP file." }

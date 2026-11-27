@@ -52,17 +52,25 @@ Two settings are worth calling out:
 ## Migrations
 
 All migrations live in `backend/src/main/resources/db/migration/` and run automatically on
-startup. The current forum/favorites sequence is:
+startup. The current sequence runs through V20 and includes roles, persisted preferences,
+game appearance settings, follows and news:
 
 | Version | Migration |
 | --- | --- |
 | V11 | `create_forum_tags` |
 | V12 | `remove_legacy_forum_discussion_tags` |
 | V13 | `create_favorites` |
+| V14 | `add_user_roles` |
+| V15 | `create_user_settings` |
+| V16 | `create_game_customizations` |
+| V17 | `expand_game_customization_fonts` |
+| V18 | `create_follows` |
+| V19 | `create_news` |
+| V20 | `generalize_comments_to_news` |
 
 Two feature branches independently introduced a V11. The forum-tags migration was already
-applied by the `dev` database, so it stays V11; the later favorites migration is V13. Migration
-versions must be unique across branches before they are merged.
+applied by the `dev` database, so it stays V11; the later favorites migration is V13. Applied
+migrations must not be edited; create a new version for schema changes.
 
 ### V1: create_users
 
@@ -164,7 +172,7 @@ profile photos became reachable.
 
 ### V6: create_game_tags
 
-Not merged yet — exists only on `origin/feature/tags`. Documented in [Tags](Tags.md).
+Creates the fixed game tag catalog and user-to-game assignments. See [Tags](Tags.md).
 
 ### V7: add_profile_image
 
@@ -321,7 +329,8 @@ psql -U postgres -d ludarium -c "SELECT game_id, path, length(content) FROM game
 psql -U postgres -d ludarium -c "SELECT username, email, description FROM app_user;"
 ```
 
-To reset the local database, drop and recreate it and restart; Flyway will re-apply V1-V5:
+To reset the local database, drop and recreate it and restart; Flyway will re-apply all
+migrations from V1 through the latest version (currently V20):
 
 ```bash
 dropdb -U postgres ludarium

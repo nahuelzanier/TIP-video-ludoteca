@@ -11,10 +11,15 @@ catalog, the game files, the search and the public profiles are readable without
 - [Games](#games)
 - [Game files](#game-files)
 - [Comments](#comments)
+- [Forum](#forum)
+- [News and follows](#news-and-follows)
+- [Settings and account](#settings-and-account)
+- [Game customization](#game-customization)
+- [Favorites and tags](#favorites-and-tags)
 - [Profiles](#profiles)
 - [Search](#search)
 - [Authentication](#authentication)
-- [Tag endpoints (not merged)](#tag-endpoints-not-merged)
+- [Tag endpoints](#tag-endpoints)
 
 ## Conventions
 
@@ -26,7 +31,7 @@ Server-side session via the `JSESSIONID` cookie. Every session-dependent request
 
 ### CSRF
 
-All `POST`, `PATCH` and `DELETE` requests need a token. Fetch it and echo it back in the
+All state-changing `POST`, `PUT`, `PATCH` and `DELETE` requests need a token. Fetch it and echo it back in the
 header the server names:
 
 ```http
@@ -69,8 +74,12 @@ endpoints, so those responses look like:
 | Method | Path | Auth |
 | --- | --- | --- |
 | `GET` | `/api/games` | public |
+| `GET` | `/api/games/{gameId}` | public |
+| `GET` | `/api/games/random` | public |
+| `GET` | `/api/games/{gameId}/recommendations` | public |
 | `POST` | `/api/games` | **session** |
 | `GET` | `/api/games/{gameId}/cover` | public |
+| `GET` / `PUT` | `/api/games/{gameId}/customization` | public / **owner session** |
 | `GET` | `/api/admin/games` | **ADMIN** |
 | `POST` | `/api/admin/games/{gameId}/publish` | **ADMIN** |
 | `POST` | `/api/admin/users/promote` | **ADMIN** |
@@ -80,6 +89,26 @@ endpoints, so those responses look like:
 | `GET` | `/api/games/{gameId}/comments` | public |
 | `POST` | `/api/games/{gameId}/comments` | **session** |
 | `POST` | `/api/comments/{commentId}/replies` | **session** |
+| `GET` / `POST` | `/api/news/{newsId}/comments` | public / **session** |
+| `GET` | `/api/news` | **session** |
+| `POST` | `/api/news` | **session** |
+| `GET` | `/api/news/{newsId}` | public |
+| `GET` | `/api/news/{newsId}/image` | public |
+| `PUT` / `DELETE` | `/api/news/{newsId}` | **author session** |
+| `GET` / `POST` | `/api/forum/discussions` | public / **session** |
+| `GET` | `/api/forum/discussions/{id}` | public |
+| `GET` / `POST` | `/api/forum/discussions/{id}/replies` | public / **session** |
+| `PUT` | `/api/forum/discussions/{id}/rating` | **session** |
+| `GET` | `/api/forum/tags` | public |
+| `PUT` / `DELETE` | `/api/follows/{username}` | **session** |
+| `GET` | `/api/follows/{username}/status` | **session** |
+| `GET` | `/api/follows/{username}/counts` | public |
+| `GET` / `PUT` | `/api/users/me/settings` | **session** |
+| `PATCH` | `/api/users/me/username`, `/api/users/me/password` | **session** |
+| `GET` | `/api/favorites` | **session** |
+| `POST` / `DELETE` | `/api/favorites/games/{gameId}` | **session** |
+| `GET` | `/api/tags`, `/api/games/{gameId}/tags` | public |
+| `POST` | `/api/games/{gameId}/tags` | **session** |
 | `GET` | `/api/users/{username}/profile` | public |
 | `PATCH` | `/api/users/{username}/description` | **session** |
 | `GET` | `/api/search` | public |
@@ -270,6 +299,43 @@ Content types are decided once at upload time from the extension:
 | anything else | `URLConnection.guessContentTypeFromName`, else `application/octet-stream` |
 
 ---
+
+# Forum
+
+The forum API is rooted at `/api/forum/discussions`. It supports paginated discussion listing,
+optional cover retrieval, discussion detail, replies and one rating per authenticated user per
+discussion. A user's rating can be updated with `PUT /api/forum/discussions/{id}/rating` and
+must be from 1 to 5. Discussion creation uses multipart form data and associates the discussion
+with a published game. Read [Frontend](Frontend.md#routes) for the corresponding screens.
+
+# News and follows
+
+News authoring uses multipart form fields `title`, `description` and optional `image`.
+`GET /api/news` returns the signed-in user's followed creators feed (`page` defaults to 0,
+`size` to 9 and is capped at 20). Detail and image reads are public. Only the author can update
+or delete a post. Follow and unfollow use `PUT` and `DELETE /api/follows/{username}`.
+See [News and Follows](News-and-Follows.md) for the endpoint overview.
+
+# Settings and account
+
+`GET` and `PUT /api/users/me/settings` read and update the current user's volume, language and
+theme preferences. `PATCH /api/users/me/username` changes the username; `PATCH
+/api/users/me/password` requires the current password and a new password. These endpoints
+require an authenticated session. See [Settings](Settings.md).
+
+# Game customization
+
+`GET /api/games/{gameId}/customization` returns the public appearance settings. The game owner
+can update them with `PUT` and a JSON body containing background, accent and text colors,
+background style and font. Ownership is checked against the stable user ID, so username
+changes do not transfer ownership. See [Game Customization](Game-Customization.md).
+
+# Favorites and tags
+
+Favorites are private to the authenticated user: `GET /api/favorites` lists them,
+`POST /api/favorites/games/{gameId}` adds one and `DELETE` removes one. Supported game and
+forum tags can be listed through `/api/tags`, `/api/games/{gameId}/tags` and
+`/api/forum/tags`; assigning a game tag requires authentication.
 
 # Comments
 
@@ -624,10 +690,10 @@ Configured through `http.logout()`, not a controller method. Deletes the `JSESSI
 
 ---
 
-# Tag endpoints (not merged)
+# Tag endpoints
 
-> These exist only on `origin/feature/tags` and are **not available** on `main`, `dev` or
-> `featureComentarios`. Full explanation in [Tags](Tags.md).
+The current application exposes the fixed tag catalog and assignment endpoints. See
+[Tags](Tags.md) for the supported game and discussion tag behavior.
 
 ## GET /api/tags
 

@@ -36,8 +36,8 @@ with a `backend/src/main/resources/games.json` catalog and covers in
 31 files (~142.6 MB, mostly `.wasm` and `.pck`) deleted, plus `games.json` and the three
 cover PNGs.
 
-That history is still on the `main` branch, which is one reason merging is confusing. See
-[Known Issues](Known-Issues.md#only-on-main-deleted-everywhere-else).
+Those files belong to the retired repository-based asset model; the current code reads game
+assets from PostgreSQL.
 
 ## The flow
 
@@ -49,7 +49,7 @@ POST /api/games  (cover + archive)
         |  GameUploadService: validate, unzip, insert
         v
 games row (DRAFT)          + game_files rows, one per file
-        |  POST /api/games/{id}/publish
+        |  POST /api/admin/games/{id}/publish (ADMIN)
         v
 games row (PUBLISHED)
         |
@@ -225,27 +225,22 @@ configuration, and production requirements.
 
 ## Drafts versus published games
 
-Asset routes do **not** check the game status: `/games/{id}/index.html` serves a draft's files
-if you know the UUID. What the status controls is discoverability — `GET /api/games`,
-`/api/search` and the tag endpoints all filter on `PUBLISHED`, so a draft is invisible in the
-UI but not unreachable by URL.
+Asset access is controlled by game status and caller role: published game files are public;
+draft files are available to administrators for review. Drafts do not appear in the public
+catalog, search or tags.
 
 ## Publishing a game
 
-`GameService.publish` is the only transition, it is owner-only, and it is idempotent:
+`GameService.publishAsAdmin` is the publication transition, and it is idempotent. The
+administrator role is enforced on `/api/admin/**`; authors cannot publish their own drafts.
 
 ```java
-if (!game.getOwner().getId().equals(user.getId())) {
-    throw new GameEditForbiddenException();
-}
-
 game.publish();
 games.save(game);
 ```
 
-There is **no** unpublish and **no** edit. `Game` has no setters for `title` or `description`
-— only `assignOwner(User)` and `publish()` mutate it. To change a game you would upload it
-again, which creates a new `gameId`.
+There is no unpublish operation. Upload a revised archive as a new game if you need to replace
+the uploaded files.
 
 ## Adding a new game
 
@@ -254,7 +249,7 @@ again, which creates a new `gameId`.
 2. Make sure every path inside is relative and free of `..`.
 3. ZIP **the contents of the folder**, not the folder itself.
 4. Upload the ZIP plus a PNG or JPEG cover at `/games/upload`.
-5. Press "Publish game".
+5. Wait for an administrator to review the draft in `/admin/review`.
 
 If you need to add files to an existing game from a script, insert `game_files` rows directly
 and remember the `(game_id, path)` uniqueness plus the matching `content_type`.

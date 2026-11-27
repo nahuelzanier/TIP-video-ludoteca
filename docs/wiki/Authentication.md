@@ -134,7 +134,7 @@ through to `anyRequest().authenticated()`.
 | `POST` | `/api/auth/logout` | public (no-op when anonymous) |
 | any | everything else | session required |
 
-Endpoints that therefore **require** a session:
+Endpoints that therefore **require** a session include:
 
 - `GET /api/auth/me`
 - `POST /api/games` (upload)
@@ -143,6 +143,13 @@ Endpoints that therefore **require** a session:
 - `PATCH /api/users/{username}/description`
 - `POST /api/games/{gameId}/comments`
 - `POST /api/comments/{commentId}/replies`
+- `GET` and `PUT /api/users/me/settings`, plus username/password updates under `/api/users/me`
+- News feed and creation; news update/delete are restricted to the author
+- Follow/unfollow and private follow status
+- Favorite list and mutations
+- Forum discussion creation, replies and ratings
+- Game customization updates (restricted to the game owner)
+- Game tag assignment
 
 > Note that `POST /api/games/{gameId}/comments` is covered by the public `GET /api/games/**`
 > matcher only for the `GET` verb. The `POST` matcher lists just register and login, so

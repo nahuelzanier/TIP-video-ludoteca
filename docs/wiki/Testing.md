@@ -52,13 +52,14 @@ Both JaCoCo and frontend coverage are uploaded as workflow artifacts.
 ## Test coverage added
 
 Backend tests cover authentication/session behavior, game APIs and upload validation, tag
-assignment rules, forum discussions and replies, comments, profiles, profile images, and the
-development data seeder. Repository/application context tests run against the same temporary
-PostgreSQL database and the actual Flyway migrations.
+assignment rules, forum discussions/replies/ratings, game comments/ratings, profiles and
+avatars, admin review, settings/account updates, game customization, news, follows, and the
+development data seeder. Repository/application context tests run against temporary
+PostgreSQL and the actual Flyway migrations.
 
-Frontend service tests cover API error handling and the auth, comment, forum, game upload, game,
-search, tag, and user service modules. Current configured frontend thresholds are 70% statements,
-50% branches, 85% functions, and 70% lines.
+Frontend tests cover API error handling, auth, comments, forum, game upload/details,
+customization, favorites, search, tags, user profiles, settings, news and follows. The CI job
+runs lint with zero allowed warnings, coverage and a production build.
 
 ## Troubleshooting
 

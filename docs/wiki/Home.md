@@ -1,159 +1,81 @@
 # Ludarium Wiki
 
-Ludarium is a web platform where indie game developers upload, publish and discuss browser
-games. Anyone can play what others have uploaded, rate it, comment on it, browse profiles and
-search the catalog.
+Ludarium is a web platform where indie game developers upload browser games and players
+discover, play, rate and discuss them. Authors submit drafts; administrators review and publish
+them. The community can also publish news, follow creators, and join game discussions.
 
 ## Features
 
 | Feature | Status |
 | --- | --- |
-| Paginated game catalog | working |
-| Play a game in an embedded player | working |
-| Registration, login, logout (session-based) | working |
-| Submit a game as a ZIP for administrator review | working |
-| Threaded comments with a 1-5 star rating | working |
-| Public user profiles with a description | working |
-| Combined search over games and users | working |
-| Community tags | on `feature/tags`, **not merged** — see [Tags](Tags.md) |
-| Forum, settings, random game | placeholder pages only |
+| Paginated published-game catalog, search and recommendations | implemented |
+| HTML game upload as a draft and admin review/publication | implemented |
+| Game comments, replies, 1–5 ratings and favorites | implemented |
+| Per-game appearance customization (colors and fonts) | implemented |
+| Profiles, avatars, user settings and account updates | implemented |
+| Forum discussions, tags, replies and ratings | implemented |
+| News feed, authoring, comments and creator follow/unfollow | implemented |
+| Save states for arbitrary HTML games | not implemented |
 
 ## Stack
 
-### Frontend
+- **Frontend:** React 19, TypeScript, Vite, React Router, hand-written CSS, native `fetch`.
+- **Backend:** Java 21, Spring Boot 4, Spring Security sessions + CSRF, Spring Data JPA,
+  Jakarta Validation.
+- **Database:** PostgreSQL; Flyway owns schema changes. Uploaded game assets and user media
+  are stored in PostgreSQL as `bytea`.
+- **Frontend tests:** Vitest; **backend tests:** JUnit/Spring tests with PostgreSQL Testcontainers.
 
-| | |
-| --- | --- |
-| React | 19 |
-| TypeScript | 6.0 |
-| Vite | 8.2 |
-| react-router-dom | 7.18 |
-| CSS | hand-written global CSS with custom properties |
-| HTTP | native `fetch` — no client library |
-
-Only three runtime dependencies. No state library, no component library, no test runner.
-
-### Backend
-
-| | |
-| --- | --- |
-| Java | 21 |
-| Spring Boot | 4.1.1 |
-| Spring Web MVC | `spring-boot-starter-webmvc` |
-| Spring Security | sessions + CSRF, no JWT |
-| Spring Data JPA | Hibernate |
-| Flyway | schema migrations V1-V5 (+ V6 on `feature/tags`) |
-| PostgreSQL | the only datastore, stores game binaries as `bytea` |
-| Validation | Jakarta Bean Validation |
-
-No Lombok, no MapStruct, no OpenAPI, no Actuator, no Docker.
-
-## How it fits together
+## Request flow
 
 ```text
-Browser (React SPA)
-  |  fetch, credentials: "include", CSRF header on writes
-  v
-Spring Boot on :8080
-  |-- /api/**        JSON metadata, comments, auth, search, upload
-  |-- /games/{id}/**  game files, read straight from the database
-  |
-  v
-PostgreSQL
-  app_user  games  game_files (bytea)  comments
+React SPA -- fetch + session cookie + CSRF on writes --> Spring Boot API --> PostgreSQL
+     |                                                     |
+     +-- separate game-content origin <-- game files ------+
 ```
 
-Uploaded games are stored as rows in `game_files`, not as files on disk. A game is uploaded as
-a ZIP in `DRAFT` state and becomes visible in the catalog only after an administrator tests
-and publishes it.
+New uploads are private drafts. Administrators can load draft games for review and publish
+them from `/admin/review`; only published games appear in the public catalog. Read
+[Authentication](Authentication.md) for role setup and [Game Upload](Game-Upload.md) for the
+review flow.
 
-## Project structure
+## Main routes
 
-```text
-TIP-video-ludoteca/
-  backend/
-    pom.xml
-    mvnw, mvnw.cmd
-    src/main/java/com/tip_video_ludoteca/
-      BackendApplication.java
-      auth/         AuthController
-      comments/     Comment, CommentRepository, CommentService, DTOs, exceptions
-      config/       SecurityConfig, WebConfig, GlobalExceptionHandler, DevDataSeeder
-      controller/   CommentApiController, GameApiController, GameController,
-                    GameCoverController, GameUploadController, ProfileApiController
-      games/        Game, GameFile, GameFileId, GameRepository, GameService,
-                    GameUploadService, GameStatus, exceptions
-      search/       SearchController
-      users/        User, UserRepository, UserProfileService, DatabaseUserDetailsService
-    src/main/resources/
-      application.properties
-      application-dev.properties
-      db/migration/  V1__create_users.sql ... V5__create_comments.sql
-    src/test/java/com/tip_video_ludoteca/   8 test classes, 56 tests
-  frontend/
-    package.json
-    vite.config.ts
-    .env.local          (gitignored: VITE_API_URL)
-    src/
-      App.tsx           routes
-      services/         the only place that calls fetch
-      types/            Game, Comment, Search, User
-      hooks/            useComments
-      pages/            Home, Game, AuthPage, Search, User, Profile,
-                        UploadGame, Forum, Settings, RandomGame
-      components/       comments/, games/, navbar/, profile/
-      index.css         design tokens
-  docs/wiki/            this wiki
-  mock/LudariumMU.png   design mockup, unreferenced
-  .github/workflows/ci.yml
-  README.md
-  LICENSE               MIT
-```
-
-## Screens
-
-| Route | Screen |
+| Route | Purpose |
 | --- | --- |
-| `/` | catalog grid with pagination |
-| `/game/:id` | game page: player, comments, ratings |
-| `/login`, `/register` | auth form, one component in two modes |
-| `/search` | combined results for games and users, paged per section |
-| `/user/:username` | public profile with description and activity |
-| `/profile` | redirect shim to `/user/{username}` |
-| `/games/upload` | submit a ZIP for review |
-| `/admin/review` | test and publish draft games (administrators only) |
-| `/forum`, `/settings`, `/randomgame` | placeholders |
+| `/` | Published game catalog |
+| `/game/:id` | Play a game, customize its appearance (owner), comment and rate |
+| `/search` | Search games and users |
+| `/forum`, `/forum/new`, `/forum/:discussionId` | Browse, create and read discussions |
+| `/noticias`, `/noticias/nueva`, `/noticias/:id` | Followed creators' news, publish and read |
+| `/user/:username`, `/profile` | Public profile and signed-in user's profile |
+| `/settings` | Persistent preferences and account settings |
+| `/games/upload` | Submit a game draft |
+| `/admin/setup`, `/admin/review` | Initial admin setup and draft/role management |
 
 ## Documentation map
 
 | Page | Contents |
 | --- | --- |
-| [Getting Started](Getting-Started.md) | prerequisites, PostgreSQL setup, running both halves |
-| [Architecture](Architecture.md) | packages, request flows, error handling, design decisions |
-| [Database](Database.md) | PostgreSQL, the five Flyway migrations, the entity model |
-| [API](API.md) | every endpoint with payloads and status codes |
-| [Authentication](Authentication.md) | sessions, CSRF, authorization matrix, CORS |
-| [Game Upload](Game-Upload.md) | the ZIP → DRAFT → PUBLISHED flow and its limits |
-| [Game Assets](Game-Assets.md) | how game files are stored and served |
-| [Frontend](Frontend.md) | routes, services, types, state, styling, linting |
-| [Tags](Tags.md) | the tags feature on `feature/tags`, not merged |
-| [Testing](Testing.md) | the 56-test backend suite, the CI workflow, the gaps |
-| [Known Issues](Known-Issues.md) | bugs, dead code and technical debt, prioritised |
+| [Getting Started](Getting-Started.md) | prerequisites, database setup and running locally |
+| [Architecture](Architecture.md) | packages, request flows and design decisions |
+| [Database](Database.md) | PostgreSQL, migrations and entity relationships |
+| [API](API.md) | endpoints, access and payload conventions |
+| [Authentication](Authentication.md) | sessions, CSRF, roles and authorization |
+| [Game Upload](Game-Upload.md) | upload, draft review and publication |
+| [Game Assets](Game-Assets.md) | storage and serving game files |
+| [Game Isolation](Game-Isolation.md) | iframe origin and browser security |
+| [Frontend](Frontend.md) | routes, services, settings, styling and localization |
+| [Settings](Settings.md) | account data and persisted preferences |
+| [Game Customization](Game-Customization.md) | per-game appearance options and ownership |
+| [News and Follows](News-and-Follows.md) | creator news, feeds, follows and comments |
+| [Tags](Tags.md) | game and discussion tags |
+| [Testing](Testing.md) | local test commands and GitHub Actions |
+| [Known Issues](Known-Issues.md) | current caveats and technical debt |
 
-## Project status
-
-`main` is a week behind the working branches and still contains the retired JSON catalog plus
-~142 MB of Godot binaries. The current code is on `featureComentarios`. Read
-[Known Issues](Known-Issues.md#branch-divergence) before deploying or merging anything.
-
-There is no deployment configuration in the repository: no Dockerfile, no compose file, no
-production Spring profile.
-
-## Contributors
+## Contributors and license
 
 - Nahuel Zanier
 - Lucas Sanguinetti
-
-## License
 
 MIT. See [LICENSE](../../LICENSE).

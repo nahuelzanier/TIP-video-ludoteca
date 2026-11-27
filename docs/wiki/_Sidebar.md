@@ -10,11 +10,14 @@
 - [Game Assets](Game-Assets.md)
 - [Game Isolation](Game-Isolation.md)
 - [Frontend](Frontend.md)
+- [Settings](Settings.md)
+- [Game Customization](Game-Customization.md)
+- [News and Follows](News-and-Follows.md)
 - [Testing](Testing.md)
 
-### In progress
+### Features
 
-- [Tags](Tags.md) — on `feature/tags`, not merged
+- [Tags](Tags.md) — game and forum discussion tags
 
 ### Reference
 
