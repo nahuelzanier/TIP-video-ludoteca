@@ -46,6 +46,22 @@ public class CommentApiController {
                 .body(comments.create(gameId, request, principal.getUsername()));
     }
 
+    @GetMapping("/news/{noticiaId}/comments")
+    public List<CommentResponse> listNewsComments(@PathVariable Long noticiaId) {
+        return comments.listByNews(noticiaId);
+    }
+
+    @PostMapping("/news/{noticiaId}/comments")
+    public ResponseEntity<CommentResponse> createNewsComment(
+            @AuthenticationPrincipal UserDetails principal,
+            @PathVariable Long noticiaId,
+            @Valid @RequestBody CreateCommentRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(comments.createForNews(noticiaId, request, principal.getUsername()));
+    }
+
     @PostMapping("/comments/{commentId}/replies")
     public ResponseEntity<CommentResponse> createReply(
             @AuthenticationPrincipal UserDetails principal,

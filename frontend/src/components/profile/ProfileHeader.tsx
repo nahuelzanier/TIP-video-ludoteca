@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Pencil, Camera, LogOut, Settings } from "lucide-react";
 import { useTranslation } from "../../services/i18n";
+import FollowButton from "../followers/FollowButton";
 import "./ProfileHeader.css";
 
 const EMPTY_DESCRIPTION = "This user hasn't added a description yet.";
@@ -14,6 +15,14 @@ interface ProfileHeaderProps {
     isAdmin: boolean;
     loggingOut: boolean;
     error: string;
+    showFollow?: boolean;
+    isAuthenticated?: boolean;
+    following?: boolean;
+    followLoading?: boolean;
+    followError?: string;
+    followersCount?: number | null;
+    followingCount?: number | null;
+    onToggleFollow?: () => void;
     onEdit: () => void;
     onChangePhoto: () => void;
     onUpload: () => void;
@@ -28,6 +37,14 @@ function ProfileHeader({
     isAdmin,
     loggingOut,
     error,
+    showFollow = false,
+    isAuthenticated = false,
+    following = false,
+    followLoading = false,
+    followError = "",
+    followersCount = null,
+    followingCount = null,
+    onToggleFollow,
     onEdit,
     onChangePhoto,
     onUpload,
@@ -70,6 +87,17 @@ function ProfileHeader({
             <div className="profile-header-body">
                 <h1 className="profile-header-name">{username}</h1>
 
+                {(followersCount !== null || followingCount !== null) && (
+                    <div className="profile-stats">
+                        <span>
+                            <strong>{followersCount ?? 0}</strong> {t("followers")}
+                        </span>
+                        <span>
+                            <strong>{followingCount ?? 0}</strong> {t("following")}
+                        </span>
+                    </div>
+                )}
+
                 <div className="profile-description-header">
                     <h2 className="profile-description-title">{t("About")}</h2>
                     {isOwnProfile && (
@@ -94,8 +122,21 @@ function ProfileHeader({
                 </p>
             </div>
 
-            {isOwnProfile && (
+            {(isOwnProfile || showFollow) && (
                 <div className="profile-actions">
+                    {showFollow && !isOwnProfile && (
+                        <FollowButton
+                            username={username}
+                            following={following}
+                            loading={followLoading}
+                            error={followError}
+                            isAuthenticated={isAuthenticated}
+                            onToggle={onToggleFollow ?? (() => undefined)}
+                        />
+                    )}
+
+                    {isOwnProfile && (
+                    <>
                     <button className="profile-upload" type="button" onClick={onUpload}>
                         {t("Upload a game")}
                     </button>
@@ -121,6 +162,8 @@ function ProfileHeader({
                     >
                         <LogOut size={18} aria-hidden="true" />
                     </button>
+                    </>
+                    )}
                 </div>
             )}
 

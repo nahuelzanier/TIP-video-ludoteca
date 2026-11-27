@@ -180,3 +180,37 @@
 :root[data-theme="light"] .admin-review__test {
   color: #5a13d2;
 }
+
+:root[data-theme="light"] .site-header .site-header__nav a[aria-current="page"] {
+  color: var(--accent);
+  outline-color: var(--accent-border);
+}
+
+:root[data-theme="light"] .navbar-link--active,
+:root[data-theme="light"] .navbar-link:hover,
+:root[data-theme="light"] .navbar-button:hover {
+  color: var(--accent);
+}
+
+:root[data-theme="light"] .news-page,
+:root[data-theme="light"] .news-detail-page,
+:root[data-theme="light"] .news-publish-page,
+:root[data-theme="light"] .news-card,
+:root[data-theme="light"] .follow-button-group {
+  --news-bg: #f6f6f8;
+  --news-panel: #fff;
+  --news-panel-hover: #f8f5fc;
+  --news-field: #f8f7fa;
+  --news-border: #e5e4e7;
+  --news-border-strong: #d5d1dc;
+  --news-text: #1f1b26;
+  --news-text-body: #4b4554;
+  --news-muted: #746e7e;
+  --news-pink: #b4235e;
+  --news-pink-hover: #94194c;
+  --news-purple: #6f1ff0;
+  --news-accent: #b4235e;
+  --news-accent-hover: #94194c;
+  --news-accent-bg: rgba(180, 35, 94, 0.08);
+  --news-error: #b42318;
+}

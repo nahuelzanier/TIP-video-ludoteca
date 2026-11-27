@@ -15,9 +15,31 @@ public record CommentResponse(
         String username,
         String profileImageUrl,
         boolean isGameAuthor,
+        boolean isTargetAuthor,
         List<CommentResponse> replies) {
 
+    public CommentResponse(
+            Long id,
+            String content,
+            Integer rating,
+            Instant createdAt,
+            boolean edited,
+            String username,
+            String profileImageUrl,
+            boolean isGameAuthor,
+            List<CommentResponse> replies) {
+        this(id, content, rating, createdAt, edited, username, profileImageUrl,
+                isGameAuthor, isGameAuthor, replies);
+    }
+
     static CommentResponse from(Comment comment, Game game, boolean isGameAuthor) {
+        return from(comment, isGameAuthor, isGameAuthor);
+    }
+
+    static CommentResponse from(
+            Comment comment,
+            boolean isGameAuthor,
+            boolean isTargetAuthor) {
         return new CommentResponse(
                 comment.getId(),
                 comment.getContent(),
@@ -27,6 +49,7 @@ public record CommentResponse(
                 comment.getAuthor().getUsername(),
                 comment.getAuthor().getProfileImageUrl(),
                 isGameAuthor,
+                isTargetAuthor,
                 List.of());
     }
 
@@ -40,6 +63,7 @@ public record CommentResponse(
                 username,
                 profileImageUrl,
                 isGameAuthor,
+                isTargetAuthor,
                 replies);
     }
 

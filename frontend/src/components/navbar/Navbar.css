@@ -75,6 +75,20 @@
   color: #ff6b9b;
 }
 
+.site-header__nav-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.site-header .site-header__nav a[aria-current="page"] {
+  padding: 3px 6px;
+  color: #ff6b9b;
+  outline: 1px solid rgba(255, 107, 155, 0.6);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
 .site-header__random {
   display: inline-flex;
   align-items: center;
@@ -352,6 +366,12 @@
 .navbar-link--active {
   color: #ff6b9b;
   background: rgba(240, 78, 135, 0.1);
+}
+
+.navbar-link--with-icon {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .navbar-link--active {

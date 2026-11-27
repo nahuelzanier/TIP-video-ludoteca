@@ -94,6 +94,10 @@ public class SecurityConfig {
                     "/api/users/*/avatar",
                     "/api/auth/csrf",
                     "/api/forum/tags",
+                    "/api/follows/*/counts",
+                    "/api/news/*",
+                    "/api/news/*/image",
+                    "/api/news/*/comments",
                     "/error").permitAll()
                 .requestMatchers(HttpMethod.GET,
                         "/api/forum/discussions",

@@ -3,9 +3,13 @@ package com.tip_video_ludoteca.config;
 import com.tip_video_ludoteca.comments.CommentEditForbiddenException;
 import com.tip_video_ludoteca.comments.CommentNotFoundException;
 import com.tip_video_ludoteca.comments.InvalidCommentException;
+import com.tip_video_ludoteca.followers.InvalidFollowException;
 import com.tip_video_ludoteca.games.GameEditForbiddenException;
 import com.tip_video_ludoteca.games.GameNotFoundException;
 import com.tip_video_ludoteca.games.NoGamesAvailableException;
+import com.tip_video_ludoteca.news.InvalidNoticiaException;
+import com.tip_video_ludoteca.news.NoticiaEditForbiddenException;
+import com.tip_video_ludoteca.news.NoticiaNotFoundException;
 import com.tip_video_ludoteca.users.ProfileEditForbiddenException;
 import com.tip_video_ludoteca.users.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -45,9 +49,20 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
+    @ExceptionHandler(NoticiaNotFoundException.class)
+    public ResponseEntity<Map<String, String>> noticiaNotFound(
+            NoticiaNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
     @ExceptionHandler(InvalidCommentException.class)
     public ResponseEntity<Map<String, String>> invalidComment(
             InvalidCommentException exception) {
+        return error(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler({InvalidNoticiaException.class, InvalidFollowException.class})
+    public ResponseEntity<Map<String, String>> invalidRequest(RuntimeException exception) {
         return error(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
@@ -66,6 +81,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GameEditForbiddenException.class)
     public ResponseEntity<Map<String, String>> gameEditForbidden(
             GameEditForbiddenException exception) {
+        return error(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
+    @ExceptionHandler(NoticiaEditForbiddenException.class)
+    public ResponseEntity<Map<String, String>> noticiaEditForbidden(
+            NoticiaEditForbiddenException exception) {
         return error(HttpStatus.FORBIDDEN, exception.getMessage());
     }
 

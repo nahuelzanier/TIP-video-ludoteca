@@ -1,14 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   createComment,
+  createNewsComment,
   createReply,
   getGameComments,
+  getNewsComments,
   updateComment,
 } from "../services/commentService";
 import { getCurrentUser, type AuthUser } from "../services/authService";
 import type { Comment } from "../types/Comment";
 
 const LOAD_ERROR = "Could not load comments.";
+
+export type CommentTarget = {
+  type: "game" | "news";
+  id: string;
+};
+
+type CommentTargetInput = string | CommentTarget;
 
 interface UseCommentsResult {
   comments: Comment[];
@@ -22,13 +31,31 @@ interface UseCommentsResult {
   submitEdit: (commentId: number, content: string) => Promise<boolean>;
 }
 
-export function useComments(gameId: string): UseCommentsResult {
+function resolveTarget(input: CommentTargetInput): CommentTarget {
+  return typeof input === "string" ? { type: "game", id: input } : input;
+}
+
+/**
+ * A plain string keeps the original game-only contract; passing
+ * `{ type: "news", id }` reuses the same state machine for news comments.
+ */
+export function useComments(input: CommentTargetInput): UseCommentsResult {
+  const target = resolveTarget(input);
+  const targetType = target.type;
+  const targetId = target.id;
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+
+  const loadComments = useCallback(async (): Promise<Comment[]> => {
+    return targetType === "news"
+      ? getNewsComments(Number(targetId))
+      : getGameComments(targetId);
+  }, [targetType, targetId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,7 +80,7 @@ export function useComments(gameId: string): UseCommentsResult {
   useEffect(() => {
     let cancelled = false;
 
-    getGameComments(gameId)
+    loadComments()
       .then((loaded) => {
         if (!cancelled) {
           setComments(loaded);
@@ -73,7 +100,7 @@ export function useComments(gameId: string): UseCommentsResult {
     return () => {
       cancelled = true;
     };
-  }, [gameId]);
+  }, [loadComments]);
 
   const publish = useCallback(
     async (send: () => Promise<Comment>): Promise<boolean> => {
@@ -82,7 +109,7 @@ export function useComments(gameId: string): UseCommentsResult {
 
       try {
         await send();
-        setComments(await getGameComments(gameId));
+        setComments(await loadComments());
         return true;
       } catch (requestError) {
         setSubmitError(messageOf(requestError, "Could not post your comment."));
@@ -91,15 +118,17 @@ export function useComments(gameId: string): UseCommentsResult {
         setSubmitting(false);
       }
     },
-    [gameId],
+    [loadComments],
   );
 
   const submitComment = useCallback(
     (content: string, rating: number | null) =>
-      publish(() =>
-        createComment(gameId, rating === null ? { content } : { content, rating }),
-      ),
-    [gameId, publish],
+      targetType === "news"
+        ? publish(() => createNewsComment(Number(targetId), { content }))
+        : publish(() =>
+            createComment(targetId, rating === null ? { content } : { content, rating }),
+          ),
+    [targetType, targetId, publish],
   );
 
   const submitReply = useCallback(

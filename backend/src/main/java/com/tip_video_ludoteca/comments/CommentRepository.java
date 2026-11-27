@@ -12,4 +12,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @EntityGraph(attributePaths = "author")
     List<Comment> findByGame_IdAndParentCommentIsNotNullOrderByCreatedAtAscIdAsc(String gameId);
+
+    @EntityGraph(attributePaths = "author")
+    List<Comment> findByNoticia_IdAndParentCommentIsNullOrderByCreatedAtDescIdDesc(Long noticiaId);
+
+    @EntityGraph(attributePaths = "author")
+    List<Comment> findByNoticia_IdAndParentCommentIsNotNullOrderByCreatedAtAscIdAsc(Long noticiaId);
 }

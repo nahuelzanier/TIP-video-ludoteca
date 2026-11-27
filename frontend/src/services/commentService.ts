@@ -67,12 +67,32 @@ export async function getGameComments(gameId: string): Promise<Comment[]> {
   return response.json();
 }
 
+export async function getNewsComments(noticiaId: number): Promise<Comment[]> {
+  const response = await fetch(`${API_BASE_URL}/api/news/${noticiaId}/comments`);
+
+  if (!response.ok) {
+    throw new Error(await readError(response));
+  }
+
+  return response.json();
+}
+
 export function createComment(
   gameId: string,
   payload: CreateCommentPayload,
 ): Promise<Comment> {
   return postComment<Comment>(
     `${API_BASE_URL}/api/games/${encodeURIComponent(gameId)}/comments`,
+    payload as unknown as Record<string, unknown>,
+  );
+}
+
+export function createNewsComment(
+  noticiaId: number,
+  payload: CreateCommentPayload,
+): Promise<Comment> {
+  return postComment<Comment>(
+    `${API_BASE_URL}/api/news/${noticiaId}/comments`,
     payload as unknown as Record<string, unknown>,
   );
 }

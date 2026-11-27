@@ -17,7 +17,14 @@ import {
     updateDescription,
     uploadAvatar,
 } from "../../services/userService";
+import {
+    followUser,
+    getFollowCounts,
+    getFollowStatus,
+    unfollowUser,
+} from "../../services/followService";
 import type { GamePage } from "../../services/gameService";
+import type { FollowCounts, FollowStatus } from "../../types/News";
 import type { UserProfile } from "../../types/User";
 import type { ForumDiscussion } from "../../services/forumService";
 import "./User.css";
@@ -66,6 +73,10 @@ function User() {
     const [forums, setForums] = useState<ForumDiscussion[]>([]);
     const [forumsLoading, setForumsLoading] = useState(true);
     const [forumsError, setForumsError] = useState("");
+    const [followStatus, setFollowStatus] = useState<FollowStatus | null>(null);
+    const [followCounts, setFollowCounts] = useState<FollowCounts | null>(null);
+    const [followLoading, setFollowLoading] = useState(false);
+    const [followError, setFollowError] = useState("");
 
     useEffect(() => {
         getCurrentUser()
@@ -171,6 +182,61 @@ function User() {
             cancelled = true;
         };
     }, [requestedUsername]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        if (!requestedUsername) {
+            return;
+        }
+
+        const statusRequest = currentUser
+            ? getFollowStatus(requestedUsername).catch(() => ({
+                username: requestedUsername,
+                following: false,
+            }))
+            : Promise.resolve(null);
+
+        Promise.all([
+            statusRequest,
+            getFollowCounts(requestedUsername).catch(() => null),
+        ]).then(([status, counts]) => {
+            if (!cancelled) {
+                setFollowStatus(status);
+                setFollowCounts(counts);
+            }
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [requestedUsername, currentUser]);
+
+    async function handleToggleFollow() {
+        if (!currentUser || !profile) {
+            return;
+        }
+
+        setFollowLoading(true);
+        setFollowError("");
+
+        try {
+            const following = followStatus?.following
+                ? await unfollowUser(profile.username)
+                : await followUser(profile.username);
+
+            setFollowStatus({ username: profile.username, following });
+            setFollowCounts(await getFollowCounts(profile.username));
+        } catch (requestError) {
+            setFollowError(
+                requestError instanceof Error
+                    ? requestError.message
+                    : "Could not update the follow status.",
+            );
+        } finally {
+            setFollowLoading(false);
+        }
+    }
 
     async function handleSave(description: string) {
         if (!profile) {
@@ -314,6 +380,14 @@ function User() {
                 isAdmin={currentUser?.role === "ADMIN"}
                 loggingOut={loggingOut}
                 error={logoutError}
+                showFollow={!isOwnProfile}
+                isAuthenticated={currentUser !== null}
+                following={followStatus?.following ?? false}
+                followLoading={followLoading}
+                followError={followError}
+                followersCount={followCounts?.followersCount ?? null}
+                followingCount={followCounts?.followingCount ?? null}
+                onToggleFollow={handleToggleFollow}
                 onEdit={() => {
                     setSaveError("");
                     setIsEditing(true);
