@@ -166,16 +166,12 @@ function ForumDiscussionPage() {
       </Link>
 
       <article className="forum-detail">
-        {discussion.coverImageUrl ? (
+        {discussion.coverImageUrl && (
           <img
             className="forum-detail__cover"
             src={discussion.coverImageUrl}
             alt=""
           />
-        ) : (
-          <div className="forum-detail__cover forum-detail__cover--fallback">
-            {discussion.gameTitle}
-          </div>
         )}
 
         <div className="forum-detail__content">

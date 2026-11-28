@@ -114,3 +114,33 @@ export async function assignGameTag(
 
   return response.json();
 }
+
+export async function removeGameTag(
+  gameId: string,
+  tagId: number,
+): Promise<GameTag[]> {
+  const csrfResponse = await fetch(`${API_BASE_URL}/api/auth/csrf`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (!csrfResponse.ok) {
+    throw new Error("Could not prepare the tag request.");
+  }
+
+  const csrf: CsrfResponse = await csrfResponse.json();
+  const response = await fetch(
+    `${API_BASE_URL}/api/games/${encodeURIComponent(gameId)}/tags/${tagId}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      headers: { [csrf.headerName]: csrf.token },
+    },
+  );
+
+  if (!response.ok) {
+    return readError(response);
+  }
+
+  return response.json();
+}

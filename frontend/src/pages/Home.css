@@ -7,6 +7,7 @@
   --home-muted: #a4a8b2;
   --home-pink: #f04e87;
   --home-pink-light: #ff6b9b;
+  --home-rating: #f4c95d;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -48,7 +49,7 @@
 .home__intro {
   max-width: 460px;
   margin: 0 0 18px;
-  color: #c1c3ca;
+  color: var(--home-muted);
   font-size: 1rem;
   line-height: 1.55;
 }
@@ -166,6 +167,36 @@
   gap: 14px;
 }
 
+.home__game-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 18px;
+  color: var(--home-muted);
+  font-size: 0.82rem;
+}
+
+.home__game-pagination button {
+  min-height: 36px;
+  padding: 0 13px;
+  color: var(--home-text);
+  background: var(--home-surface);
+  border: 1px solid var(--home-border);
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.home__game-pagination button:hover:not(:disabled) {
+  border-color: var(--home-pink-light);
+}
+
+.home__game-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .home-game-card {
   position: relative;
   min-width: 0;
@@ -217,7 +248,7 @@
 .home-game-card__body h3 {
   overflow: hidden;
   margin: 0 0 3px;
-  color: #f6f5f8;
+  color: var(--home-text);
   font-size: 0.88rem;
   font-weight: 650;
   text-overflow: ellipsis;
@@ -254,7 +285,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 12px;
-  color: #ececf1;
+  color: var(--home-text);
   background: var(--home-surface);
   border: 1px solid var(--home-border);
   border-radius: 7px;
@@ -337,7 +368,7 @@
 
 .home__activity-title {
   overflow: hidden;
-  color: #f1f0f4;
+  color: var(--home-text);
   font-size: 0.76rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -355,7 +386,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #f4c95d;
+  color: var(--home-rating);
   font-size: 0.68rem;
 }
 

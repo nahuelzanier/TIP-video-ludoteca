@@ -34,6 +34,7 @@ const spanish: Record<string, string> = {
   "Discover incredible indie games, support their creators, and become part of the community.": "Descubrí juegos indie increíbles, apoyá a sus creadores y sumate a la comunidad.",
   "Explore games": "Explorar juegos",
   "Featured games": "Juegos destacados",
+  "All games": "Todos los juegos",
   "Loading games...": "Cargando juegos...",
   "No games have been published yet. Be the first to share one!": "Todavía no hay juegos publicados. ¡Sé el primero en compartir uno!",
   "Browse by category": "Explorar por categoría",

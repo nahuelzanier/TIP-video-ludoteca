@@ -67,17 +67,6 @@
   background: #fff;
 }
 
-.forum-detail__cover--fallback {
-  display: grid;
-  place-items: center;
-  color: #c5b9d9;
-  background:
-    radial-gradient(ellipse at 70% 20%, rgba(150, 60, 255, 0.32), transparent 55%),
-    linear-gradient(135deg, #28243e, #151722);
-  font-size: 1rem;
-  font-weight: 650;
-}
-
 .forum-detail__content {
   padding: 22px;
 }

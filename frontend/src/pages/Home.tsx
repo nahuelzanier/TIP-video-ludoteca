@@ -27,6 +27,8 @@ function relativeTime(dateValue: string, t: (value: string) => string): string {
 function Home() {
   const { t } = useTranslation();
   const [games, setGames] = useState<Game[]>([]);
+  const [gamePage, setGamePage] = useState(0);
+  const [totalGamePages, setTotalGamePages] = useState(0);
   const [tags, setTags] = useState<TagOption[]>([]);
   const [discussions, setDiscussions] = useState<ForumDiscussion[]>([]);
   const [gameError, setGameError] = useState("");
@@ -39,23 +41,28 @@ function Home() {
 
   useEffect(() => {
     let isCurrentRequest = true;
-
-    getGamesPage(0, 5)
+    setGamesLoading(true);
+    setGameError("");
+    getGamesPage(gamePage, 12)
       .then((result) => {
-        if (isCurrentRequest) setGames(result.content);
+        if (isCurrentRequest) {
+          setGames(result.content);
+          setTotalGamePages(result.totalPages);
+        }
       })
       .catch((requestError: unknown) => {
         if (isCurrentRequest) {
-          setGameError(
-            requestError instanceof Error
-              ? requestError.message
-              : "Could not load games.",
-          );
+          setGameError(requestError instanceof Error ? requestError.message : "Could not load games.");
         }
       })
       .finally(() => {
         if (isCurrentRequest) setGamesLoading(false);
       });
+    return () => { isCurrentRequest = false; };
+  }, [gamePage]);
+
+  useEffect(() => {
+    let isCurrentRequest = true;
 
     getAvailableTags()
       .then((result) => {
@@ -102,7 +109,7 @@ function Home() {
   }
 
   function handleExplore() {
-    navigate("/search");
+    document.getElementById("explore-games")?.scrollIntoView({ behavior: "smooth" });
   }
 
   function handleUpload() {
@@ -136,9 +143,9 @@ function Home() {
           </div>
         </section>
 
-        <section className="home__featured" aria-labelledby="featured-title">
+        <section className="home__featured" id="explore-games" aria-labelledby="featured-title">
           <div className="home__section-heading">
-            <h2 id="featured-title">{t("Featured games")}</h2>
+            <h2 id="featured-title">{t("All games")}</h2>
           </div>
 
           {gamesLoading && <p className="home__message">{t("Loading games...")}</p>}
@@ -165,6 +172,17 @@ function Home() {
                 </article>
               ))}
             </div>
+          )}
+          {!gameError && totalGamePages > 1 && (
+            <nav className="home__game-pagination" aria-label={t("Game pages")}>
+              <button type="button" onClick={() => setGamePage((page) => Math.max(0, page - 1))} disabled={gamePage === 0 || gamesLoading}>
+                {t("Previous")}
+              </button>
+              <span>{t("Page")} {gamePage + 1} {t("of")} {totalGamePages}</span>
+              <button type="button" onClick={() => setGamePage((page) => Math.min(totalGamePages - 1, page + 1))} disabled={gamePage + 1 >= totalGamePages || gamesLoading}>
+                {t("Next")}
+              </button>
+            </nav>
           )}
         </section>
 

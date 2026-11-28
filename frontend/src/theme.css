@@ -66,6 +66,7 @@
   --home-muted: #746e7e;
   --home-pink: #b4235e;
   --home-pink-light: #a91f57;
+  --home-rating: #805600;
 }
 
 :root[data-theme="light"] .auth-page {

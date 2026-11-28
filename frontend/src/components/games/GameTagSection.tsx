@@ -9,6 +9,7 @@ import {
   getAvailableTags,
   getGameTags,
   getMyGameTagIds,
+  removeGameTag,
   type GameTag,
   type TagOption,
 } from "../../services/tagService";
@@ -74,9 +75,17 @@ function GameTagSection({ gameId }: GameTagSectionProps) {
     setAssigningTagId(tag.id);
 
     try {
-      const updatedTags = await assignGameTag(gameId, tag.id);
+      const alreadyAssigned = myTagIds.has(tag.id);
+      const updatedTags = alreadyAssigned
+        ? await removeGameTag(gameId, tag.id)
+        : await assignGameTag(gameId, tag.id);
       setGameTags(updatedTags);
-      setMyTagIds((current) => new Set(current).add(tag.id));
+      setMyTagIds((current) => {
+        const next = new Set(current);
+        if (alreadyAssigned) next.delete(tag.id);
+        else next.add(tag.id);
+        return next;
+      });
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -126,16 +135,14 @@ function GameTagSection({ gameId }: GameTagSectionProps) {
                 <button
                   key={tag.id}
                   type="button"
+                  className={alreadyAssigned ? "game-tag-option--selected" : undefined}
                   onClick={() => handleAssignTag(tag)}
-                  disabled={alreadyAssigned || assigningTagId !== null}
-                  title={
-                    alreadyAssigned
-                      ? "You have already assigned this tag."
-                      : `Assign the ${tag.name} tag`
-                  }
+                  disabled={assigningTagId !== null}
+                  aria-pressed={alreadyAssigned}
+                  title={alreadyAssigned ? `Remove your ${tag.name} tag` : `Assign the ${tag.name} tag`}
                 >
                   {tag.name}
-                  {alreadyAssigned ? " ✓" : ""}
+                  {alreadyAssigned ? " ✓" : " +"}
                 </button>
               );
             })}

@@ -55,6 +55,14 @@ public class GameTagController {
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedTags);
     }
 
+    @DeleteMapping("/games/{gameId}/tags/{tagId}")
+    public List<GameTagSummary> removeTag(
+            @PathVariable String gameId,
+            @PathVariable Long tagId,
+            @AuthenticationPrincipal UserDetails currentUser) {
+        return gameTagService.removeTag(gameId, tagId, currentUser.getUsername());
+    }
+
     public record AssignTagRequest(Long tagId) {
     }
 }

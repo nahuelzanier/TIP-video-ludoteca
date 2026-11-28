@@ -95,6 +95,36 @@ public class GameTagService {
         return assignments.findTagSummariesByGameId(gameId);
     }
 
+    @Transactional
+    public List<GameTagSummary> removeTag(
+            String gameId,
+            Long tagId,
+            String userEmail) {
+
+        if (tagId == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "A tag ID is required."
+            );
+        }
+
+        requirePublishedGame(gameId);
+
+        User user = users.findByEmailIgnoreCase(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Authenticated user not found."
+                ));
+
+        assignments.deleteById_GameIdAndId_TagIdAndId_UserId(
+                gameId,
+                tagId,
+                user.getId()
+        );
+
+        return assignments.findTagSummariesByGameId(gameId);
+    }
+
     @Transactional(readOnly = true)
     public List<Long> getMyAssignedTagIds(String gameId, String userEmail) {
         requirePublishedGame(gameId);

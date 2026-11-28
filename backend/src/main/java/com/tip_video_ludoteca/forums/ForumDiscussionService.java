@@ -267,9 +267,11 @@ public class ForumDiscussionService {
                             discussion.getGame().getTitle(),
                             discussion.getAuthor().getUsername(),
                             discussion.getAuthor().getProfileImageUrl(),
-                            "/api/forum/discussions/"
-                                    + discussion.getId()
-                                    + "/cover",
+                            discussion.getCoverImage() == null
+                                    ? null
+                                    : "/api/forum/discussions/"
+                                            + discussion.getId()
+                                            + "/cover",
                             discussionTags,
                             aggregate == null ? null : aggregate.getAverageRating(),
                             aggregate == null ? 0 : aggregate.getRatingCount()
@@ -378,7 +380,9 @@ public class ForumDiscussionService {
                 discussion.getGame().getTitle(),
                 discussion.getAuthor().getUsername(),
                 discussion.getAuthor().getProfileImageUrl(),
-                "/api/forum/discussions/" + discussion.getId() + "/cover",
+                discussion.getCoverImage() == null
+                        ? null
+                        : "/api/forum/discussions/" + discussion.getId() + "/cover",
                 discussionTags,
                 aggregate == null ? null : aggregate.getAverageRating(),
                 aggregate == null ? 0 : aggregate.getRatingCount(),

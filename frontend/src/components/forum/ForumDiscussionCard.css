@@ -27,6 +27,11 @@
   transform: translateY(-2px);
 }
 
+.forum-card--no-cover {
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .forum-card:focus-visible {
   outline: 2px solid var(--forum-purple);
   outline-offset: 3px;
@@ -41,16 +46,6 @@
   background: #222536;
   border-radius: 12px;
 }
-
-.forum-card__cover-fallback {
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  color: var(--forum-muted);
-  text-align: center;
-}
-
-.forum-card__cover-fallback[hidden] { display: none; }
 
 .forum-card__body {
   display: flex;

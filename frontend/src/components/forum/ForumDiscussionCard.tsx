@@ -10,27 +10,21 @@ interface ForumDiscussionCardProps {
 function ForumDiscussionCard({ discussion }: ForumDiscussionCardProps) {
   const { t } = useTranslation();
   return (
-    <Link className="forum-card" to={`/forum/${discussion.id}`}>
-      {discussion.coverImageUrl ? (
-        <>
-          <img
-            className="forum-card__cover"
-            src={discussion.coverImageUrl}
-            alt=""
-            loading="lazy"
-            onError={(event) => {
-              event.currentTarget.hidden = true;
-              event.currentTarget.nextElementSibling?.removeAttribute("hidden");
-            }}
-          />
-          <div className="forum-card__cover forum-card__cover-fallback" hidden aria-hidden="true">
-            No cover image
-          </div>
-        </>
-      ) : (
-        <div className="forum-card__cover forum-card__cover-fallback" aria-hidden="true">
-          No cover image
-        </div>
+    <Link
+      className={`forum-card${discussion.coverImageUrl ? "" : " forum-card--no-cover"}`}
+      to={`/forum/${discussion.id}`}
+    >
+      {discussion.coverImageUrl && (
+        <img
+          className="forum-card__cover"
+          src={discussion.coverImageUrl}
+          alt=""
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.hidden = true;
+            event.currentTarget.closest(".forum-card")?.classList.add("forum-card--no-cover");
+          }}
+        />
       )}
       <div className="forum-card__body">
         <div className="forum-card__author">

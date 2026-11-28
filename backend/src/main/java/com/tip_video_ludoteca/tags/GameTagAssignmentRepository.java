@@ -16,6 +16,12 @@ public interface GameTagAssignmentRepository
             Long userId
     );
 
+    void deleteById_GameIdAndId_TagIdAndId_UserId(
+            String gameId,
+            Long tagId,
+            Long userId
+    );
+
     List<GameTagAssignment> findAllById_GameId(String gameId);
 
     @Query("""

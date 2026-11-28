@@ -14,7 +14,8 @@ public interface NoticiaRepository extends JpaRepository<Noticia, Long> {
     @EntityGraph(attributePaths = "author")
     @Query("""
             SELECT n FROM Noticia n
-            WHERE EXISTS (
+            WHERE LOWER(n.author.email) = LOWER(:email)
+               OR EXISTS (
                 SELECT f FROM Follow f
                 WHERE f.followed.id = n.author.id
                   AND f.follower.email = :email
