@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { assignGameTag, getAvailableTags, getGameTags, getMyGameTagIds } from "./tagService";
+import { assignGameTag, getAvailableTags, getGameTags, getMyGameTagIds, removeGameTag } from "./tagService";
 
 let fetchMock: ReturnType<typeof vi.fn>;
 
@@ -57,6 +57,27 @@ describe("tagService", () => {
       "X-XSRF-TOKEN": "csrf",
     });
     expect(request.body).toBe(JSON.stringify({ tagId: 6 }));
+  });
+
+  it("removes the signed-in user's tag assignment with CSRF", async () => {
+    const updatedTags = [{
+      tagId: 3, name: "Puzzle", slug: "puzzle", assignmentCount: 1,
+      firstAssignedAt: "2026-10-01T00:00:00Z",
+    }];
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ headerName: "X-XSRF-TOKEN", token: "csrf" }))
+      .mockResolvedValueOnce(jsonResponse(updatedTags));
+
+    await expect(removeGameTag("game/1", 4)).resolves.toEqual(updatedTags);
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "http://localhost:8080/api/auth/csrf",
+      "http://localhost:8080/api/games/game%2F1/tags/4",
+    ]);
+    expect(fetchMock.mock.calls[1][1]).toEqual({
+      method: "DELETE",
+      credentials: "include",
+      headers: { "X-XSRF-TOKEN": "csrf" },
+    });
   });
 
   it("uses the response text when an API error is not JSON", async () => {

@@ -41,8 +41,6 @@ function Home() {
 
   useEffect(() => {
     let isCurrentRequest = true;
-    setGamesLoading(true);
-    setGameError("");
     getGamesPage(gamePage, 12)
       .then((result) => {
         if (isCurrentRequest) {
@@ -106,6 +104,12 @@ function Home() {
   function handleCategoryClick(tag: TagOption) {
     const params = new URLSearchParams({ tagIds: String(tag.id) });
     navigate(`/search?${params.toString()}`);
+  }
+
+  function handleGamePageChange(nextPage: number) {
+    setGamesLoading(true);
+    setGameError("");
+    setGamePage(nextPage);
   }
 
   function handleExplore() {
@@ -175,11 +179,11 @@ function Home() {
           )}
           {!gameError && totalGamePages > 1 && (
             <nav className="home__game-pagination" aria-label={t("Game pages")}>
-              <button type="button" onClick={() => setGamePage((page) => Math.max(0, page - 1))} disabled={gamePage === 0 || gamesLoading}>
+              <button type="button" onClick={() => handleGamePageChange(Math.max(0, gamePage - 1))} disabled={gamePage === 0 || gamesLoading}>
                 {t("Previous")}
               </button>
               <span>{t("Page")} {gamePage + 1} {t("of")} {totalGamePages}</span>
-              <button type="button" onClick={() => setGamePage((page) => Math.min(totalGamePages - 1, page + 1))} disabled={gamePage + 1 >= totalGamePages || gamesLoading}>
+              <button type="button" onClick={() => handleGamePageChange(Math.min(totalGamePages - 1, gamePage + 1))} disabled={gamePage + 1 >= totalGamePages || gamesLoading}>
                 {t("Next")}
               </button>
             </nav>
